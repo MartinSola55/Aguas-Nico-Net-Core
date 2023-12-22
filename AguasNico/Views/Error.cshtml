@@ -1,0 +1,62 @@
+﻿@model ErrorViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- Favicon icon -->
+    <link rel="icon" type="image/png" sizes="16x16" href="~/favicon.png">
+    <title>Error</title>
+    <!-- Bootstrap Core CSS -->
+    <link href="~/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="~/css/style.css" rel="stylesheet">
+    <!-- You can change the theme colors from here -->
+    <link href="~/css/colors/default-dark.css" id="theme" rel="stylesheet">
+</head>
+
+<body class="fix-header fix-sidebar card-no-border">
+    <!-- ============================================================== -->
+    <!-- Main wrapper - style you can find in pages.scss -->
+    <!-- ============================================================== -->
+    <section id="wrapper" class="error-page">
+        <div class="error-box">
+            <div class="error-body text-center">
+                <h1 class="text-info">@(Model.ErrorCode.Value)</h1>
+                <h3 class="text-uppercase">ERROR</h3>
+                <p class="text-muted m-t-30 m-b-30">@Html.Raw(Model.Message.Replace("\n", "<br>"))</p>
+                @if (Model.ErrorCode < 500)
+                {
+                    <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-info btn-rounded waves-effect waves-light m-b-40">Volver al inicio</a>
+                }
+            </div>
+            <footer class="footer text-center">© @DateTime.UtcNow.AddHours(-3).ToString("yyyy") - Óptica Gaido</footer>
+        </div>
+    </section>
+    <!-- ============================================================== -->
+    <!-- End Wrapper -->
+    <!-- ============================================================== -->
+    <!-- ============================================================== -->
+    <!-- All Jquery -->
+    <!-- ============================================================== -->
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <!-- Bootstrap tether Core JavaScript -->
+    <script src="~/lib/popper/popper.min.js"></script>
+    <script src="~/lib/bootstrap/js/bootstrap.min.js"></script>
+    <!--Wave Effects -->
+    <script src="~/js/waves.js"></script>
+</body>
+
+
+<!-- Mirrored from www.wrappixel.com/demos/admin-templates/material-pro/minisidebar/pages-error-400.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 11 Feb 2019 11:15:56 GMT -->
+</html>

@@ -1,0 +1,45 @@
+﻿#NotifContainer {
+    display: flex;
+    justify-content: center;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    border-radius: 10px;
+}
+
+.contenedor-modal {
+    display:grid;
+    grid-template-columns: 30% 70%;
+    justify-content:start;
+}
+
+#tabla-generic_length {
+    margin-bottom: 1rem;
+}
+
+#navbar {
+    background-image: linear-gradient(to bottom, transparent, #092f57);
+}
+
+.table-oscura {
+    --bs-table-bg: #212529;
+    --bs-table-striped-bg: #2c3034;
+    --bs-table-striped-color: #fff;
+    --bs-table-active-bg: #373b3e;
+    --bs-table-active-color: #fff;
+    --bs-table-hover-bg: #1c365a;
+    --bs-table-hover-color: #fff;
+    color: #fff;
+    border-color: #373b3e;
+}
+
+.ocultar {
+    display:none;
+}
+
+#btnVerClave {
+    width: fit-content;
+    display: flex;
+    justify-self: right;
+    margin-right: 3rem;
+    grid-column: 2;
+}
