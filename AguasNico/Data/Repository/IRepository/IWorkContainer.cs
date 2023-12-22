@@ -10,6 +10,9 @@ namespace AguasNico.Data.Repository.IRepository
         // Agregar los repositorios
         IApplicationUserRepository ApplicationUser { get; }
         IProductRepository Product { get; }
+        IClientRepository Client { get; }
+        ITransferRepository Transfer { get; }
+        IExpenseRepository Expense { get; }
 
         void BeginTransaction();
         void Commit();

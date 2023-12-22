@@ -7,11 +7,10 @@ using AguasNico.Models;
 
 namespace AguasNico.Data.Repository.IRepository
 {
-    public interface IProductRepository : IRepository<Product>
+    public interface ITransferRepository : IRepository<Transfer>
     {
-        void Update(Product product);
-        bool IsDuplicated(Product product);
+        new void Add(Transfer transfer);
+        void Update(Transfer transfer);
         void SoftDelete(long id);
-        IEnumerable<Client> GetClients(long productID);
     }
 }

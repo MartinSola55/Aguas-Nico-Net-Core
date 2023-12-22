@@ -16,5 +16,18 @@ namespace AguasNico.Data.Repository
         {
             return _db.Roles.First(x => x.Id.Equals(_db.UserRoles.First(x => x.UserId.Equals(userID)).RoleId));
         }
+
+        public IEnumerable<SelectListItem> GetDropDownList()
+        {
+            IEnumerable<SelectListItem> users = new List<SelectListItem>
+            {
+                new() { Value = "", Text = "Seleccione un repartidor", Disabled = true, Selected = true }
+            };
+            return users.Concat(_db.User.OrderBy(x => x.UserName).Select(i => new SelectListItem()
+            {
+                Text = i.UserName,
+                Value = i.Id,
+            }));
+        }
     }
 }

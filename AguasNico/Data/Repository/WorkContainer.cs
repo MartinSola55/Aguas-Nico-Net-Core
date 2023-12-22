@@ -15,11 +15,20 @@ namespace AguasNico.Data.Repository
             _db = db;
             ApplicationUser = new ApplicationUserRepository(_db);
             Product = new ProductRepository(_db);
+            Client = new ClientRepository(_db);
+            Transfer = new TransferRepository(_db);
+            Expense = new ExpenseRepository(_db);
         }
 
         public IApplicationUserRepository ApplicationUser { get; private set; }
 
         public IProductRepository Product { get; private set; }
+
+        public IClientRepository Client { get; private set; }
+
+        public ITransferRepository Transfer { get; private set; }
+
+        public IExpenseRepository Expense { get; private set; }
 
 
         public void BeginTransaction()

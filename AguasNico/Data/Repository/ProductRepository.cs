@@ -25,14 +25,21 @@ namespace AguasNico.Data.Repository
             }
         }
 
+        public bool IsDuplicated(Product product)
+        {
+            return _db.Products.Any(x => x.Name == product.Name && x.Price == product.Price);
+        }
+
         public void SoftDelete(long id)
         {
-            var dbObject = _db.Products.FirstOrDefault(x => x.ID == id);
-            if (dbObject != null)
-            {
-                dbObject.DeletedAt = DateTime.UtcNow.AddHours(-3);
-                _db.SaveChanges();
-            }
+            var dbObject = _db.Products.FirstOrDefault(x => x.ID == id) ?? throw new Exception("No se ha encontrado el producto");
+            dbObject.DeletedAt = DateTime.UtcNow.AddHours(-3);
+            _db.SaveChanges();
+        }
+
+        public IEnumerable<Client> GetClients(long productID)
+        {
+            return _db.ClientProducts.Where(x => x.ProductID == productID).Select(x => x.Client);
         }
     }
 }

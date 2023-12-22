@@ -11,5 +11,6 @@ namespace AguasNico.Data.Repository.IRepository
     public interface IApplicationUserRepository : IRepository<ApplicationUser>
     {
         IdentityRole GetRole(string userID);
+        IEnumerable<SelectListItem> GetDropDownList();
     }
 }

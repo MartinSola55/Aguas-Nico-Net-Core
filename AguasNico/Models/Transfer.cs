@@ -12,7 +12,7 @@ namespace AguasNico.Models
         public long ClientID { get; set; }
 
         [Required]
-        public string UserID { get; set; }
+        public string UserID { get; set; } = null!;
 
         [Required(ErrorMessage = "Debes ingresar un monto")]
         [Display(Name = "Monto")]
