@@ -48,6 +48,8 @@ namespace AguasNico.Data
                 .HasQueryFilter(entity => entity.DeletedAt == null);
             modelBuilder.Entity<Transfer>()
                 .HasQueryFilter(entity => entity.DeletedAt == null);
+            modelBuilder.Entity<DispatchedProduct>()
+                .HasQueryFilter(entity => entity.DeletedAt == null);
         }
 
         public DbSet<ApplicationUser> User { get; set; }
