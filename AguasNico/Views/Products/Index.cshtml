@@ -1,0 +1,96 @@
+@model AguasNico.Models.ViewModels.Products.IndexViewModel
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Productos";
+}
+    <link href="~/lib/datatables/media/css/dataTables.bootstrap4.css" rel="stylesheet">
+    <script src="~/lib/datatables/datatables.min.js"></script>
+
+<div class="container-fluid">
+        <div class="row page-titles">
+            <div class="col-md-5 col-8 align-self-center">
+                <h3 class="text-themecolor m-b-0 m-t-0">Productos</h3>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">Inicio</a></li>
+                    <li class="breadcrumb-item active">Productos </li>
+                </ol>
+            </div>
+            <div class="col-md-7 col-4 align-self-center">
+                <div class="d-flex m-t-10 justify-content-end">
+                    <div class="d-flex m-r-20 m-l-10">
+                        <div>
+                            <button class="btn btn-info waves-effect waves-light" data-toggle="modal" data-target="#modalCreateProduct">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ============================================================== -->
+        <!-- End Bread crumb and right sidebar toggle -->
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- Start Page Content -->
+        <!-- ============================================================== -->
+        <div class="row">
+            <div class="col-12">
+                <div class="row">
+                    @foreach(Product product in Model.Products)
+                    {
+                        <div class="col-lg-4 col-md-8 col-xlg-3 col-xs-12">
+                            <div class="ribbon-wrapper card shadow">
+                                <div class="ribbon ribbon-default ribbon-bookmark">@product.Name</div>
+                                <div class="my-2">
+                                    <p class="ribbon-content">Precio: $@product.Price</p>
+                                </div>
+                                <div class="d-flex flex-direction-row justify-content-between">
+                                    <button type="button" class="btn btn-outline-info btn-rounded mr-4 waves-effect waves-light" data-toggle="modal" data-target="#modalConfirmation">
+                                        Editar <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <a class="btn btn-info btn-rounded waves-effect waves-light" asp-area="" asp-controller="Stats" asp-action="Product" asp-route-itemid="@product.ID">
+                                        Estadísticas <i class="bi bi-graph-up"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h2 class="card-title">Productos asociados a clientes</h2>
+                        <div class="row">
+                            <div class="form-group m-0 col-12 col-lg-6">
+                                <select id="selectProduct" class="form-control">
+                                    <option value="" selected>Seleccione un Producto</option>
+                                    @foreach(Product product in Model.Products)
+                                    {
+                                        <option value="@product.ID">@product.Name - $@product.Price</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row px-4" id="">
+
+                            <div class="table-responsive m-t-10">
+
+                                <table id="clientsTable" class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Cliente</th>
+                                            <th>Dirección</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="contentTable">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
