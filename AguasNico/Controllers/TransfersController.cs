@@ -1,11 +1,13 @@
 ﻿using AguasNico.Data.Repository.IRepository;
 using AguasNico.Models;
 using AguasNico.Models.ViewModels.Transfers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 
 namespace AguasNico.Controllers
 {
+    [Authorize]
     public class TransfersController(IWorkContainer workContainer) : Controller
     {
         private readonly IWorkContainer _workContainer = workContainer;

@@ -21,10 +21,15 @@ namespace AguasNico.Controllers
             {
                 ApplicationUser user = _workContainer.ApplicationUser.GetFirstOrDefault(u => u.UserName.Equals(User.Identity.Name));
                 string role = _signInManager.UserManager.GetRolesAsync(user).Result.First();
+                IndexViewModel viewModel = new()
+                {
+                    User = user
+                };
                 switch (role)
                 {
                     case Constants.Admin:
-                        
+                        viewModel.TotalTransfers = _workContainer.Transfer.GetAll(x => x.CreatedAt.Date == DateTime.UtcNow.AddHours(-3).Date).Sum(x => x.Amount);
+                        /*viewModel.TotalSold = */_workContainer.Route.GetTotalSold(DateTime.UtcNow.AddHours(-3).Date);
                         break;
                     case Constants.Dealer:
                         
@@ -32,10 +37,7 @@ namespace AguasNico.Controllers
                     default:
                         return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
                 }
-                IndexViewModel viewModel = new()
-                {
-                    User = user
-                };
+                
                 return View(viewModel);
             }
             catch (Exception)

@@ -13,6 +13,7 @@ namespace AguasNico.Data.Repository.IRepository
         IClientRepository Client { get; }
         ITransferRepository Transfer { get; }
         IExpenseRepository Expense { get; }
+        IRouteRepository Route { get; }
 
         void BeginTransaction();
         void Commit();

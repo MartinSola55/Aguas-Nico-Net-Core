@@ -18,6 +18,7 @@ namespace AguasNico.Data.Repository
             Client = new ClientRepository(_db);
             Transfer = new TransferRepository(_db);
             Expense = new ExpenseRepository(_db);
+            Route = new RouteRepository(_db);
         }
 
         public IApplicationUserRepository ApplicationUser { get; private set; }
@@ -29,6 +30,8 @@ namespace AguasNico.Data.Repository
         public ITransferRepository Transfer { get; private set; }
 
         public IExpenseRepository Expense { get; private set; }
+
+        public IRouteRepository Route { get; private set; }
 
 
         public void BeginTransaction()

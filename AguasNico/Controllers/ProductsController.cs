@@ -2,9 +2,11 @@
 using AguasNico.Models.ViewModels.Products;
 using AguasNico.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AguasNico.Controllers
 {
+    [Authorize]
     public class ProductsController(IWorkContainer workContainer) : Controller
     {
         private readonly IWorkContainer _workContainer = workContainer;
