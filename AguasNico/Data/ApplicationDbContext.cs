@@ -58,6 +58,7 @@ namespace AguasNico.Data
         public DbSet<PaymentMethod> PaymentMethods { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<ReturnedProduct> ReturnedProducts { get; set; }
+        public DbSet<DispatchedProduct> DispatchedProducts { get; set; }
         public DbSet<Models.Route> Routes { get; set; }
         public DbSet<Transfer> Transfers { get; set; }
     }

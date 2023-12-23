@@ -12,6 +12,12 @@ namespace AguasNico.Data.Repository
     public class ApplicationUserRepository(ApplicationDbContext db) : Repository<ApplicationUser>(db), IApplicationUserRepository
     {
         private readonly ApplicationDbContext _db = db;
+
+        public IEnumerable<ApplicationUser> GetDealers()
+        {
+            return _db.UserRoles.Where(x => x.RoleId.Equals(_db.Roles.First(x => x.Name.Equals(Constants.Dealer)).Id)).Select(x => x.UserId).Select(x => _db.User.First(y => y.Id.Equals(x)));
+        }
+
         public IdentityRole GetRole(string userID)
         {
             return _db.Roles.First(x => x.Id.Equals(_db.UserRoles.First(x => x.UserId.Equals(userID)).RoleId));

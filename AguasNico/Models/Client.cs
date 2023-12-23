@@ -80,5 +80,71 @@ namespace AguasNico.Models
         public virtual ICollection<Cart> Carts { get; set; } = null!;
 
         public virtual ICollection<Transfer> Transfers { get; set; } = null!;
+
+
+        // Not mapped properties
+        [NotMapped]
+        public DateTime? LastCart 
+        {
+            get
+            {
+                return GetLastCart();
+            }
+        }
+        internal DateTime? GetLastCart()
+        {
+            Cart? lastCart = Carts.Where(x => x.State == State.Confirmed && x.ClientID == this.ID).OrderByDescending(x => x.CreatedAt).First();
+            if (lastCart is null)
+            {
+                return null;
+            }
+            return lastCart.CreatedAt;
+        }
+
+        [NotMapped]
+        public decimal DebtOfTheMonth
+        {
+            get
+            {
+                return GetDebtOfTheMonth();
+            }
+        }
+        internal decimal GetDebtOfTheMonth() // CONSUMO DEL MES
+        {
+            decimal total = 0;
+            DateTime today = DateTime.UtcNow.AddHours(-3);
+            foreach (Cart cart in Carts.Where(x => x.State == State.Confirmed && x.ClientID == this.ID && x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year))
+            {
+                foreach (CartProduct product in cart.Products)
+                {
+                    total += product.Quantity * product.SettedPrice;
+                }
+            }
+            // TODO: Sumar abono
+            return total;
+        }
+
+        [NotMapped]
+        public decimal DebtOfPreviousMonth // CONSUMO DEL MES ANTERIOR
+        {
+            get
+            {
+                return GetDebtOfPreviousMonth();
+            }
+        }
+        internal decimal GetDebtOfPreviousMonth()
+        {
+            decimal total = 0;
+            DateTime today = DateTime.UtcNow.AddHours(-3).AddMonths(-1);
+            foreach (Cart cart in Carts.Where(x => x.State == State.Confirmed && x.ClientID == this.ID && x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year))
+            {
+                foreach (CartProduct product in cart.Products)
+                {
+                    total += product.Quantity * product.SettedPrice;
+                }
+            }
+            // TODO: Sumar abono
+            return total;
+        }
     }
 }

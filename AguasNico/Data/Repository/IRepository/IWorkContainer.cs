@@ -14,6 +14,8 @@ namespace AguasNico.Data.Repository.IRepository
         ITransferRepository Transfer { get; }
         IExpenseRepository Expense { get; }
         IRouteRepository Route { get; }
+        IPaymentMethodRepository PaymentMethod { get; }
+        IDispatchedProductRepository DispatchedProduct { get; }
 
         void BeginTransaction();
         void Commit();

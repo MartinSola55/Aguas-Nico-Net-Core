@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AguasNico.Models
 {
@@ -36,7 +37,9 @@ namespace AguasNico.Models
         public DateTime? DeletedAt { get; set; }
 
         public virtual Client Client { get; set; } = null!;
+        public virtual IEnumerable<CartProduct> Products { get; set; } = null!;
+        public virtual IEnumerable<CartPaymentMethod> PaymentMethods { get; set; } = null!;
         
-        public Route Route { get; set; } = null!;
+        public virtual Route Route { get; set; } = null!;
     }
 }

@@ -15,11 +15,11 @@ namespace AguasNico.Models
         [Key]
         public long ID { get; set; }
         
-        public string UserID { get; set; }
+        public string UserID { get; set; } = null!;
 
         [Required(ErrorMessage = "Debes ingresar un día de la semana")]
         [Display(Name = "Día")]
-        public Day Day { get; set; }
+        public Day DayOfWeek { get; set; }
 
         public bool IsStatic { get; set; }
 

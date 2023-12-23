@@ -19,20 +19,18 @@ namespace AguasNico.Data.Repository
             Transfer = new TransferRepository(_db);
             Expense = new ExpenseRepository(_db);
             Route = new RouteRepository(_db);
+            PaymentMethod = new PaymentMethodRepository(_db);
+            DispatchedProduct = new DispatchedProductRepository(_db);
         }
 
         public IApplicationUserRepository ApplicationUser { get; private set; }
-
         public IProductRepository Product { get; private set; }
-
         public IClientRepository Client { get; private set; }
-
         public ITransferRepository Transfer { get; private set; }
-
         public IExpenseRepository Expense { get; private set; }
-
         public IRouteRepository Route { get; private set; }
-
+        public IPaymentMethodRepository PaymentMethod { get; private set; }
+        public IDispatchedProductRepository DispatchedProduct { get; private set; }
 
         public void BeginTransaction()
         {
