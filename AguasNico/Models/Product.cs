@@ -23,7 +23,7 @@ namespace AguasNico.Models
         [Display(Name = "Precio")]
         [Column(TypeName = "money")]
         [Range(0, 1000000, ErrorMessage = "Debes ingresar un precio válido")]
-        [DisplayFormat(DataFormatString = "{0:F0}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:F2}", ApplyFormatInEditMode = true)]
         public decimal Price { get; set; }
 
         [Display(Name = "Envase")]
