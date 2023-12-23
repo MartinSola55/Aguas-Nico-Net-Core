@@ -21,6 +21,7 @@ namespace AguasNico.Data.Repository
             Route = new RouteRepository(_db);
             PaymentMethod = new PaymentMethodRepository(_db);
             DispatchedProduct = new DispatchedProductRepository(_db);
+            Cart = new CartRepository(_db);
         }
 
         public IApplicationUserRepository ApplicationUser { get; private set; }
@@ -31,6 +32,7 @@ namespace AguasNico.Data.Repository
         public IRouteRepository Route { get; private set; }
         public IPaymentMethodRepository PaymentMethod { get; private set; }
         public IDispatchedProductRepository DispatchedProduct { get; private set; }
+        public ICartRepository Cart { get; private set; }
 
         public void BeginTransaction()
         {

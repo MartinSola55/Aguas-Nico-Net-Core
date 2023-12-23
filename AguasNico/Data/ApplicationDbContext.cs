@@ -23,6 +23,8 @@ namespace AguasNico.Data
                 .HasKey(entity => new { entity.ProductID, entity.ClientID });
             modelBuilder.Entity<ReturnedProduct>()
                 .HasKey(entity => new { entity.ProductID, entity.CartID });
+            modelBuilder.Entity<DispatchedProduct>()
+                .HasKey(entity => new { entity.RouteID, entity.Bottle });
 
             modelBuilder.Entity<Cart>()
                 .HasQueryFilter(entity => entity.DeletedAt == null);

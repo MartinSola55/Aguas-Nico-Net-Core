@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string not found.");
+var connectionString = builder.Configuration.GetConnectionString("MacConnection") ?? throw new InvalidOperationException("Connection string not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -48,7 +48,7 @@ else
 }
 app.UseStaticFiles();
 
-// Método para hacer seeding
+// Mï¿½todo para hacer seeding
 Seed();
 
 app.UseRouting();

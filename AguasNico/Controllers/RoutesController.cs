@@ -90,6 +90,9 @@ namespace AguasNico.Controllers
                     route.IsStatic = true;
                     route.CreatedAt = DateTime.UtcNow.AddHours(-3);
                     _workContainer.Route.Add(route);
+                    
+                    // TODO: Agregar productos despachados
+
                     _workContainer.Save();
 
                     Models.Route newRoute = _workContainer.Route.GetOne(route.ID);
@@ -130,7 +133,7 @@ namespace AguasNico.Controllers
 
                 if (role == Constants.Admin)
                 {
-                    viewModel.DispatchedProducts = _workContainer.DispatchedProduct.GetAllFromRoute(id).OrderBy(x => x.Product.Name);
+                    viewModel.DispatchedProducts = _workContainer.DispatchedProduct.GetAllFromRoute(id).OrderBy(x => x.Bottle);
                     // TODO: Get stats
                 }
                 return View(viewModel);
@@ -165,5 +168,143 @@ namespace AguasNico.Controllers
                 return CustomBadRequest(title: "Error al eliminar la planilla", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
             }
         }
+
+
+        #region Route Details Actions
+
+        [HttpPost]
+        [ActionName("UpdateClients")] // For admin. Deletes and creates all static carts.
+        public IActionResult UpdateClients(long routeID, List<Client> clients)
+        {
+            try
+            {
+                Models.Route route = _workContainer.Route.GetOne(routeID);
+                if (route is null)
+                {
+                    return CustomBadRequest(title: "Error al actualizar los clientes", message: "La planilla no existe");
+                }
+                _workContainer.Route.UpdateClients(routeID, clients);
+                _workContainer.Save();
+                return Json(new
+                {
+                    success = true,
+                    message = "Los clientes se actualizaron correctamente",
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al actualizar los clientes", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
+        }
+
+        [HttpPost]
+        [ActionName("AddClient")] // For employee. Adds a new cart.
+        public IActionResult AddClient(long routeID, long clientID)
+        {
+            try
+            {
+                Models.Route route = _workContainer.Route.GetOne(routeID);
+                if (route is null)
+                {
+                    return CustomBadRequest(title: "Error al obtener la planilla", message: "La planilla no existe");
+                }
+                Client client = _workContainer.Client.GetOne(clientID);
+                if (client is null)
+                {
+                    return CustomBadRequest(title: "Error al obtener el cliente", message: "El cliente no existe");
+                }
+                Cart cart = new()
+                {
+                    ClientID = clientID,
+                    RouteID = routeID,
+                    CreatedAt = DateTime.UtcNow.AddHours(-3),
+                    IsStatic = false,
+                    Priority = route.Carts.Max(x => x.Priority) + 1,
+                };
+                _workContainer.Cart.Add(cart);
+                _workContainer.Save();
+                return Json(new
+                {
+                    success = true,
+                    message = "El cliente se agregó a la planilla correctamente",
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al agregar el cliente", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
+        }
+
+        [HttpPost]
+        [ActionName("UpdateDispatched")] // For employee. Adds a new cart.
+        public IActionResult UpdateDispatched(long routeID, List<DispatchedProduct> products)
+        {
+            try
+            {
+                Models.Route route = _workContainer.Route.GetOne(routeID);
+                if (route is null)
+                {
+                    return CustomBadRequest(title: "Error al obtener la planilla", message: "La planilla no existe");
+                }
+                foreach (DispatchedProduct product in products)
+                {
+                    product.RouteID = routeID;
+                    product.UpdatedAt = DateTime.UtcNow.AddHours(-3);
+                    _workContainer.DispatchedProduct.Add(product);
+                }
+                /*
+                $products_quantity = json_decode($request->input('products_quantity'), true);
+                $route_id = $request->input('route_id');
+
+                foreach ($products_quantity as $product) {
+
+                    if ($product['dispatch_id'] !== null) {
+                        ProductDispatched::find($product['dispatch_id'])
+                            ->update(['quantity' => $product['quantity']]);
+                    }else {
+                        if ($product['bottle_types_id'] === 'null') {
+                            $product['bottle_types_id'] = null;
+                        }else if ($product['product_id'] === 'null') {
+                            $product['product_id'] = null;
+                        }
+                        ProductDispatched::create([
+                            'product_id' => $product['product_id'],
+                            'bottle_types_id' => $product['bottle_types_id'],
+                            'route_id' => $route_id,
+                            'quantity' => $product['quantity'],
+                        ]);
+                    }
+                */
+                return Json(new
+                {
+                    success = true,
+                    message = "Los productos se actualizaron correctamente",
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al actualizar los productos", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
+        }
+
+        [HttpPost]
+        [ActionName("UpdateReturned")] // For employee. Adds a new cart.
+        public IActionResult UpdateReturned()
+        {
+            try
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = "Los productos se actualizaron correctamente",
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al actualizar los productos", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
+        }
+
+        #endregion
     }
 }

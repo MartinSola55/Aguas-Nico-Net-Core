@@ -15,7 +15,7 @@ namespace AguasNico.Data.Repository
 
         public void Update(Models.Route transfer)
         {
-            var dbObject = _db.Routes.First(x => x.ID == transfer.ID) ?? throw new Exception("No se ha encontrado el reparto");
+            var dbObject = _db.Routes.First(x => x.ID == transfer.ID) ?? throw new Exception("No se ha encontrado la planilla");
             dbObject.UserID = transfer.UserID;
             dbObject.UpdatedAt = DateTime.UtcNow.AddHours(-3);
             _db.SaveChanges();
@@ -25,7 +25,7 @@ namespace AguasNico.Data.Repository
         {
             try
             {
-                var dbObject = _db.Routes.First(x => x.ID == id) ?? throw new Exception("No se ha encontrado el reparto");
+                var dbObject = _db.Routes.First(x => x.ID == id) ?? throw new Exception("No se ha encontrado la planilla");
 
             }
             catch (Exception)
@@ -49,6 +49,42 @@ namespace AguasNico.Data.Repository
                     PaymentMethodID = g.Key,
                     TotalAmount = g.Sum(x => x.Amount)
                 });
+        }
+
+        public void UpdateClients(long routeID, List<Client> clients)
+        {
+            try
+            {
+                var dbObject = _db.Routes.First(x => x.ID == routeID) ?? throw new Exception("No se ha encontrado la planilla");
+                
+                _db.Database.BeginTransaction();
+                foreach (Cart cart in dbObject.Carts)
+                {
+                    cart.DeletedAt = DateTime.UtcNow.AddHours(-3);
+                }
+
+                int priority = 1;
+                foreach (var client in clients)
+                {
+                    Cart cart = new()
+                    {
+                        ClientID = client.ID,
+                        RouteID = routeID,
+                        CreatedAt = DateTime.UtcNow.AddHours(-3),
+                        IsStatic = true,
+                        Priority = priority++,
+                    };
+                    _db.Carts.Add(cart);
+                }
+                
+                _db.SaveChanges();
+                _db.Database.CommitTransaction();
+            }
+            catch (Exception)
+            {
+                _db.Database.RollbackTransaction();
+                throw;
+            }
         }
     }
 }

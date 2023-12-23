@@ -7,11 +7,9 @@ using AguasNico.Models;
 
 namespace AguasNico.Data.Repository.IRepository
 {
-    public interface IRouteRepository : IRepository<Models.Route>
+    public interface ICartRepository : IRepository<Cart>
     {
-        void Update(Models.Route route);
+        void UpdateProducts(long cartID, List<CartProduct> products);
         void SoftDelete(long id);
-        void GetTotalSold(DateTime date);
-        void UpdateClients(long routeID, List<Client> clients);
     }
 }
