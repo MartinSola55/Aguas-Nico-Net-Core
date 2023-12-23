@@ -30,8 +30,8 @@ namespace AguasNico.Controllers
                 Expression<Func<Expense, bool>> filter = entity => entity.CreatedAt.Date == DateTime.UtcNow.AddHours(-3).Date;
                 IndexViewModel viewModel = new()
                 {
-                    Expenses = _workContainer.Expense.GetAll(filter, includeProperties: "User.UserName").OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Amount),
-                    Dealers = _workContainer.ApplicationUser.GetDropDownList(),
+                    Expenses = _workContainer.Expense.GetAll(filter, includeProperties: "User").OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Amount),
+                    Dealers = _workContainer.ApplicationUser.GetDealersDropDownList(),
                     CreateViewModel = new Expense()
                 };
 
@@ -48,6 +48,7 @@ namespace AguasNico.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(IndexViewModel viewModel)
         {
+            ModelState.Remove("CreateViewModel.User");
             if (ModelState.IsValid)
             {
                 try

@@ -13,5 +13,6 @@ namespace AguasNico.Data.Repository.IRepository
         IEnumerable<ApplicationUser> GetDealers();
         IdentityRole GetRole(string userID);
         IEnumerable<SelectListItem> GetDropDownList();
+        IEnumerable<SelectListItem> GetDealersDropDownList();
     }
 }

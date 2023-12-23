@@ -9,6 +9,7 @@ namespace AguasNico.Models
         public long ID { get; set; }
 
         [Required]
+        [Display(Name = "Repartidor")]
         public string UserID { get; set; }
 
         [Required(ErrorMessage = "Debes seleccionar un repartidor")]
@@ -17,6 +18,11 @@ namespace AguasNico.Models
         [Range(0, 1000000, ErrorMessage = "El monto debe ser mayor a 0")]
         [DisplayFormat(DataFormatString = "{0:F0}", ApplyFormatInEditMode = true)]
         public decimal Amount { get; set; }
+
+        [Required(ErrorMessage = "Debes ingresar una descripción")]
+        [Display(Name = "Descripción")]
+        [StringLength(200, MinimumLength = 1, ErrorMessage = "Debes ingresar una descripción de menos de 200 caracteres")]
+        public string Description { get; set; } = null!;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow.AddHours(-3);
 

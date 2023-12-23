@@ -27,9 +27,22 @@ namespace AguasNico.Data.Repository
         {
             IEnumerable<SelectListItem> users = new List<SelectListItem>
             {
-                new() { Value = "", Text = "Seleccione un repartidor", Disabled = true, Selected = true }
+                new() { Value = "", Text = "Seleccione un usuario", Disabled = true, Selected = true }
             };
             return users.Concat(_db.User.OrderBy(x => x.UserName).Select(i => new SelectListItem()
+            {
+                Text = i.UserName,
+                Value = i.Id,
+            }));
+        }
+
+        public IEnumerable<SelectListItem> GetDealersDropDownList()
+        {
+            IEnumerable<SelectListItem> users = new List<SelectListItem>
+            {
+                new() { Value = "", Text = "Seleccione un repartidor", Disabled = true, Selected = true }
+            };
+            return users.Concat(_db.UserRoles.Where(x => x.RoleId.Equals(_db.Roles.First(x => x.Name.Equals(Constants.Dealer)).Id)).Select(x => x.UserId).Select(x => _db.User.First(y => y.Id.Equals(x))).OrderBy(x => x.UserName).Select(i => new SelectListItem()
             {
                 Text = i.UserName,
                 Value = i.Id,
