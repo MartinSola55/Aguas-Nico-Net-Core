@@ -177,7 +177,7 @@ namespace AguasNico.Controllers
             try
             {
                 DateTime date = DateTime.Parse(dateString);
-                IEnumerable<Models.Route> routes = _workContainer.Route.GetAll(x => x.CreatedAt.Date == date.Date && x.IsStatic, includeProperties: "User.UserName, Carts, Carts.CartPaymentMethod");
+                IEnumerable<Models.Route> routes = _workContainer.Route.GetAll(x => x.CreatedAt.Date == date.Date && x.IsStatic, includeProperties: "User, Carts, Carts.PaymentMethods");
 
                 return Json(new
                 {
