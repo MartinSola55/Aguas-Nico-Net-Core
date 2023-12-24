@@ -76,6 +76,7 @@ namespace AguasNico.Controllers
                 DetailsViewModel viewModel = new()
                 {
                     Client = client,
+                    Dealers = _workContainer.ApplicationUser.GetDealersDropDownList(),
                     Transfers = _workContainer.Transfer.GetLastTen(id),
                     Carts = _workContainer.Cart.GetLastTen(id),
                     Products = _workContainer.Client.GetAllProducts(id),
@@ -141,7 +142,100 @@ namespace AguasNico.Controllers
             }
             return CustomBadRequest(title: "Error al crear el cliente", message: "Alguno de los campos ingresados no es válido");
         }
-    
+
+        [HttpPost]
+        [ActionName("Edit")]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Client client)
+        {
+            ModelState.Remove("Client.Carts");
+            ModelState.Remove("Client.Dealer");
+            ModelState.Remove("Client.Transfers");
+            ModelState.Remove("Client.InvoiceType");
+            ModelState.Remove("Client.TaxCondition");
+            ModelState.Remove("Client.CUIT");
+            ModelState.Remove("Client.ClientProducts");
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _workContainer.BeginTransaction();
+                    _workContainer.Client.Update(client);
+                    Cart cart = _workContainer.Cart.GetFirstOrDefault(x => x.ClientID == client.ID && x.IsStatic);
+                    if (cart is not null)
+                    {
+                        cart.DeletedAt = DateTime.UtcNow.AddHours(-3);
+                        _workContainer.Cart.Update(cart);
+                    }
+                    Models.Route route = _workContainer.Route.GetFirstOrDefault(x => x.UserID == client.DealerID && x.DayOfWeek == client.DeliveryDay && x.IsStatic, includeProperties: "Carts");
+                    if (route is not null)
+                    {
+                        int priority = route.Carts.Any() ? route.Carts.Max(x => x.Priority) + 1 : 1;
+                        cart = new()
+                        {
+                            RouteID = route.ID,
+                            ClientID = client.ID,
+                            Priority = priority,
+                            State = State.Pending,
+                            IsStatic = true,
+                        };
+                        _workContainer.Cart.Add(cart);
+                    }
+                    _workContainer.Save();
+                    _workContainer.Commit();
+
+                    return Json(new
+                    {
+                        success = true,
+                        data = 1,
+                        message = "El cliente se actualizó correctamente",
+                    });
+                }
+                catch (Exception e)
+                {
+                    _workContainer.Rollback();
+                    return CustomBadRequest(title: "Error al actualizar el cliente", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+                }
+            }
+            return CustomBadRequest(title: "Error al actualizar el cliente", message: "Alguno de los campos ingresados no es válido");
+        }
+
+        [HttpPost]
+        [ActionName("UpdateInvoiceData")]
+        [ValidateAntiForgeryToken]
+        public IActionResult UpdateInvoiceData(Client client)
+        {
+            ModelState.Remove("Client.Carts");
+            ModelState.Remove("Client.Dealer");
+            ModelState.Remove("Client.Transfers");
+            ModelState.Remove("Client.Name");
+            ModelState.Remove("Client.Phone");
+            ModelState.Remove("Client.Address");
+            ModelState.Remove("Client.DeliveryDay");
+            ModelState.Remove("Client.HasInvoice");
+            ModelState.Remove("Client.DealerID");
+            ModelState.Remove("Client.ClientProducts");
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _workContainer.Client.UpdateInvoiceData(client);
+                    _workContainer.Save();
+
+                    return Json(new
+                    {
+                        success = true,
+                        message = "Los datos de facturación se actualizaron correctamente",
+                    });
+                }
+                catch (Exception e)
+                {
+                    return CustomBadRequest(title: "Error al actualizar los datos de facturación", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+                }
+            }
+            return CustomBadRequest(title: "Error al actualizar los datos de facturación", message: "Alguno de los campos ingresados no es válido");
+        }
+
         [HttpPost]
         [ActionName("UpdateProducts")]
         [ValidateAntiForgeryToken]
@@ -161,6 +255,28 @@ namespace AguasNico.Controllers
             {
                 _workContainer.Rollback();
                 return CustomBadRequest(title: "Error al actualizar los productos", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
+        }
+    
+        [HttpPost]
+        [ActionName("SoftDelete")]
+        [ValidateAntiForgeryToken]
+        public IActionResult SoftDelete(long id)
+        {
+            try
+            {
+                _workContainer.Client.SoftDelete(id);
+                _workContainer.Save();
+                return Json(new
+                {
+                    success = true,
+                    data = 1,
+                    message = "El cliente se eliminó correctamente",
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al eliminar el cliente", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
             }
         }
     }

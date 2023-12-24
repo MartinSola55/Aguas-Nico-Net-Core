@@ -65,8 +65,8 @@
                             </div>
                             <div class="col-12 mb-3">
                                 <div>
-                                    <input type="checkbox" id="clientInvoice" name="invoice" value="1" />
-                                    <label for="clientInvoice">¿Quiere factura?</label>
+                                    <input asp-for="Client.HasInvoice" type="checkbox" />
+                                    <label asp-for="Client.HasInvoice">¿Quiere factura?</label>
                                 </div>
                             </div>
                             <div class="col-12" id="invoiceDataContainer" style="display: none;">
@@ -133,7 +133,7 @@
         "searching": false,
     });
 
-    $('#clientInvoice').change(function () {
+    $('#Client_HasInvoice').change(function () {
         if ($(this).is(':checked')) {
             $('#invoiceDataContainer').show();
             $('#Client_InvoiceType').val('');

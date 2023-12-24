@@ -69,10 +69,6 @@ namespace AguasNico.Models
         [DefaultValue(false)]
         public bool HasInvoice { get; set; } = false;
 
-        [Display(Name = "¿Está activo?")]
-        [DefaultValue(true)]
-        public bool IsActive { get; set; } = true;
-
         [Display(Name = "Tipo de factura")]
         public InvoiceType? InvoiceType { get; set; } = null!;
 

@@ -22,6 +22,8 @@ namespace AguasNico.Data.Repository
             dbObject.Observations = client.Observations;
             dbObject.Debt = client.Debt;
             dbObject.HasInvoice = client.HasInvoice;
+            dbObject.DealerID = client.DealerID;
+            dbObject.DeliveryDay = client.DeliveryDay;
             dbObject.UpdatedAt = DateTime.UtcNow.AddHours(-3);
             _db.SaveChanges();
         }
@@ -66,6 +68,16 @@ namespace AguasNico.Data.Repository
         public void AddProducInTransaction(ClientProduct clientProduct)
         {
             _db.ClientProducts.Add(clientProduct);
+        }
+
+        public void UpdateInvoiceData(Client client)
+        {
+            var dbObject = _db.Clients.First(x => x.ID == client.ID) ?? throw new Exception("No se ha encontrado el cliente");
+            dbObject.InvoiceType = client.InvoiceType;
+            dbObject.TaxCondition = client.TaxCondition;
+            dbObject.CUIT = client.CUIT;
+            dbObject.UpdatedAt = DateTime.UtcNow.AddHours(-3);
+            _db.SaveChanges();
         }
 
         public void UpdateProducts(long clientID, List<ClientProduct> products)

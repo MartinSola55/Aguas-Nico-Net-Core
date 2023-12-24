@@ -33,6 +33,8 @@ namespace AguasNico.Data.Repository.IRepository
         /// <param name="clientProduct">The client product to add.</param>
         void AddProducInTransaction(ClientProduct clientProduct);
 
+        void UpdateInvoiceData(Client client);
+
         void UpdateProducts(long clientID, List<ClientProduct> clientProduct);
     }
 }
