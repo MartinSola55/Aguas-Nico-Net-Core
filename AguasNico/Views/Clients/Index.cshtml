@@ -1,0 +1,87 @@
+﻿@model AguasNico.Models.ViewModels.Clients.IndexViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Clientes";
+}
+
+<!-- Data table -->
+<link href="~/lib/datatables/media/css/dataTables.bootstrap4.css" rel="stylesheet">
+
+<!-- This is data table -->
+<script src="~/lib/datatables/datatables.min.js"></script>
+
+<div class="container-fluid">
+    <!-- ============================================================== -->
+    <!-- Bread crumb and right sidebar toggle -->
+    <!-- ============================================================== -->
+    <div class="row page-titles">
+        <div class="col-md-5 col-8 align-self-center">
+            <h3 class="text-themecolor m-b-0 m-t-0">Gastos</h3>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">Inicio</a></li>
+                <li class="breadcrumb-item active">Gastos</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex flex-row justify-content-between">
+                        <h2 class="card-title">Listado de clientes</h2>
+                        <a asp-area="" asp-controller="Clients" asp-action="Create"
+                            class="btn btn-info btn-rounded waves-effect waves-light m-t-10 float-right">Agregar nuevo cliente</a>
+                    </div>
+                    <div class="table-responsive m-t-10">
+                        <table id="DataTable" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Dirección</th>
+                                    <th>Teléfono</th>
+                                    <th>Deuda</th>
+                                    <th>Reparto</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table_body">
+                                @foreach (Client client in Model.Clients)
+                                {
+                                    <tr>
+                                        <td><a asp-area="" asp-controller="Clients" asp-action="Details" asp-route-id="@client.ID">@Html.DisplayFor(c => client.Name)</a></td>
+                                        <td>@Html.DisplayFor(c => client.Address)</td>
+                                        <td>@Html.DisplayFor(c => client.Phone)</td>
+                                        <td>$@(client.Debt >= 0 ? client.Debt : client.Debt * -1 + " a favor")</td>
+                                        <td>@Html.DisplayFor(c => client.Dealer.UserName) - @Html.DisplayFor(c => client.DeliveryDay)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#DataTable').DataTable({
+        "order": false,
+        "language": {
+            "sInfo": "Mostrando _START_ a _END_ de _TOTAL_ clientes",
+            "sInfoEmpty": "Mostrando 0 a 0 de 0 clientes",
+            "sInfoFiltered": "(filtrado de _MAX_ clientes en total)",
+            "emptyTable": 'No hay clientes que coincidan con la búsqueda',
+            "sLengthMenu": "Mostrar _MENU_ clientes",
+            "sSearch": "Buscar:",
+            "oPaginate": {
+                "sFirst": "Primero",
+                "sLast": "Último",
+                "sNext": "Siguiente",
+                "sPrevious": "Anterior",
+            },
+        },
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></>

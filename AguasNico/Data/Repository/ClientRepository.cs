@@ -41,5 +41,10 @@ namespace AguasNico.Data.Repository
             dbObject.DeletedAt = DateTime.UtcNow.AddHours(-3);
             _db.SaveChanges();
         }
+
+        public void AddProducInTransaction(ClientProduct clientProduct)
+        {
+            _db.ClientProducts.Add(clientProduct);
+        }
     }
 }

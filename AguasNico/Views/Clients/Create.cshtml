@@ -1,0 +1,203 @@
+﻿@model AguasNico.Models.ViewModels.Clients.CreateViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Nuevo cliente";
+}
+
+<link href="~/lib/datatables/media/css/dataTables.bootstrap4.css" rel="stylesheet">
+
+<script src="~/lib/datatables/datatables.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+<div class="container-fluid">
+    <!-- ============================================================== -->
+    <!-- Bread crumb and right sidebar toggle -->
+    <!-- ============================================================== -->
+    <div class="row page-titles">
+        <div class="col-md-5 col-8 align-self-center">
+            <h3 class="text-themecolor m-b-0 m-t-0">Clientes</h3>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">Inicio</a></li>
+                <li class="breadcrumb-item"><a asp-area="" asp-controller="Clients" asp-action="Index">Clientes</a></li>
+                <li class="breadcrumb-item active">Nuevo</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-md-6">
+            <form id="form-submit" method="POST" asp-area="" asp-controller="Clients" asp-action="Create">
+                @Html.AntiForgeryToken()
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h2 class="card-title">Datos del cliente</h2>
+                        <div class="form-column">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <div class="col-12 mb-3">
+                                <label asp-for="Client.Name" class="mb-0"></label>
+                                <input asp-for="Client.Name" class="form-control" required>
+                                <span asp-validation-for="Client.Name" class="text-danger"></span>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label asp-for="Client.Address" class="mb-0"></label>
+                                <input asp-for="Client.Address" class="form-control" required>
+                                <span asp-validation-for="Client.Address" class="text-danger"></span>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label asp-for="Client.Phone" class="mb-0"></label>
+                                <input asp-for="Client.Phone" class="form-control" required>
+                                <span asp-validation-for="Client.Phone" class="text-danger"></span>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label asp-for="Client.Observations" class="mb-0"></label>
+                                <textarea asp-for="Client.Observations" class="form-control" required></textarea>
+                                <span asp-validation-for="Client.Observations" class="text-danger"></span>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label asp-for="Client.DealerID" class="mb-0"></label>
+                                @Html.DropDownListFor(x => x.Client.DealerID, Model.Dealers, new { @class = "form-control mb-2" })
+                                <span asp-validation-for="Client.DealerID" class="text-danger"></span>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label asp-for="Client.DeliveryDay" class="mb-0"></label>
+                                @Html.DropDownListFor(x => x.Client.DeliveryDay, Model.Days, new { @class = "form-control mb-2" })
+                                <span asp-validation-for="Client.DeliveryDay" class="text-danger"></span>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <div>
+                                    <input type="checkbox" id="clientInvoice" name="invoice" value="1" />
+                                    <label for="clientInvoice">¿Quiere factura?</label>
+                                </div>
+                            </div>
+                            <div class="col-12" id="invoiceDataContainer" style="display: none;">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Client.InvoiceType" class="mb-0"></label>
+                                    @Html.DropDownListFor(x => x.Client.InvoiceType, Model.InvoiceTyes, new { @class = "form-control mb-2" })
+                                    <span asp-validation-for="Client.InvoiceType" class="text-danger"></span>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label asp-for="Client.TaxCondition" class="mb-0"></label>
+                                    @Html.DropDownListFor(x => x.Client.TaxCondition, Model.TaxConditions, new { @class = "form-control mb-2" })
+                                    <span asp-validation-for="Client.TaxCondition" class="text-danger"></span>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label asp-for="Client.CUIT" class="mb-0"></label>
+                                    <input asp-for="Client.CUIT" class="form-control" required>
+                                    <span asp-validation-for="Client.CUIT" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <button id="btnSubmit" type="submit" class="btn btn-primary">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title">Asociar productos</h2>
+                    <div class="table-responsive m-t-10">
+                        <table id="DataTable" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Precio</th>
+                                    <th>Cantidad</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table_body">
+                                @foreach (Product product in Model.Products)
+                                {
+                                    <tr data-id="@product.ID">
+                                        <td>@Html.DisplayFor(p => product.Name)</td>
+                                        <td>$@Html.DisplayFor(p => product.Price)</td>
+                                        <td><input type="number" name="stock" class="form-control" min="1" /></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#DataTable').DataTable({
+        "order": false,
+        "paging": false,
+        "info": false,
+        "searching": false,
+    });
+
+    $('#clientInvoice').change(function () {
+        if ($(this).is(':checked')) {
+            $('#invoiceDataContainer').show();
+            $('#Client_InvoiceType').val('');
+            $('#Client_TaxCondition').val('');
+            $('#Client_CUIT').val('');
+        } else {
+            $('#invoiceDataContainer').hide();
+        }
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('#btnSubmit').click(function (e) {
+            e.preventDefault();
+            let products = [];
+            let rows = $('#table_body tr');
+            for (let i = 0; i < rows.length; i++) {
+                let row = rows[i];
+                let stock = parseInt(row.cells[2].children[0].value);
+                if (stock >= 0) {
+                    products.push({
+                        Stock: stock,
+                        ProductID: parseInt(row.dataset.id)
+                    });
+
+                }
+            }
+            let productsData = {
+                Client: {
+                    ClientProducts: products
+                }
+            };
+
+            let form = $("#form-submit");
+            $.ajax({
+                url: $(form).attr('action'),
+                method: $(form).attr('method'),
+                data: $(form).serialize() + "&" + $.param(productsData),
+                success: function (response) {
+                    Swal.fire({
+                        title: response.message,
+                        icon: 'success',
+                        showCancelButton: false,
+                        confirmButtonColor: '#1e88e5',
+                        confirmButtonText: 'OK',
+                        allowOutsideClick: false,
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = window.location.origin;
+                        }
+                    });
+                },
+                error: function (errorThrown) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: errorThrown.responseJSON.title,
+                        text: errorThrown.responseJSON.message,
+                        confirmButtonColor: '#1e88e5',
+                    });
+                }
+            });
+        });
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></>

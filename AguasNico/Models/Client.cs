@@ -11,11 +11,26 @@ namespace AguasNico.Models
     }
     public enum TaxCondition
     {
-        RI = 1,
-        MO = 2,
-        EX = 3,
-        CF = 4,
+        [Display(Name = "Responsable Inscripto")] RI = 1,
+        [Display(Name = "Monotributo")] MO = 2,
+        [Display(Name = "Exento")] EX = 3,
+        [Display(Name = "Consumidor Final")] CF = 4,
     }
+    // Mostrar el nombre de la enumeración en lugar del nombre del campo
+    public static class EnumExtensions
+    {
+        public static string GetDisplayName(this Enum value)
+        {
+            var displayAttribute = value.GetType()
+                                        .GetField(value.ToString())
+                                        .GetCustomAttributes(typeof(DisplayAttribute), false)
+                                        as DisplayAttribute[];
+
+            return displayAttribute[0].Name;
+        }
+    }
+
+
     public class Client
     {
         [Key]
@@ -47,6 +62,7 @@ namespace AguasNico.Models
         [DisplayFormat(DataFormatString = "{0:F0}", ApplyFormatInEditMode = true)]
         public decimal Debt { get; set; } = 0;
 
+        [Display(Name = "Repartidor")]
         public string? DealerID { get; set; } = null!;
 
         [Display(Name = "¿Quiere factura?")]
@@ -67,6 +83,9 @@ namespace AguasNico.Models
         [StringLength(11, MinimumLength = 1, ErrorMessage = "Debes ingresar un CUIT de menos de 12 caracteres")]
         public string? CUIT { get; set; } = null!;
 
+        [Display(Name = "Día del reparto")]
+        public Day? DeliveryDay { get; set; } = null!;
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow.AddHours(-3);
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow.AddHours(-3);
@@ -83,68 +102,68 @@ namespace AguasNico.Models
 
 
         // Not mapped properties
-        [NotMapped]
-        public DateTime? LastCart 
-        {
-            get
-            {
-                return GetLastCart();
-            }
-        }
-        internal DateTime? GetLastCart()
-        {
-            Cart? lastCart = Carts.Where(x => x.State == State.Confirmed && x.ClientID == this.ID).OrderByDescending(x => x.CreatedAt).First();
-            if (lastCart is null)
-            {
-                return null;
-            }
-            return lastCart.CreatedAt;
-        }
+        // [NotMapped]
+        // public DateTime? LastCart 
+        // {
+        //     get
+        //     {
+        //         return GetLastCart();
+        //     }
+        // }
+        // internal DateTime? GetLastCart()
+        // {
+        //     Cart? lastCart = Carts.Where(x => x.State == State.Confirmed && x.ClientID == this.ID).OrderByDescending(x => x.CreatedAt).FirstOrDefault();
+        //     if (lastCart is null)
+        //     {
+        //         return null;
+        //     }
+        //     return lastCart.CreatedAt;
+        // }
 
-        [NotMapped]
-        public decimal DebtOfTheMonth
-        {
-            get
-            {
-                return GetDebtOfTheMonth();
-            }
-        }
-        internal decimal GetDebtOfTheMonth() // CONSUMO DEL MES
-        {
-            decimal total = 0;
-            DateTime today = DateTime.UtcNow.AddHours(-3);
-            foreach (Cart cart in Carts.Where(x => x.State == State.Confirmed && x.ClientID == this.ID && x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year))
-            {
-                foreach (CartProduct product in cart.Products)
-                {
-                    total += product.Quantity * product.SettedPrice;
-                }
-            }
-            // TODO: Sumar abono
-            return total;
-        }
+        // [NotMapped]
+        // public decimal DebtOfTheMonth
+        // {
+        //     get
+        //     {
+        //         return GetDebtOfTheMonth();
+        //     }
+        // }
+        // internal decimal GetDebtOfTheMonth() // CONSUMO DEL MES
+        // {
+        //     decimal total = 0;
+        //     DateTime today = DateTime.UtcNow.AddHours(-3);
+        //     foreach (Cart cart in Carts.Where(x => x.State == State.Confirmed && x.ClientID == this.ID && x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year))
+        //     {
+        //         foreach (CartProduct product in cart.Products)
+        //         {
+        //             total += product.Quantity * product.SettedPrice;
+        //         }
+        //     }
+        //     // TODO: Sumar abono
+        //     return total;
+        // }
 
-        [NotMapped]
-        public decimal DebtOfPreviousMonth // CONSUMO DEL MES ANTERIOR
-        {
-            get
-            {
-                return GetDebtOfPreviousMonth();
-            }
-        }
-        internal decimal GetDebtOfPreviousMonth()
-        {
-            decimal total = 0;
-            DateTime today = DateTime.UtcNow.AddHours(-3).AddMonths(-1);
-            foreach (Cart cart in Carts.Where(x => x.State == State.Confirmed && x.ClientID == this.ID && x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year))
-            {
-                foreach (CartProduct product in cart.Products)
-                {
-                    total += product.Quantity * product.SettedPrice;
-                }
-            }
-            // TODO: Sumar abono
-            return total;
-        }
+        // [NotMapped]
+        // public decimal DebtOfPreviousMonth // CONSUMO DEL MES ANTERIOR
+        // {
+        //     get
+        //     {
+        //         return GetDebtOfPreviousMonth();
+        //     }
+        // }
+        // internal decimal GetDebtOfPreviousMonth()
+        // {
+        //     decimal total = 0;
+        //     DateTime today = DateTime.UtcNow.AddHours(-3).AddMonths(-1);
+        //     foreach (Cart cart in Carts.Where(x => x.State == State.Confirmed && x.ClientID == this.ID && x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year))
+        //     {
+        //         foreach (CartProduct product in cart.Products)
+        //         {
+        //             total += product.Quantity * product.SettedPrice;
+        //         }
+        //     }
+        //     // TODO: Sumar abono
+        //     return total;
+        // }
     }
 }
