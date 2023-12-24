@@ -188,20 +188,20 @@
                     <div class="d-flex no-block">
                         <div class="mr-auto">
                             <label for="DatePicker" class="mb-0">Día</label>
-                            <input type="text" class="form-control" id="DatePicker" name="date" value='@DateTime.Now.ToString("dd/MM/yyyy")' />
+                            <input type="text" class="form-control" id="DatePicker" name="date" value='@DateTime.UtcNow.AddHours(-3).ToString("dd/MM/yyyy")' />
                         </div>
                     </div>
                     <div class="table-responsive m-t-20">
                         <table id="routesTable" class="table stylish-table">
                             <thead>
                                 <tr>
-                                    <th colspan="2">Nombre</th>
+                                    <th>Nombre</th>
                                     <th>Envíos completados</th>
                                     <th>Estado</th>
                                     <th>Recaudado</th>
                                 </tr>
                             </thead>
-                            <tbody id="salesResponse">
+                            <tbody>
                             </tbody>
                         </table>
                     </div>
@@ -211,7 +211,7 @@
     </div>
 
     <form id="form-searchRoutesByDate" method="get" asp-area="" asp-controller="Routes" asp-action="SearchByDate">
-        @Html.Hidden("dateString", DateTime.Now.ToString("dd/MM/yyyy"))
+        @Html.Hidden("dateString", "")
     </form>
 </div>
     
