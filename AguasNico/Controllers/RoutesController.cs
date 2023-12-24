@@ -183,7 +183,8 @@ namespace AguasNico.Controllers
                     routes = routes.Select(x => new {
                         id = x.ID,
                         dealer = x.User.UserName,
-                        completed = x.Carts.Count(y => y.State == State.Confirmed),
+                        totalCarts = x.Carts.Count(),
+                        completedCarts = x.Carts.Count(y => y.State == State.Confirmed),
                         state = x.Carts.Count(y => y.State != State.Pending) == x.Carts.Count() ? "Completado" : "Pendiente",
                         collected = x.Carts.Sum(y => y.PaymentMethods.Sum(z => z.Amount)),
                     })

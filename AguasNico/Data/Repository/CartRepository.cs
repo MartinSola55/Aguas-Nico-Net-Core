@@ -21,5 +21,10 @@ namespace AguasNico.Data.Repository
         {
             // TODO: Implement this
         }
+
+        public IEnumerable<Cart> GetLastTen(long clientID)
+        {
+            return _db.Carts.Where(x => x.ClientID == clientID && !x.IsStatic).OrderByDescending(x => x.CreatedAt).Take(10);
+        }
     }
 }

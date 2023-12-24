@@ -61,6 +61,32 @@ namespace AguasNico.Controllers
                 return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
             }
         }
+        
+        [HttpGet]
+        [ActionName("Details")]
+        public IActionResult Details(long id)
+        {
+            try
+            {
+                Client client = _workContainer.Client.GetFirstOrDefault(x => x.ID == id, includeProperties: "Dealer, ClientProducts");
+                if (client is null)
+                {
+                    return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "El cliente no existe", ErrorCode = 404 });
+                }
+                DetailsViewModel viewModel = new()
+                {
+                    Client = client,
+                    Transfers = _workContainer.Transfer.GetLastTen(id),
+                    Carts = _workContainer.Cart.GetLastTen(id),
+                    Products = _workContainer.Client.GetAllProducts(id),
+                };
+                return View(viewModel);
+            }
+            catch (Exception)
+            {
+                return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
+            }
+        }
 
         [HttpPost]
         [ActionName("Create")]
@@ -75,7 +101,6 @@ namespace AguasNico.Controllers
             {
                 try
                 {
-                    //__RequestVerificationToken
                     Client client = viewModel.Client;
                     _workContainer.BeginTransaction();
                     _workContainer.Client.Add(client);
@@ -115,6 +140,28 @@ namespace AguasNico.Controllers
                 }
             }
             return CustomBadRequest(title: "Error al crear el cliente", message: "Alguno de los campos ingresados no es válido");
+        }
+    
+        [HttpPost]
+        [ActionName("UpdateProducts")]
+        [ValidateAntiForgeryToken]
+        public IActionResult UpdateProducts(Client client, List<ClientProduct> products)
+        {
+            try
+            {
+                _workContainer.Client.UpdateProducts(client.ID, products);
+                return Json(new
+                {
+                    success = true,
+                    data = 1,
+                    message = "Los productos se actualizaron correctamente",
+                });
+            }
+            catch (Exception e)
+            {
+                _workContainer.Rollback();
+                return CustomBadRequest(title: "Error al actualizar los productos", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
         }
     }
 }

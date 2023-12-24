@@ -1,0 +1,176 @@
+﻿@model AguasNico.Models.ViewModels.Clients.DetailsViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Clientes";
+}
+
+<link href="~/lib/datatables/media/css/dataTables.bootstrap4.css" rel="stylesheet">
+
+<script src="~/lib/datatables/datatables.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+<div class="container-fluid">
+    <!-- ============================================================== -->
+    <!-- Bread crumb and right sidebar toggle -->
+    <!-- ============================================================== -->
+    <div class="row page-titles">
+        <div class="col-md-5 col-8 align-self-center">
+            <h3 class="text-themecolor m-b-0 m-t-0">Clientes</h3>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">Inicio</a></li>
+                <li class="breadcrumb-item"><a asp-area="" asp-controller="Clients" asp-action="Index">Clientes</a></li>
+                <li class="breadcrumb-item active">Detalles</li>
+            </ol>
+        </div>
+    </div>
+    <h1 class="text-center">@Model.Client.Name</h1>
+    <hr />
+
+    <div class="row">
+        <div class="col-12 col-md-6">
+            
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-8">
+                            <h2 class="card-title">Productos asociados</h2>
+                        </div>
+                        <div class="col-4 text-right mb-3">
+                            <button id="btnEditProducts" class="btn btn-sm btn-outline-info btn-rounded px-3">Editar</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="TableProducts" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Precio</th>
+                                    <th class="col-2">Cantidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (ClientProduct product in Model.Products)
+                                {
+                                    <tr data-id="@product.ProductID">
+                                        <td>@product.Product.Name</td>
+                                        <td>$@product.Product.Price</td>
+                                        <td>
+                                            <input type="number" data-product-id="@product.ProductID" disabled class="form-control" value="@(product.Stock >= 0 ? product.Stock : "")" min="0" />
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row" id="divSaveProducts" style="display: none">
+                        <div class="col-md-12 d-flex justify-content-end">
+                            <button type="button" id="btnSaveProducts" class="btn btn-sm btn-success btn-rounded px-3">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form id="form-updateProducts" method="post" asp-area="" asp-controller="Clients" asp-action="UpdateProducts">
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.Client.ID)
+    </form>
+</div>
+
+<!-- Actualizar productos -->
+<script>
+    $('#btnEditProducts').click(function () {
+        if ($('#divSaveProducts').is(':visible')) {
+            $('#divSaveProducts').hide();
+            $('#TableProducts input[type="number"]').prop('disabled', true);
+        } else {
+            $('#divSaveProducts').show();
+            $('#TableProducts input[type="number"]').prop('disabled', false);
+        }
+    });
+
+    $('#btnSaveProducts').click(function () {
+        // Verificar que no haya ningun stock menor a 0, en ese caso lanzar un sweet alert
+        if ($('#TableProducts input[type="number"]').filter(function () { return $(this).val() < 0 }).length > 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Error',
+                text: 'No puede haber stock negativo',
+                confirmButtonColor: '#1e88e5',
+            });
+            return;
+        }
+
+        let products = [];
+        let rows = $('#TableProducts tbody tr');
+        for (let i = 0; i < rows.length; i++) {
+            let row = rows[i];
+            let stock = parseInt($(`input[data-product-id='${row.dataset.id}']`).val());
+            if (stock >= 0) {
+                products.push({
+                    Stock: stock,
+                    ProductID: parseInt(row.dataset.id),
+                    ClientID: parseInt($('#Client_ID').val())
+                });
+
+            }
+        }
+        let productsData = {
+            products
+        };
+
+        let form = $("#form-updateProducts");
+        $.ajax({
+            url: $(form).attr('action'),
+            method: $(form).attr('method'),
+            data: $(form).serialize() + "&" + $.param(productsData),
+            success: function (response) {
+                Swal.fire({
+                    title: response.message,
+                    icon: 'success',
+                    showCancelButton: false,
+                    confirmButtonColor: '#1e88e5',
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.reload();
+                    }
+                });
+            },
+            error: function (errorThrown) {
+                Swal.fire({
+                    icon: 'error',
+                    title: errorThrown.responseJSON.title,
+                    text: errorThrown.responseJSON.message,
+                    confirmButtonColor: '#1e88e5',
+                });
+            }
+        });
+    });
+</script>
+
+<script>
+    $('#TableProducts').DataTable({
+        "order": false,
+        "paging": false,
+        "info": false,
+        "searching": false,
+    });
+
+    $('#clientInvoice').change(function () {
+        if ($(this).is(':checked')) {
+            $('#invoiceDataContainer').show();
+            $('#Client_InvoiceType').val('');
+            $('#Client_TaxCondition').val('');
+            $('#Client_CUIT').val('');
+        } else {
+            $('#invoiceDataContainer').hide();
+        }
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></>

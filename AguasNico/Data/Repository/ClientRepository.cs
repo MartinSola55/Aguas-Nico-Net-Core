@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using AguasNico.Data.Repository.IRepository;
 using AguasNico.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace AguasNico.Data.Repository
 {
@@ -30,6 +31,26 @@ namespace AguasNico.Data.Repository
             return _db.ClientProducts.Where(x => x.ClientID == clientID);
         }
 
+        public IEnumerable<ClientProduct> GetAllProducts(long clientID)
+        {
+            IEnumerable<Product> products = _db.Products.OrderBy(x => x.Name).ThenBy(x => x.Price);
+            List<ClientProduct> clientProducts = [.. _db.ClientProducts.Where(x => x.ClientID == clientID)];
+            foreach (Product product in products)
+            {
+                if (!clientProducts.Any(x => x.ProductID == product.ID))
+                {
+                    clientProducts.Add(new ClientProduct
+                    {
+                        ClientID = clientID,
+                        Product = product,
+                        ProductID = product.ID,
+                        Stock = -1,
+                    });
+                }
+            }
+            return clientProducts;
+        }
+
         public bool IsDuplicated(Client client)
         {
             return _db.Clients.Any(x => x.Name == client.Name && x.Address == client.Address);
@@ -45,6 +66,49 @@ namespace AguasNico.Data.Repository
         public void AddProducInTransaction(ClientProduct clientProduct)
         {
             _db.ClientProducts.Add(clientProduct);
+        }
+
+        public void UpdateProducts(long clientID, List<ClientProduct> products)
+        {
+            try
+            {
+                _db.Database.BeginTransaction();
+                IEnumerable<ClientProduct> clientProducts = _db.ClientProducts.IgnoreQueryFilters().Where(x => x.ClientID == clientID);
+                foreach (ClientProduct product in products)
+                {
+                    if (clientProducts.Any(x => x.ProductID == product.ProductID))
+                    {
+                        ClientProduct clientProduct = clientProducts.First(x => x.ProductID == product.ProductID);
+                        clientProduct.Stock = product.Stock;
+                        clientProduct.UpdatedAt = DateTime.UtcNow.AddHours(-3);
+                        clientProduct.DeletedAt = null;
+                        _db.ClientProducts.Update(clientProduct);
+                    }
+                    else
+                    {
+                        _db.ClientProducts.Add(product);
+                    }
+                }
+
+                // Actualizar DeletedAt para los productos que no se encuentran en la lista de productos nuevos
+                IEnumerable<ClientProduct> existingProducts = clientProducts.Where(x => !products.Any(y => y.ProductID == x.ProductID));
+
+                if (existingProducts.Any())
+                {
+                    foreach (ClientProduct existingProduct in existingProducts)
+                    {
+                        existingProduct.DeletedAt = DateTime.UtcNow.AddHours(-3);
+                    }
+                    _db.ClientProducts.UpdateRange(existingProducts);
+                }
+                _db.SaveChanges();
+                _db.Database.CommitTransaction();
+            }
+            catch (Exception)
+            {
+                _db.Database.RollbackTransaction();
+                throw;
+            }
         }
     }
 }
