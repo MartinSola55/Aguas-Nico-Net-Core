@@ -12,5 +12,6 @@ namespace AguasNico.Data.Repository.IRepository
         new void Add(Transfer transfer);
         void Update(Transfer transfer);
         void SoftDelete(long id);
+        IEnumerable<Transfer> GetLastTen(long clientID);
     }
 }

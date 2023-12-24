@@ -9,7 +9,9 @@ namespace AguasNico.Data.Repository.IRepository
 {
     public interface ICartRepository : IRepository<Cart>
     {
+        void Update(Cart cart);
         void UpdateProducts(long cartID, List<CartProduct> products);
         void SoftDelete(long id);
+        IEnumerable<Cart> GetLastTen(long clientID);
     }
 }

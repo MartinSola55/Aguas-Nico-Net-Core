@@ -19,16 +19,9 @@ namespace AguasNico.Data.Repository
         }
 
         public IEnumerable<T> GetAll(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-            string includeProperties = null, bool hasIsActive = false)
+            string includeProperties = null)
         {
             IQueryable<T> query = dbSet;
-            if (hasIsActive)
-            {
-                var parameter = Expression.Parameter(typeof(T));
-                var body = Expression.Equal(Expression.Property(parameter, "IsActive"), Expression.Constant(true));
-                var lambda = Expression.Lambda<Func<T, bool>>(body, parameter);
-                query = query.Where(lambda);
-            }
             if (filter != null)
             {
                 query = query.Where(filter);

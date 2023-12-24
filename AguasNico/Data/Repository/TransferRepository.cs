@@ -59,5 +59,10 @@ namespace AguasNico.Data.Repository
                 throw;
             }
         }
+
+        public IEnumerable<Transfer> GetLastTen(long clientID)
+        {
+            return _db.Transfers.Where(x => x.ClientID == clientID).OrderByDescending(x => x.Date).Take(10);
+        }
     }
 }

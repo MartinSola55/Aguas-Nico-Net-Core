@@ -13,5 +13,7 @@ namespace AguasNico.Models
 
         [Display(Name = "Habilitado")]
         public bool IsActive { get; set; } = true;
+
+        public virtual IEnumerable<CartPaymentMethod> Carts { get; set; } = null!;
     }
 }

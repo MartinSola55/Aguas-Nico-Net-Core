@@ -1,0 +1,573 @@
+﻿@model AguasNico.Models.ViewModels.Clients.DetailsViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Clientes";
+}
+
+<link href="~/lib/datatables/media/css/dataTables.bootstrap4.css" rel="stylesheet">
+
+<script src="~/lib/datatables/datatables.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+<div class="container-fluid">
+    <!-- ============================================================== -->
+    <!-- Bread crumb and right sidebar toggle -->
+    <!-- ============================================================== -->
+    <div class="row page-titles">
+        <div class="col-md-5 col-8 align-self-center">
+            <h3 class="text-themecolor m-b-0 m-t-0">Clientes</h3>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">Inicio</a></li>
+                <li class="breadcrumb-item"><a asp-area="" asp-controller="Clients" asp-action="Index">Clientes</a></li>
+                <li class="breadcrumb-item active">Detalles</li>
+            </ol>
+        </div>
+    </div>
+    <h1 class="text-center">@Model.Client.Name</h1>
+    <hr />
+
+    <div class="row">
+        <div class="col-8">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h4 id="proucts_ordered" class="card-title">Historial de bajadas y transferencias</h4>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped" id="TableHistory">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Productos/Abono/Transferencia</th>
+                                        <th>Pago</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach(var transfer in Model.Transfers)
+                                    {
+                                        <tr>
+                                            <td>@transfer.Date.ToString("dd/MM/yyyy")</td>
+                                            <td>Transferencia</td>
+                                            <td>$@transfer.Amount</td>
+                                        </tr>
+                                    }
+                                    @foreach(var cart in Model.Carts)
+                                    {
+                                        <tr>
+                                            <td>@cart.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                            <td>
+                                                <ul class="pl-3">
+                                                    @foreach(var product in cart.Products)
+                                                    {
+                                                        <li>@product.Product.Name</li>
+                                                    }
+                                                </ul>
+                                            </td>
+                                            <td>$@cart.PaymentMethods.Sum(x => x.Amount)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-12">
+                                <h3 class="card-title">Historial de envases</h3>
+                            </div>
+                        </div>
+                        <div>
+                            <table class="table table-hover table-bordered table-grey" id="TableBottles">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Tipo</th>
+                                        <th>Cant</th>
+                                        <th>Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-8">
+                                <h2 class="card-title">Productos asociados</h2>
+                            </div>
+                            <div class="col-4 text-right mb-3">
+                                <button id="btnEditProducts" class="btn btn-sm btn-outline-info btn-rounded px-3">Editar</button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="TableProducts" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Precio</th>
+                                        <th class="col-2">Cantidad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (ClientProduct product in Model.Products)
+                                    {
+                                        <tr data-id="@product.ProductID">
+                                            <td>@product.Product.Name</td>
+                                            <td>$@product.Product.Price</td>
+                                            <td>
+                                                <input type="number" data-product-id="@product.ProductID" disabled class="form-control" value="@(product.Stock >= 0 ? product.Stock : "")" min="0" />
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="row" id="divSaveProducts" style="display: none">
+                            <div class="col-md-12 d-flex justify-content-end">
+                                <button type="button" id="btnSave" class="btn btn-sm btn-success btn-rounded px-3">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <!-- Datos del cliente -->
+            <div class="col-12">
+                <div class="card shadow" style="background-color: #ebebeb73">
+                    <div class="card-header bg-white border-0">
+                        <div class="row align-items-center">
+                            <div class="col-8">
+                                <h3 class="mb-0">Cliente</h3>
+                            </div>
+                            <div class="col-4 text-right">
+                                <button id="btnEditClient"class="btn btn-sm btn-outline-info btn-rounded px-3">Editar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" id="form-editClient" asp-area="" asp-controller="Clients" asp-action="Edit">
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(m => m.Client.ID)
+                            <h6 class="heading-small text-muted mb-4">Datos personales</h6>
+                            <div class="pl-lg-4">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-group focused">
+                                            <label asp-for="@Model.Client.Name" class="form-control-label"></label>
+                                            <input asp-for="@Model.Client.Name" class="form-control form-control-alternative" disabled>
+                                            <span asp-validation-for="@Model.Client.Name" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label asp-for="@Model.Client.Address" class="form-control-label"></label>
+                                            <input asp-for="@Model.Client.Address" class="form-control form-control-alternative" disabled>
+                                            <span asp-validation-for="@Model.Client.Address" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="my-4">
+                            <h6 class="heading-small text-muted mb-4">Información de contacto</h6>
+                            <div class="pl-lg-4">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-group focused">
+                                            <label asp-for="@Model.Client.Phone" class="form-control-label"></label>
+                                            <input asp-for="@Model.Client.Phone" class="form-control form-control-alternative" disabled>
+                                            <span asp-validation-for="@Model.Client.Phone" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="my-4">
+                            <!-- Description -->
+                            <h6 class="heading-small text-muted mb-4">Otros</h6>
+                            <div class="pl-lg-4">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-group focused">
+                                            <label asp-for="@Model.Client.DealerID" class="form-control-label"></label>
+                                            @Html.DropDownListFor(m => m.Client.DealerID, Model.Dealers, new { @class = "form-control form-select", disabled = "disabled" })
+                                            <span asp-validation-for="@Model.Client.DealerID" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group focused">
+                                            <label asp-for="@Model.Client.DeliveryDay" class="form-control-label"></label>
+                                            @Html.DropDownListFor(m => m.Client.DeliveryDay, Model.Days, new { @class = "form-control form-select", disabled = "disabled" })
+                                            <span asp-validation-for="@Model.Client.DeliveryDay" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group focused">
+                                            <label asp-for="@Model.Client.Debt" class="form-control-label"></label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">$</span>
+                                                </div>
+                                                <input asp-for="@Model.Client.Debt" class="form-control form-control-alternative" disabled>
+                                                <span asp-validation-for="@Model.Client.Debt" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 d-flex flex-column justify-content-center">
+                                        <div>
+                                            <input asp-for="Client.HasInvoice" type="checkbox" disabled />
+                                            <label asp-for="Client.HasInvoice">¿Quiere factura?</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group focused">
+                                            <label asp-for="@Model.Client.Observations" class="form-control-label"></label>
+                                            <textarea asp-for="@Model.Client.Observations" class="form-control form-control-alternative" disabled></textarea>
+                                            <span asp-validation-for="@Model.Client.Observations" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" id="divSaveClient" style="display: none">
+                                    <div class="col-md-12 d-flex justify-content-between">
+                                        <button type="button" id="btnDeleteClient" class="btn btn-sm btn-outline-danger btn-rounded px-3">Eliminar</button>
+                                        <button type="submit" class="btn btn-sm btn-success btn-rounded px-3">Guardar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Datos de facturación -->
+            @if (Model.Client.HasInvoice)
+            {
+                <div class="col-12">
+                    <div class="card shadow" style="background-color: #ebebeb73">
+                        <div class="card-header bg-white border-0">
+                            <div class="row align-items-center">
+                                <div class="col-8">
+                                    <h3 class="mb-0">Datos de facturación</h3>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <button id="btnEditInvoice"
+                                        class="btn btn-sm btn-outline-info btn-rounded px-3">Editar</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" asp-area="" asp-controller="Clients" asp-action="UpdateInvoiceData" id="form-invoice">
+                                @Html.AntiForgeryToken()
+                                @Html.HiddenFor(m => m.Client.ID)
+                                <div class="pl-lg-4">
+                                    <div class="row">
+                                        <div class="col-lg-5">
+                                            <div class="form-group focused">
+                                                <label asp-for="@Model.Client.InvoiceType" class="form-control-label"></label>
+                                                @Html.DropDownListFor(m => m.Client.InvoiceType, Model.InvoiceTyes, new { @class = "form-control form-select", disabled = "disabled" })
+                                                <span asp-validation-for="@Model.Client.InvoiceType" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-7">
+                                            <div class="form-group focused">
+                                                <label asp-for="@Model.Client.TaxCondition` " class="form-control-label"></label>
+                                                @Html.DropDownListFor(m => m.Client.TaxCondition, Model.TaxConditions, new { @class = "form-control form-select", disabled = "disabled" })
+                                                <span asp-validation-for="@Model.Client.TaxCondition" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label asp-for="@Model.Client.CUIT" class="form-control-label"></label>
+                                                <input asp-for="@Model.Client.CUIT" class="form-control" disabled />
+                                                <span asp-validation-for="@Model.Client.CUIT" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row" id="divSaveInvoiceData" style="display: none">
+                                        <hr class="my-4">
+                                        <div class="d-flex flex-end">
+                                            <button id="btnSaveInvoiceData" type="button" class="btn btn-sm btn-success btn-rounded px-3 mr-3">Guardar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <form id="form-updateProducts" method="post" asp-area="" asp-controller="Clients" asp-action="UpdateProducts">
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.Client.ID)
+    </form>
+    <form id="form-deleteClient" method="post" asp-area="" asp-controller="Clients" asp-action="SoftDelete">
+        @Html.AntiForgeryToken()
+        @Html.Hidden("id", Model.Client.ID)
+    </form>
+</div>
+
+<!-- Actualizar cliente -->
+<script>
+    $('#btnEditClient').click(function () {
+        if ($('#divSaveClient').is(':visible')) {
+            $('#divSaveClient').hide();
+            $('#form-editClient input').prop('disabled', true);
+            $('#form-editClient textarea').prop('disabled', true);
+            $('#form-editClient select').prop('disabled', true);
+        } else {
+            $('#divSaveClient').show();
+            $('#form-editClient input').prop('disabled', false);
+            $('#form-editClient textarea').prop('disabled', false);
+            $('#form-editClient select').prop('disabled', false);
+        }
+    });
+
+    $('#btnDeleteClient').click(function () {
+        Swal.fire({
+            title: '¿Seguro deseas eliminar el cliente?',
+            text: "Esta acción no se puede deshacer",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#1e88e5',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si, estoy seguro',
+            cancelButtonText: 'Cancelar',
+            allowOutsideClick: false,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let form = $("#form-deleteClient");
+                $.ajax({
+                    url: $(form).attr('action'),
+                    method: $(form).attr('method'),
+                    data: $(form).serialize(),
+                    success: function (response) {
+                        Swal.fire({
+                            title: response.message,
+                            icon: 'success',
+                            showCancelButton: false,
+                            confirmButtonColor: '#1e88e5',
+                            confirmButtonText: 'OK',
+                            allowOutsideClick: false,
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "/Clients";
+                            }
+                        });
+                    },
+                    error: function (errorThrown) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: errorThrown.responseJSON.title,
+                            text: errorThrown.responseJSON.message,
+                            confirmButtonColor: '#1e88e5',
+                        });
+                    }
+                });
+            }
+        });
+    });
+
+    $('#form-editClient').submit(function (e) {
+        e.preventDefault();
+        let form = $(this);
+        $.ajax({
+            url: $(form).attr('action'),
+            method: $(form).attr('method'),
+            data: $(form).serialize(),
+            success: function (response) {
+                $('#divSaveClient').hide();
+                $('#form-editClient input').prop('disabled', true);
+                $('#form-editClient textarea').prop('disabled', true);
+                $('#form-editClient select').prop('disabled', true);
+                Swal.fire({
+                    title: response.message,
+                    icon: 'success',
+                    showCancelButton: false,
+                    confirmButtonColor: '#1e88e5',
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.reload();
+                    }
+                });
+            },
+            error: function (errorThrown) {
+                Swal.fire({
+                    icon: 'error',
+                    title: errorThrown.responseJSON.title,
+                    text: errorThrown.responseJSON.message,
+                    confirmButtonColor: '#1e88e5',
+                });
+            }
+        });
+    });
+</script>
+
+<!-- Actualizar datos de facturacion -->
+<script>
+    $('#btnEditInvoice').click(function () {
+        if ($('#divSaveInvoiceData').is(':visible')) {
+            $('#divSaveInvoiceData').hide();
+            $('#form-invoice input[type="text"]').prop('disabled', true);
+            $('#form-invoice select').prop('disabled', true);
+        } else {
+            $('#divSaveInvoiceData').show();
+            $('#form-invoice input[type="text"]').prop('disabled', false);
+            $('#form-invoice select').prop('disabled', false);
+        }
+    });
+
+    $('#btnSaveInvoiceData').click(function () {
+        let form = $("#form-invoice");
+        $.ajax({
+            url: $(form).attr('action'),
+            method: $(form).attr('method'),
+            data: $(form).serialize(),
+            success: function (response) {
+                $('#divSaveInvoiceData').hide();
+                $('#form-invoice input[type="text"]').prop('disabled', true);
+                $('#form-invoice select').prop('disabled', true);
+                Swal.fire({
+                    title: response.message,
+                    icon: 'success',
+                    showCancelButton: false,
+                    confirmButtonColor: '#1e88e5',
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: true,
+                });
+            },
+            error: function (errorThrown) {
+                Swal.fire({
+                    icon: 'error',
+                    title: errorThrown.responseJSON.title,
+                    text: errorThrown.responseJSON.message,
+                    confirmButtonColor: '#1e88e5',
+                });
+            }
+        });
+    });
+</script>
+
+<!-- Actualizar productos -->
+<script>
+    $('#btnEditProducts').click(function () {
+        if ($('#divSaveProducts').is(':visible')) {
+            $('#divSaveProducts').hide();
+            $('#TableProducts input[type="number"]').prop('disabled', true);
+        } else {
+            $('#divSaveProducts').show();
+            $('#TableProducts input[type="number"]').prop('disabled', false);
+        }
+    });
+
+    $('#btnSave').click(function () {
+        // Verificar que no haya ningun stock menor a 0, en ese caso lanzar un sweet alert
+        if ($('#TableProducts input[type="number"]').filter(function () { return $(this).val() < 0 }).length > 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Error',
+                text: 'No puede haber stock negativo',
+                confirmButtonColor: '#1e88e5',
+            });
+            return;
+        }
+
+        let products = [];
+        let rows = $('#TableProducts tbody tr');
+        for (let i = 0; i < rows.length; i++) {
+            let row = rows[i];
+            let stock = parseInt($(`input[data-product-id='${row.dataset.id}']`).val());
+            if (stock >= 0) {
+                products.push({
+                    Stock: stock,
+                    ProductID: parseInt(row.dataset.id),
+                    ClientID: parseInt($('#Client_ID').val())
+                });
+
+            }
+        }
+        let productsData = {
+            products
+        };
+
+        let form = $("#form-updateProducts");
+        $.ajax({
+            url: $(form).attr('action'),
+            method: $(form).attr('method'),
+            data: $(form).serialize() + "&" + $.param(productsData),
+            success: function (response) {
+                Swal.fire({
+                    title: response.message,
+                    icon: 'success',
+                    showCancelButton: false,
+                    confirmButtonColor: '#1e88e5',
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.reload();
+                    }
+                });
+            },
+            error: function (errorThrown) {
+                Swal.fire({
+                    icon: 'error',
+                    title: errorThrown.responseJSON.title,
+                    text: errorThrown.responseJSON.message,
+                    confirmButtonColor: '#1e88e5',
+                });
+            }
+        });
+    });
+</script>
+
+<script>
+    $('#TableProducts').DataTable({
+        "order": false,
+        "paging": false,
+        "info": false,
+        "searching": false,
+    });
+    
+    $('#TableHistory').DataTable({
+        "order": false,
+        "paging": false,
+        "info": false,
+        "searching": false,
+        "scrollY": "50vh",
+        "scrollCollapse": true,
+        "language": {
+            "emptyTable": "No hay datos disponibles",
+        }
+    });
+    
+    $('#TableBottles').DataTable({
+        "order": false,
+        "paging": false,
+        "info": false,
+        "searching": false,
+        "scrollY": "50vh",
+        "scrollCollapse": true,
+        "language": {
+            "emptyTable": "No hay datos disponibles",
+        }
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></>
