@@ -194,7 +194,7 @@ namespace AguasNico.Controllers
             }
             catch (Exception)
             {
-                return CustomBadRequest(title: "Error al buscar las planillas", message: "Intente nuevamente o comuníquese para soporte");
+                return CustomBadRequest(title: "No se encontraron planillas", message: "Intente nuevamente o comuníquese para soporte");
             }
         }
 
