@@ -34,5 +34,12 @@ namespace AguasNico.Data.Repository
                 throw;
             }
         }
+
+        public decimal GetTotalExpenses(DateTime date)
+        {
+            return _db.Expenses
+                .Where(x => x.CreatedAt.Date == date.Date)
+                .Sum(x => x.Amount);
+        }
     }
 }

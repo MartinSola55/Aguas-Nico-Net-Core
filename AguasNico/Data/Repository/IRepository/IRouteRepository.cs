@@ -11,7 +11,7 @@ namespace AguasNico.Data.Repository.IRepository
     {
         void Update(Models.Route route);
         void SoftDelete(long id);
-        void GetTotalSold(DateTime date);
+        decimal GetTotalSold(DateTime date);
         void UpdateClients(long routeID, List<Client> clients);
     }
 }
