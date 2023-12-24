@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 namespace AguasNico.Controllers
 {
     [Authorize]
-    public class RouteController(IWorkContainer workContainer, SignInManager<ApplicationUser> signInManager) : Controller
+    public class RoutesController(IWorkContainer workContainer, SignInManager<ApplicationUser> signInManager) : Controller
     {
         private readonly IWorkContainer _workContainer = workContainer;
         private readonly SignInManager<ApplicationUser> _signInManager = signInManager;

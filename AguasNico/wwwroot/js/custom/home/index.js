@@ -17,14 +17,11 @@ $(document).ready(function () {
     });
 
     function salesDay(date) {
-        var csrfToken = $('#logout-form input[name="__RequestVerificationToken"]').val();
+        let form = $('#form-searchRoutesByDate');
         $.ajax({
-            url: '/Routes/SearchByDate',
-            method: 'GET',
-            data: { 
-                date: date,
-                //__RequestVerificationToken: csrfToken,
-            },
+            url: $(form).attr('action'),
+            method: $(form).attr('method'),
+            data: $(form).serialize(),
             success: function (response) { //id, dealer, totalCarts, completedCarts, state, collected
                 const cardContents = response.routes.map(route =>`
                     <tr class="clickable" data-url="/route/details">
