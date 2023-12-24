@@ -80,7 +80,7 @@
                             </div>
                         </div>
                         <div>
-                            <table class="table table-hover table-bordered table-grey" id="TableBottles">
+                            <table class="table table-bordered table-striped" id="TableBottles">
                                 <thead>
                                     <tr>
                                         <th>Nombre</th>
@@ -129,8 +129,8 @@
                                     @foreach (ClientProduct product in Model.Products)
                                     {
                                         <tr data-id="@product.ProductID">
-                                            <td>@product.Product.Name</td>
-                                            <td>$@product.Product.Price</td>
+                                            <td>@Html.DisplayFor(x => product.Product.Name)</td>
+                                            <td>$@Html.DisplayFor(x => product.Product.Price)</td>
                                             <td>
                                                 <input type="number" data-product-id="@product.ProductID" disabled class="form-control" value="@(product.Stock >= 0 ? product.Stock : "")" min="0" />
                                             </td>
