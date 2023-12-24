@@ -10,7 +10,7 @@ $(document).ready(function () {
             "zeroRecords": "No hay planillas para mostrar"
         },
     });
-    $('#DatePicker').bootstrapMaterialDatePicker({
+    $('#DatePicker, #DatePickerProducts, #DatePickerExpenses').bootstrapMaterialDatePicker({
         maxDate: new Date(),
         time: false,
         format: 'DD/MM/YYYY',
