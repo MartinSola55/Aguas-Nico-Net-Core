@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using AguasNico.Data.Repository.IRepository;
 using AguasNico.Models;
 using Microsoft.EntityFrameworkCore;
+using AguasNico.Models.ViewModels.Clients;
 
 namespace AguasNico.Data.Repository
 {
@@ -121,6 +122,47 @@ namespace AguasNico.Data.Repository
                 _db.Database.RollbackTransaction();
                 throw;
             }
+        }
+
+        public IEnumerable<BottleHistory> GetBottleHistory(long clientID)
+        {
+            IEnumerable<CartProduct> soldProducts = _db.CartProducts
+                .Include(x => x.Cart)
+                .Include(x => x.Product)
+                .Where(x => x.Cart.ClientID == clientID && x.Product.Bottle != null)
+                .OrderByDescending(x => x.CreatedAt)
+                .Take(10);
+            IEnumerable<ReturnedProduct> returnedProducts = _db.ReturnedProducts
+                .Include(x => x.Cart)
+                .Include(x => x.Product)
+                .Where(x => x.Cart.ClientID == clientID && x.Product.Bottle != null)
+                .OrderByDescending(x => x.CreatedAt)
+                .Take(10);
+
+            List<BottleHistory> bottleHistory = [];
+            foreach (CartProduct soldProduct in soldProducts)
+            {
+                BottleHistory bottle = new()
+                {
+                    Bottle = soldProduct.Product.Bottle.Value,
+                    ActionType = ActionType.Baja,
+                    Quantity = soldProduct.Quantity,
+                    Date = soldProduct.CreatedAt,
+                };
+                bottleHistory.Add(bottle);
+            }
+            foreach (ReturnedProduct returnedProduct in returnedProducts)
+            {
+                BottleHistory bottle = new()
+                {
+                    Bottle = returnedProduct.Product.Bottle.Value,
+                    ActionType = ActionType.Devuelve,
+                    Quantity = returnedProduct.Quantity,
+                    Date = returnedProduct.CreatedAt,
+                };
+                bottleHistory.Add(bottle);
+            }
+            return bottleHistory.OrderByDescending(x => x.Date);
         }
     }
 }

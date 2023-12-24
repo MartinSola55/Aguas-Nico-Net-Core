@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using AguasNico.Models;
+using AguasNico.Models.ViewModels.Clients;
 
 namespace AguasNico.Data.Repository.IRepository
 {
@@ -36,5 +37,6 @@ namespace AguasNico.Data.Repository.IRepository
         void UpdateInvoiceData(Client client);
 
         void UpdateProducts(long clientID, List<ClientProduct> clientProduct);
+        IEnumerable<Models.ViewModels.Clients.BottleHistory> GetBottleHistory(long clientID);
     }
 }
