@@ -169,6 +169,32 @@ namespace AguasNico.Controllers
             }
         }
 
+        [HttpGet]
+        [ActionName("SearchByDate")]
+        public IActionResult SearchByDate(DateTime date)
+        {
+            try
+            {
+                IEnumerable<Models.Route> routes = _workContainer.Route.GetAll(x => x.CreatedAt.Date == date.Date && x.IsStatic, includeProperties: "User.UserName, Carts, Carts.CartPaymentMethod");
+
+                return Json(new
+                {
+                    success = true,
+                    routes = routes.Select(x => new {
+                        id = x.ID,
+                        dealer = x.User.UserName,
+                        completed = x.Carts.Count(y => y.State == State.Confirmed),
+                        state = x.Carts.Count(y => y.State != State.Pending) == x.Carts.Count() ? "Completado" : "Pendiente",
+                        collected = x.Carts.Sum(y => y.PaymentMethods.Sum(z => z.Amount)),
+                    })
+                });
+            }
+            catch (Exception)
+            {
+                return CustomBadRequest(title: "Error al buscar las planillas", message: "Intente nuevamente o comuníquese para soporte");
+            }
+        }
+
 
         #region Route Details Actions
 
