@@ -4,6 +4,7 @@ using AguasNico.Models.ViewModels.Routes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Common;
 using System.Linq.Expressions;
 
 namespace AguasNico.Controllers
@@ -171,10 +172,11 @@ namespace AguasNico.Controllers
 
         [HttpGet]
         [ActionName("SearchByDate")]
-        public IActionResult SearchByDate(DateTime date)
+        public IActionResult SearchByDate(string dateString)
         {
             try
             {
+                DateTime date = DateTime.Parse(dateString);
                 IEnumerable<Models.Route> routes = _workContainer.Route.GetAll(x => x.CreatedAt.Date == date.Date && x.IsStatic, includeProperties: "User.UserName, Carts, Carts.CartPaymentMethod");
 
                 return Json(new
