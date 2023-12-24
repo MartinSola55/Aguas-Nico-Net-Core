@@ -11,5 +11,6 @@ namespace AguasNico.Data.Repository.IRepository
     {
         void Update(Expense expense);
         void SoftDelete(long id);
+        decimal GetTotalExpenses(DateTime date);
     }
 }

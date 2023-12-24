@@ -40,15 +40,14 @@ namespace AguasNico.Data.Repository
             return _db;
         }
 
-        public void GetTotalSold(DateTime date)
+        public decimal GetTotalSold(DateTime date)
         {
-            var asd = _db.CartPaymentMethods
+            return _db.CartPaymentMethods
                 .Where(x => x.CreatedAt.Date == date.Date)
-                .GroupBy(x => x.PaymentMethod)
-                .Select(g => new {
-                    PaymentMethodID = g.Key,
-                    TotalAmount = g.Sum(x => x.Amount)
-                });
+                .Sum(x => x.Amount)
+                + _db.Transfers
+                .Where(x => x.CreatedAt.Date == date.Date)
+                .Sum(x => x.Amount);
         }
 
         public void UpdateClients(long routeID, List<Client> clients)

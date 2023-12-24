@@ -1,9 +1,15 @@
-﻿namespace AguasNico.Models.ViewModels.Home
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace AguasNico.Models.ViewModels.Home
 {
     public class IndexViewModel
     {
         public ApplicationUser User = null!;
-        public decimal TotalTransfers { get; set; } = 0;
+        
+        [DisplayFormat(DataFormatString = "{0:F0}", ApplyFormatInEditMode = true)]
+        public decimal TotalExpenses { get; set; } = 0;
+
+        [DisplayFormat(DataFormatString = "{0:F0}", ApplyFormatInEditMode = true)]
         public decimal TotalSold { get; set; } = 0;
         public decimal TotalSpent { get; set; } = 0;
         public int CompletedRoutes { get; set; } = 0;   

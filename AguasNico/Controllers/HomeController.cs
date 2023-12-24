@@ -27,8 +27,10 @@ namespace AguasNico.Controllers
                 switch (role)
                 {
                     case Constants.Admin:
-                        viewModel.TotalTransfers = _workContainer.Transfer.GetAll(x => x.CreatedAt.Date == DateTime.UtcNow.AddHours(-3).Date).Sum(x => x.Amount);
-                        /*viewModel.TotalSold = */_workContainer.Route.GetTotalSold(DateTime.UtcNow.AddHours(-3).Date);
+                        viewModel.TotalExpenses = _workContainer.Expense.GetTotalExpenses(DateTime.UtcNow.AddHours(-3).Date);
+                        viewModel.TotalSold = _workContainer.Route.GetTotalSold(DateTime.UtcNow.AddHours(-3).Date);
+                        viewModel.CompletedRoutes = _workContainer.Route.GetAll(x => x.CreatedAt.Date == DateTime.UtcNow.AddHours(-3).Date && x.Carts.All(x => x.State != State.Pending)).Count();
+                        viewModel.PendingRoutes = _workContainer.Route.GetAll(x => x.CreatedAt.Date == DateTime.UtcNow.AddHours(-3).Date && x.Carts.Any(x => x.State == State.Pending)).Count();
                         break;
                     case Constants.Dealer:
                         

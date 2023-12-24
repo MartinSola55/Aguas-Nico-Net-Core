@@ -45,7 +45,7 @@
                     <div class="d-flex flex-row">
                         <div class="round round-lg align-self-center round-primary"><i class="mdi mdi-currency-usd"></i></div>
                         <div class="m-l-10 align-self-center">
-                            <h3 class="m-b-0 font-light">$111111,11</h3> <!--recaudado del dia -->
+                            <h3 class="m-b-0 font-light">$@Html.DisplayFor(x => Model.TotalSold)</h3> <!--recaudado del dia -->
                             <h5 class="text-muted m-b-0">Recaudado en el día</h5>
                         </div>
                     </div>
@@ -60,7 +60,7 @@
                     <div class="d-flex flex-row">
                         <div class="round round-lg align-self-center round-danger"><i class="mdi mdi-shopping"></i></div>
                         <div class="m-l-10 align-self-center">
-                            <h3 class="m-b-0 font-lgiht">$111,11</h3> <!-- GASTOS DEL DIA -->
+                            <h3 class="m-b-0 font-lgiht">$@Html.DisplayFor(x => Model.TotalExpenses)</h3> <!-- GASTOS DEL DIA -->
                             <h5 class="text-muted m-b-0">Gastos del día</h5>
                         </div>
                     </div>
@@ -75,7 +75,7 @@
                     <div class="d-flex flex-row">
                         <div class="round round-lg align-self-center round-success"><i class="mdi mdi-checkbox-marked-circle-outline"></i></div>
                         <div class="m-l-10 align-self-center">
-                            <h3 class="m-b-0 font-lgiht">11</h3> <!-- REPARTOS COMPLETADOS -->
+                            <h3 class="m-b-0 font-lgiht">@Html.DisplayFor(x => Model.CompletedRoutes)</h3> <!-- REPARTOS COMPLETADOS -->
                             <h5 class="text-muted m-b-0">Repartos completados</h5>
                         </div>
                     </div>
@@ -90,7 +90,7 @@
                     <div class="d-flex flex-row">
                         <div class="round round-lg align-self-center round-warning"><i class="mdi mdi-clock-fast"></i></div>
                         <div class="m-l-10 align-self-center">
-                            <h3 class="m-b-0 font-lgiht">11</h3> <!-- REPARTOS EN CURSO/PROCESO -->
+                            <h3 class="m-b-0 font-lgiht">@Html.DisplayFor(x => Model.PendingRoutes)</h3> <!-- REPARTOS EN CURSO/PROCESO -->
                             <h5 class="text-muted m-b-0">Repartos en curso</h5>
                         </div>
                     </div>
