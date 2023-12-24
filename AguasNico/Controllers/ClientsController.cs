@@ -80,6 +80,7 @@ namespace AguasNico.Controllers
                     Transfers = _workContainer.Transfer.GetLastTen(id),
                     Carts = _workContainer.Cart.GetLastTen(id),
                     Products = _workContainer.Client.GetAllProducts(id),
+                    BottleHistory = _workContainer.Client.GetBottleHistory(id),
                 };
                 return View(viewModel);
             }

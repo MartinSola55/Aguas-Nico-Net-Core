@@ -3,6 +3,18 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace AguasNico.Models.ViewModels.Clients
 {
+    public enum ActionType
+    {
+        Baja,
+        Devuelve,
+    }
+    public class BottleHistory
+    {
+        public Bottle Bottle { get; set; }
+        public ActionType ActionType { get; set; }
+        public int Quantity { get; set; }
+        public DateTime Date { get; set; }
+    }
     public class DetailsViewModel
     {
         public Client Client { get; set; } = new();
@@ -33,5 +45,7 @@ namespace AguasNico.Models.ViewModels.Clients
             new() { Text = Day.Jueves.ToString(), Value = Day.Jueves.ToString() },
             new() { Text = Day.Viernes.ToString(), Value = Day.Viernes.ToString() },
         };
+        // Objeto para el historial de botellas
+        public IEnumerable<BottleHistory> BottleHistory { get; set; } = [];        
     }
 }
