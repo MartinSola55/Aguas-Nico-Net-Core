@@ -119,6 +119,7 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
+        [ActionName("SoftDelete")]
         [ValidateAntiForgeryToken]
         public IActionResult SoftDelete(long id)
         {
@@ -146,6 +147,7 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
+        [ActionName("GetClients")]
         public IActionResult GetClients(long productID)
         {
             try
@@ -153,7 +155,7 @@ namespace AguasNico.Controllers
                 return Json(new
                 {
                     success = true,
-                    data = _workContainer.Product.GetClients(productID),
+                    data = _workContainer.Product.GetClients(productID).ToList(),
                 });
             }
             catch (Exception e)
