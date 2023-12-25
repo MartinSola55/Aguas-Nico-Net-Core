@@ -124,45 +124,45 @@ namespace AguasNico.Data.Repository
             }
         }
 
-        public IEnumerable<BottleHistory> GetBottleHistory(long clientID)
+        public IEnumerable<ProductHistory> GetProductsHistory(long clientID)
         {
             IEnumerable<CartProduct> soldProducts = _db.CartProducts
                 .Include(x => x.Cart)
                 .Include(x => x.Product)
-                .Where(x => x.Cart.ClientID == clientID && x.Product.Bottle != null)
+                .Where(x => x.Cart.ClientID == clientID && (x.Product.Type == ProductType.B20L || x.Product.Type == ProductType.B12L))
                 .OrderByDescending(x => x.CreatedAt)
                 .Take(10);
             IEnumerable<ReturnedProduct> returnedProducts = _db.ReturnedProducts
                 .Include(x => x.Cart)
                 .Include(x => x.Product)
-                .Where(x => x.Cart.ClientID == clientID && x.Product.Bottle != null)
+                .Where(x => x.Cart.ClientID == clientID && (x.Product.Type == ProductType.B20L || x.Product.Type == ProductType.B12L))
                 .OrderByDescending(x => x.CreatedAt)
                 .Take(10);
 
-            List<BottleHistory> bottleHistory = [];
+            List<ProductHistory> productsHistory = [];
             foreach (CartProduct soldProduct in soldProducts)
             {
-                BottleHistory bottle = new()
+                ProductHistory product = new()
                 {
-                    Bottle = soldProduct.Product.Bottle.Value,
+                    ProductType = soldProduct.Product.Type,
                     ActionType = ActionType.Baja,
                     Quantity = soldProduct.Quantity,
                     Date = soldProduct.CreatedAt,
                 };
-                bottleHistory.Add(bottle);
+                productsHistory.Add(product);
             }
             foreach (ReturnedProduct returnedProduct in returnedProducts)
             {
-                BottleHistory bottle = new()
+                ProductHistory product = new()
                 {
-                    Bottle = returnedProduct.Product.Bottle.Value,
+                    ProductType = returnedProduct.Product.Type,
                     ActionType = ActionType.Devuelve,
                     Quantity = returnedProduct.Quantity,
                     Date = returnedProduct.CreatedAt,
                 };
-                bottleHistory.Add(bottle);
+                productsHistory.Add(product);
             }
-            return bottleHistory.OrderByDescending(x => x.Date);
+            return productsHistory.OrderByDescending(x => x.Date);
         }
     }
 }

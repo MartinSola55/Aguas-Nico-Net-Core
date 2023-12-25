@@ -4,11 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AguasNico.Models
 {
-    public enum Bottle
-    {
-        B20L = 1,
-        B12L = 2,
-    }
     public enum ProductType
     {
         [Display(Name = "Bidón 20L")] B20L = 1,
@@ -33,14 +28,10 @@ namespace AguasNico.Models
         [DisplayFormat(DataFormatString = "{0:F0}", ApplyFormatInEditMode = true)]
         public decimal Price { get; set; }
 
-        [Display(Name = "Envase")]
-        public Bottle? Bottle { get; set; } = null!;
-
         [Required(ErrorMessage = "Debes ingresar un tipo de producto")]
         [Display(Name = "Tipo de producto")]
         public ProductType Type { get; set; }
         
-
         [Display(Name = "¿Está activo?")]
         [DefaultValue(true)]
         public bool IsActive { get; set; } = true;
