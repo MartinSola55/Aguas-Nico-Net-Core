@@ -75,7 +75,8 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        public IActionResult SearchByDates(string dateFrom, string dateTo)
+        [ActionName("SearchBetweenDates")]
+        public IActionResult SearchBetweenDates(string dateFrom, string dateTo)
         {
             try
             {

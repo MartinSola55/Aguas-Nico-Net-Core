@@ -16,6 +16,14 @@ $(document).ready(function () {
         weekStart: 1,
         lang: 'es',
     });
+    $('#ExpensesDatePicker').bootstrapMaterialDatePicker({
+        maxDate: new Date(),
+        time: false,
+        format: 'DD/MM/YYYY',
+        cancelText: "Cancelar",
+        weekStart: 1,
+        lang: 'es',
+    });
 
     routesDay($('#RoutesDatePicker').val());
 
@@ -24,6 +32,9 @@ $(document).ready(function () {
     });
     $('#ProductsDatePicker').on('change', function () {
         productsDay($(this).val());
+    });
+    $('#ExpensesDatePicker').on('change', function () {
+        expensesDay($(this).val());
     });
 
     function routesDay(selectedDate) {
@@ -115,6 +126,51 @@ $(document).ready(function () {
                     <td></td>
                 </tr>`;
                 $('#productsTable tbody').append($(row));
+            }
+        });
+    }
+
+    function expensesDay(selectedDate) {
+        $('#expensesTable tbody').empty();
+        let loadingRow = `<tr>
+            <td>
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Cargando...</span>
+                </div>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>`;
+        $('#expensesTable tbody').append($(loadingRow));
+        $('#form-searchExpensesByDate input[name="dateString"]').val(selectedDate);
+        let form = $('#form-searchExpensesByDate');
+        $.ajax({
+            url: $(form).attr('action'),
+            method: $(form).attr('method'),
+            data: $(form).serialize(),
+            success: function (response) {
+                $('#expensesTable tbody').empty();
+                response.data.forEach(expense => {
+                    let row = `<tr>
+                        <td><h6>${expense.dealer}</h6></td>
+                        <td><h6>${expense.description}</h6></td>
+                        <td><h5>$${expense.amount}</h5></td>
+                    </tr>`;
+                    $('#expensesTable tbody').append($(row));
+                });
+            },
+            error: function (error) {
+                $('#expensesTable tbody').empty();
+                let row = `<tr>
+                    <td>
+                        <h6 class="text-danger">No se pudo cargar la información</h6>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>`;
+                $('#expensesTable tbody').append($(row));
             }
         });
     }

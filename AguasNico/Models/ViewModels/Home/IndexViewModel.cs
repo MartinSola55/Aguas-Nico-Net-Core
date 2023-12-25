@@ -16,5 +16,6 @@ namespace AguasNico.Models.ViewModels.Home
         public int CompletedRoutes { get; set; } = 0;   
         public int PendingRoutes { get; set; } = 0;
         public List<SoldProductsTable> SoldProducts { get; set; } = [];
+        public IEnumerable<Expense> Expenses { get; set; } = [];
     }
 }
