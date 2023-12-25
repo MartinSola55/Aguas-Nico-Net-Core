@@ -24,7 +24,7 @@ namespace AguasNico.Data
             modelBuilder.Entity<ReturnedProduct>()
                 .HasKey(entity => new { entity.ProductID, entity.CartID });
             modelBuilder.Entity<DispatchedProduct>()
-                .HasKey(entity => new { entity.RouteID, entity.Bottle });
+                .HasKey(entity => new { entity.RouteID, entity.Type });
 
             modelBuilder.Entity<Cart>()
                 .HasQueryFilter(entity => entity.DeletedAt == null);

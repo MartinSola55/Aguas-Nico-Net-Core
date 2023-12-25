@@ -9,6 +9,13 @@ namespace AguasNico.Models
         B20L = 1,
         B12L = 2,
     }
+    public enum ProductType
+    {
+        [Display(Name = "Bidón 20L")] B20L = 1,
+        [Display(Name = "Bidón 12")] B12L = 2,
+        [Display(Name = "Soda")] Soda = 3,
+        [Display(Name = "Máquina frío calor")] Máquina = 4,
+    }
     public class Product
     {
         [Key]
@@ -28,6 +35,11 @@ namespace AguasNico.Models
 
         [Display(Name = "Envase")]
         public Bottle? Bottle { get; set; } = null!;
+
+        [Required(ErrorMessage = "Debes ingresar un tipo de producto")]
+        [Display(Name = "Tipo de producto")]
+        public ProductType Type { get; set; }
+        
 
         [Display(Name = "¿Está activo?")]
         [DefaultValue(true)]
