@@ -43,11 +43,11 @@ namespace AguasNico.Controllers
 
         [HttpGet]
         [ActionName("Details")]
-        public IActionResult Details()
+        public IActionResult Details(string id)
         {
             try
             {
-                ApplicationUser dealer = _workContainer.ApplicationUser.GetFirstOrDefault(u => u.UserName.Equals(User.Identity.Name));
+                ApplicationUser dealer = _workContainer.ApplicationUser.GetFirstOrDefault(x => x.Id == id) ?? throw new Exception("No se ha encontrado el usuario");
                 DetailsViewModel viewModel = new()
                 {
                     Dealer = dealer,
@@ -63,5 +63,61 @@ namespace AguasNico.Controllers
                 return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
             }
         }
+
+        #region Pegadas AJAX
+        [HttpGet]
+        [ActionName("GetClientsByDay")]
+        public IActionResult GetClientsByDay(Day day)
+        {
+            try
+            {
+                IEnumerable<Client> clients = _workContainer.Client.GetAll(x => x.DeliveryDay == day);
+
+                return Json(new
+                {
+                    success = true,
+                    data = clients.Select(x => new
+                    {
+                        id = x.ID,
+                        name = x.Name,
+                        debt = x.Debt,
+                    })
+                });
+            }
+            catch (Exception)
+            {
+                return CustomBadRequest(title: "No se encontraron los clientes", message: "Intente nuevamente o comuníquese para soporte");
+            }
+        }
+
+        [HttpGet]
+        [ActionName("GetClientsNotVisited")]
+        public IActionResult GetClientsNotVisited(string dateFromString, string dateToString, string dealerID)
+        {
+            try
+            {
+                ApplicationUser dealer = _workContainer.ApplicationUser.GetFirstOrDefault(x => x.Id == dealerID) ?? throw new Exception("No se ha encontrado el repartidor");
+                DateTime dateFrom = DateTime.Parse(dateFromString);
+                DateTime dateTo = DateTime.Parse(dateToString);
+                IEnumerable<Client> clients = _workContainer.Client.GetNotVisited(dateFrom, dateTo, dealer.Id);
+
+                return Json(new
+                {
+                    success = true,
+                    data = clients.Select(x => new
+                    {
+                        id = x.ID,
+                        name = x.Name,
+                        address = x.Address,
+                    })
+                });
+            }
+            catch (Exception)
+            {
+                return CustomBadRequest(title: "No se encontraron los clientes", message: "Intente nuevamente o comuníquese para soporte");
+            }
+        }
+
+        #endregion
     }
 }

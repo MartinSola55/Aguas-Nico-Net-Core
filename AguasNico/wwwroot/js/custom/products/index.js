@@ -19,7 +19,6 @@ $(document).ready(function () {
             method: $(form).attr('method'),
             data: $(form).serialize(),
             success: function (response) {
-                console.log(response)
                 $('#clientsTable tbody').empty();
                 response.data.forEach(client => {
                     let row = `<tr>

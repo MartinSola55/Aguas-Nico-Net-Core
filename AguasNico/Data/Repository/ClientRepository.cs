@@ -164,5 +164,19 @@ namespace AguasNico.Data.Repository
             }
             return productsHistory.OrderByDescending(x => x.Date);
         }
+
+        public IEnumerable<Client> GetNotVisited(DateTime dateFrom, DateTime dateTo, string dealerID)
+        {
+            return _db.Clients
+                .Include(x => x.Carts)
+                .Where(x => x.DealerID == dealerID && x.Carts.Any(y => !y.IsStatic && y.CreatedAt.DayOfYear >= dateFrom.DayOfYear && y.CreatedAt.DayOfYear <= dateTo.DayOfYear && y.State != State.Confirmed))
+                .OrderBy(x => x.Name)
+                .Select(x => new Client
+                {
+                    ID = x.ID,
+                    Name = x.Name,
+                    Address = x.Address,
+                });
+        }
     }
 }

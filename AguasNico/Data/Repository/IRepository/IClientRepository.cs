@@ -38,5 +38,6 @@ namespace AguasNico.Data.Repository.IRepository
 
         void UpdateProducts(long clientID, List<ClientProduct> clientProduct);
         IEnumerable<ProductHistory> GetProductsHistory(long clientID);
+        IEnumerable<Client> GetNotVisited(DateTime dateFrom, DateTime dateTo, string dealerID);
     }
 }

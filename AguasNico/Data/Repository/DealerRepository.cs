@@ -16,7 +16,7 @@ namespace AguasNico.Data.Repository
         public int GetTotalCarts(string dealerID, DateTime date)
         {
             return _db.Carts
-                .Where(x => x.Route.UserID == dealerID && x.CreatedAt.Month == date.Month && x.CreatedAt.Year == date.Year)
+                .Where(x => x.Route.UserID == dealerID && x.CreatedAt.Month == date.Month && x.CreatedAt.Year == date.Year && !x.IsStatic)
                 .Count();
         }
 
@@ -30,14 +30,14 @@ namespace AguasNico.Data.Repository
         public int GetTotalCompletedCarts(string dealerID, DateTime date)
         {
             return _db.Carts
-                .Where(x => x.Route.UserID == dealerID && x.State == State.Confirmed && x.CreatedAt.Month == date.Month && x.CreatedAt.Year == date.Year)
+                .Where(x => x.Route.UserID == dealerID && x.State == State.Confirmed && x.CreatedAt.Month == date.Month && x.CreatedAt.Year == date.Year && !x.IsStatic)
                 .Count();
         }
 
         public int GetTotalPendingCarts(string dealerID, DateTime date)
         {
             return _db.Carts
-                .Where(x => x.Route.UserID == dealerID && x.State != State.Confirmed && x.CreatedAt.Month == date.Month && x.CreatedAt.Year == date.Year)
+                .Where(x => x.Route.UserID == dealerID && x.State != State.Confirmed && x.CreatedAt.Month == date.Month && x.CreatedAt.Year == date.Year && !x.IsStatic)
                 .Count();
         }
     }

@@ -38,14 +38,14 @@ namespace AguasNico.Controllers
                 {
                     User = user
                 };
-
+                Day today = (Day)(int)DateTime.UtcNow.AddHours(-3).DayOfWeek;
                 switch (role)
                 {
                     case Constants.Admin:
-                        viewModel.Routes = _workContainer.Route.GetStaticsByDay((Day)(int)DateTime.UtcNow.AddHours(-3).DayOfWeek);
+                        viewModel.Routes = _workContainer.Route.GetStaticsByDay(today);
                         return View("~/Views/Routes/Admin/Index.cshtml", viewModel);
                     case Constants.Dealer:
-                        viewModel.Routes = _workContainer.Route.GetStaticsByDay((Day)(int)DateTime.UtcNow.AddHours(-3).DayOfWeek, user.Id);
+                        viewModel.Routes = _workContainer.Route.GetStaticsByDay(today, user.Id);
                         return View("~/Views/Routes/Dealer/Index.cshtml", viewModel);
                     default:
                         return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
