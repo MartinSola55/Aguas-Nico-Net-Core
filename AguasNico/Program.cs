@@ -4,7 +4,9 @@ using AguasNico.Data.Repository.IRepository;
 using AguasNico.Data.Seeding;
 using AguasNico.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +38,20 @@ builder.Services.AddAuthorization(options =>
 });
 
 var app = builder.Build();
+
+// Configure the localization middleware
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(new CultureInfo("es-ES")),
+    SupportedCultures = new List<CultureInfo>
+    {
+        new("es-ES"),
+    },
+    SupportedUICultures = new List<CultureInfo>
+    {
+        new("es-ES"),
+    }
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
