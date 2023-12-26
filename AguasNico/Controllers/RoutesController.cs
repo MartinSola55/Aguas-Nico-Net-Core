@@ -42,7 +42,7 @@ namespace AguasNico.Controllers
                 {
                     case Constants.Admin:
                         filter = entity => entity.DayOfWeek == (Day)DateTime.UtcNow.AddHours(-3).DayOfWeek && entity.IsStatic;
-                        viewModel.Routes = _workContainer.Route.GetAll(filter, includeProperties: "User, Carts").OrderBy(x => x.User.UserName);
+                        viewModel.Routes = _workContainer.Route.GetAll(/*filter, */includeProperties: "User, Carts").OrderBy(x => x.User.UserName);
                         return View("~/Views/Routes/Admin/Index.cshtml", viewModel);
                     case Constants.Dealer:
                         filter = entity => entity.UserID == user.Id && entity.IsStatic;
@@ -120,12 +120,12 @@ namespace AguasNico.Controllers
             {
                 ApplicationUser user = _workContainer.ApplicationUser.GetFirstOrDefault(u => u.UserName.Equals(User.Identity.Name));
                 string role = _signInManager.UserManager.GetRolesAsync(user).Result.First();
-                Models.Route route = _workContainer.Route.GetFirstOrDefault(x => x.ID == id, includeProperties: "User.UserName, Carts, Carts.Client, Carts.CartPaymentMethod, Carts.CartPaymentMethod.PaymentMethod");
+                Models.Route route = _workContainer.Route.GetFirstOrDefault(x => x.ID == id, includeProperties: "User, Carts, Carts.Client, Carts.CartPaymentMethod, Carts.CartPaymentMethod.PaymentMethod");
                 if (route is null)
                 {
-                    return CustomBadRequest(title: "Error al obtener la planilla", message: "La planilla no existe");
+                    return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nLa planilla no existe", ErrorCode = 404 });
                 }
-                
+
                 DetailsViewModel viewModel = new()
                 {
                     Route = route,
@@ -141,7 +141,7 @@ namespace AguasNico.Controllers
             }
             catch (Exception e)
             {
-                return CustomBadRequest(title: "Error al obtener la planilla", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+                return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
             }
         }
 
