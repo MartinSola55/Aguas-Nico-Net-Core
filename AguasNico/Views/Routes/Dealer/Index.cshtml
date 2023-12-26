@@ -1,0 +1,73 @@
+﻿@model AguasNico.Models.ViewModels.Routes.IndexViewModel
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Planillas";
+}
+
+<link href="~/lib/bootstrap-material-datetimepicker/css/bootstrap-material-datetimepicker.css" rel="stylesheet">
+<link href="~/lib/datatables/media/css/dataTables.bootstrap4.css" rel="stylesheet">
+
+<script src="~/lib/datatables/datatables.min.js"></script>
+<script src="~/lib/moment/moment-with-locales.js"></script>
+<script src="~/lib/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js"></script>
+<script src="~/js/custom/home/index.js"></script>
+
+<div class="container-fluid">
+    <!-- ============================================================== -->
+    <!-- Bread crumb and right sidebar toggle -->
+    <!-- ============================================================== -->
+    <div class="row page-titles">
+        <div class="col-md-5 col-8 align-self-center">
+            <h3 class="text-themecolor m-b-0 m-t-0">Inicio</h3>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item active">Planillas</li>
+            </ol>
+        </div>
+    </div>
+    <!-- ============================================================== -->
+    <!-- End Bread crumb and right sidebar toggle -->
+    <!-- ============================================================== -->
+    <!-- ============================================================== -->
+    <!-- Start Page Content -->
+    <!-- ============================================================== -->
+    <div class="row">
+       
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex flex-row mr-auto">
+                        <h3 class="my-auto card-title">Repartos del día</h3>
+                        <input type="text" class="form-control ml-3 my-auto" id="RoutesDatePicker" name="date" value='@DateTime.UtcNow.AddHours(-3).ToString("dd/MM/yyyy")' style="max-width: fit-content;" />
+                    </div>
+                    <div class="table-responsive m-t-20">
+                        <table id="routesTable" class="table stylish-table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Envíos completados</th>
+                                    <th>Estado</th>
+                                    <th>Recaudado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form id="form-searchRoutesByDate" method="get" asp-area="" asp-controller="Routes" asp-action="SearchByDate">
+        @Html.Hidden("dateString", "")
+    </form>
+    <form id="form-searchProductsByDate" method="get" asp-area="" asp-controller="Routes" asp-action="SearchSoldProducts">
+        @Html.Hidden("dateString", "")
+    </form>
+    <form id="form-searchExpensesByDate" method="get" asp-area="" asp-controller="Expenses" asp-action="SearchByDate">
+        @Html.Hidden("dateString", "")
+    </form>
+</div>
+    

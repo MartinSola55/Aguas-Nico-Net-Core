@@ -1,22 +1,6 @@
 
 $(document).ready(function () {
-    $('#RoutesDatePicker').bootstrapMaterialDatePicker({
-        maxDate: new Date(),
-        time: false,
-        format: 'DD/MM/YYYY',
-        cancelText: "Cancelar",
-        weekStart: 1,
-        lang: 'es',
-    });
-    $('#ProductsDatePicker').bootstrapMaterialDatePicker({
-        maxDate: new Date(),
-        time: false,
-        format: 'DD/MM/YYYY',
-        cancelText: "Cancelar",
-        weekStart: 1,
-        lang: 'es',
-    });
-    $('#ExpensesDatePicker').bootstrapMaterialDatePicker({
+    $('#ExpensesDatePicker, #ProductsDatePicker, #RoutesDatePicker').bootstrapMaterialDatePicker({
         maxDate: new Date(),
         time: false,
         format: 'DD/MM/YYYY',
@@ -37,6 +21,7 @@ $(document).ready(function () {
         expensesDay($(this).val());
     });
 
+    
     function routesDay(selectedDate) {
         $('#routesTable tbody').empty();
         let loadingRow = `<tr>
@@ -59,13 +44,16 @@ $(document).ready(function () {
             success: function (response) {
                 $('#routesTable tbody').empty();
                 response.routes.forEach(route => {
-                    let row = `<tr class="clickable" data-url="/route/details">
+                    let row = `<tr class="clickable" data-url="/Routes/Details/${route.id}">
                         <td><h6>${route.dealer}</h6></td>
                         <td>${route.completedCarts}/${route.totalCarts}</td>
                         ${route.state == 'Pendiente' ? `<td><span class="label label-warning">${route.state}</span></td>` : `<td><span class="label label-success">${route.state}</span></td>`}
                         <td>$ ${route.collected}</td>
                     </tr>`;
                     $('#routesTable tbody').append($(row));
+                });
+                $('#routesTable tbody tr').on('click', function () {
+                    window.location.href = $(this).data('url');
                 });
             },
             error: function (error) {

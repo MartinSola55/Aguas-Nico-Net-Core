@@ -1,0 +1,85 @@
+﻿@model AguasNico.Models.ViewModels.Routes.IndexViewModel
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Planillas";
+}
+<link href="~/lib/bootstrap-material-datetimepicker/css/bootstrap-material-datetimepicker.css" rel="stylesheet">
+<link href="~/lib/datatables/media/css/dataTables.bootstrap4.css" rel="stylesheet">
+
+<script src="~/lib/datatables/datatables.min.js"></script>
+<script src="~/lib/moment/moment-with-locales.js"></script>
+<script src="~/lib/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js"></script>
+<script src="~/js/custom/routes/admin/index.js"></script>
+
+<div class="container-fluid">
+    <!-- ============================================================== -->
+    <!-- Bread crumb and right sidebar toggle -->
+    <!-- ============================================================== -->
+    <div class="row page-titles">
+        <div class="col-md-5 col-8 align-self-center">
+            <h3 class="text-themecolor m-b-0 m-t-0">Inicio</h3>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">Inicio</a></li>
+                <li class="breadcrumb-item active">Planillas</li>
+            </ol>
+        </div>
+        <div class="col-md-7 col-4 align-self-center">
+            <div class="d-flex m-t-10 justify-content-end">
+                <div class="d-flex m-r-20 m-l-10 hidden-md-down">
+                    <div>
+                        <a class="btn btn-info waves-effect waves-light">
+                            <i class="bi bi-plus-lg"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ============================================================== -->
+    <!-- End Bread crumb and right sidebar toggle -->
+    <!-- ============================================================== -->
+    <!-- ============================================================== -->
+    <!-- Start Page Content -->
+    <!-- ============================================================== -->
+    <div class="row">
+        <div class="col-lg-12 col-md-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex no-block">
+                        <h4 class="card-title">Planillas</h4>
+                        <div class="ml-auto">
+                            <form method="GET" asp-area="" asp-controller="Routes" asp-action="SearchByDay" id="formSearchRoutes">
+                                <label class="form-control-label">Día</label>
+                                @Html.DropDownList("daysDropDowm", Model.Days, new { @class = "form-control form-select", @id = "daySelect" })
+                            </form>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="routesTable" class="table stylish-table">
+                            <thead>
+                                <tr>
+                                    <th>Reparto</th>
+                                    <th>Envíos a Realizar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (AguasNico.Models.Route route in Model.Routes)
+                                {
+                                    <tr class="clickable" data-url="/Routes/Details/@route.ID">
+                                        <td><span class="label label-info"><h6 class="text-white">@Html.DisplayFor(x => route.User.UserName)</h6></span></td>
+                                        <td><h6>@route.Carts.Count()</h6></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <form id="form-searchRoutesByDay" method="get" asp-area="" asp-controller="Routes" asp-action="SearchByDay">
+        @Html.Hidden("dayString", "")
+    </form>
+</div>
+    
