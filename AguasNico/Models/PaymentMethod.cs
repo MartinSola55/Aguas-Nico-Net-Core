@@ -11,9 +11,6 @@ namespace AguasNico.Models
         [Display(Name = "Método de pago")]
         public string Name { get; set; } = null!;
 
-        [Display(Name = "Habilitado")]
-        public bool IsActive { get; set; } = true;
-
         public virtual IEnumerable<CartPaymentMethod> Carts { get; set; } = null!;
     }
 }

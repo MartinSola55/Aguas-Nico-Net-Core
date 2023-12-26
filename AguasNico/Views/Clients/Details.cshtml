@@ -42,12 +42,12 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach(var transfer in Model.Transfers)
+                                    @foreach(Transfer transfer in Model.Transfers)
                                     {
                                         <tr>
                                             <td>@transfer.Date.ToString("dd/MM/yyyy")</td>
                                             <td>Transferencia</td>
-                                            <td>$@transfer.Amount</td>
+                                            <td>@Html.DisplayFor(x => transfer.Amount)</td>
                                         </tr>
                                     }
                                     @foreach(var cart in Model.Carts)
@@ -56,13 +56,13 @@
                                             <td>@cart.CreatedAt.ToString("dd/MM/yyyy")</td>
                                             <td>
                                                 <ul class="pl-3">
-                                                    @foreach(var product in cart.Products)
+                                                    @foreach(CartProduct product in cart.Products)
                                                     {
-                                                        <li>@product.Product.Name</li>
+                                                        <li>@Html.DisplayFor(x => product.Product.Name)</li>
                                                     }
                                                 </ul>
                                             </td>
-                                            <td>$@cart.PaymentMethods.Sum(x => x.Amount)</td>
+                                            <td>@cart.PaymentMethods.Sum(x => x.Amount).ToString("$#,##")</td>
                                         </tr>
                                     }
                                 </tbody>
@@ -93,9 +93,9 @@
                                     @foreach (var product in Model.ProductsHistory)
                                     {
                                         <tr>
-                                            <td>@product.ProductType</td>
-                                            <td>@product.ActionType</td>
-                                            <td>@product.Quantity</td>
+                                            <td>@Html.DisplayFor(x => product.ProductType)</td>
+                                            <td>@Html.DisplayFor(x => product.ActionType)</td>
+                                            <td>@Html.DisplayFor(x => product.Quantity)</td>
                                             <td>@product.Date.ToString("dd/MM/yyyy")</td>
                                         </tr>
                                     }
@@ -130,7 +130,7 @@
                                     {
                                         <tr data-id="@product.ProductID">
                                             <td>@Html.DisplayFor(x => product.Product.Name)</td>
-                                            <td>$@Html.DisplayFor(x => product.Product.Price)</td>
+                                            <td>@Html.DisplayFor(x => product.Product.Price)</td>
                                             <td>
                                                 <input type="number" data-product-id="@product.ProductID" disabled class="form-control" value="@(product.Stock >= 0 ? product.Stock : "")" min="0" />
                                             </td>

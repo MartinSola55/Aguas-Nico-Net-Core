@@ -1,0 +1,88 @@
+﻿@model AguasNico.Models.ViewModels.Routes.CreateViewModel
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Planillas";
+}
+<link href="~/lib/datatables/media/css/dataTables.bootstrap4.css" rel="stylesheet">
+
+<script src="~/lib/datatables/datatables.min.js"></script>
+<script src="~/js/custom/routes/admin/create.js"></script>
+
+<div class="container-fluid">
+    <div class="row page-titles">
+        <div class="col-md-5 col-8 align-self-center">
+            <h3 class="text-themecolor m-b-0 m-t-0">Planillas</h3>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">Inicio</a></li>
+                <li class="breadcrumb-item"><a asp-area="" asp-controller="Routes" asp-action="Index">Planillas</a></li>
+                <li class="breadcrumb-item active">Nueva</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modalConfirmation" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog">
+            <form method="post" id="form-create" asp-area="" asp-controller="Routes" asp-action="Create">
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.Route.UserID)
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title"></h4>
+                        <button type="button" class="close" id="btnCloseModal" data-dismiss="modal" aria-hidden="true">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-column">
+                                    <div class="col-12 mb-3">
+                                        <label asp-for="@Model.Route.DayOfWeek" class="mb-0"></label>
+                                        @Html.DropDownListFor(m => m.Route.DayOfWeek, Model.Days, new { @class = "form-control form-select" })
+                                        <span asp-validation-for="@Model.Route.DayOfWeek" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cerrar</button>
+                        <button id="btnCreateRoute" type="button" class="btn btn-info waves-effect waves-light">Confirmar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- End Modal -->
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title">Listado de repartidores</h2>
+                    <div class="table-responsive m-t-10">
+                        <table id="DataTable" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Camión</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (ApplicationUser dealer in Model.Dealers)
+                                {
+                                    <tr data-id="@dealer.Id">
+                                        <td><p style="color: cornflowerblue; cursor: pointer; max-width: fit-content" data-toggle="modal" data-target="#modalConfirmation" onclick="openModal('@dealer.Id', '@dealer.UserName')">@Html.DisplayFor(c => dealer.UserName)</p></td>
+                                        <td>@Html.DisplayFor(c => dealer.Email)</td>
+                                        <td>@Html.DisplayFor(c => dealer.TruckNumber.Value)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

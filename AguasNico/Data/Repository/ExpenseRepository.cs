@@ -41,5 +41,12 @@ namespace AguasNico.Data.Repository
                 .Where(x => x.CreatedAt.Date == date.Date)
                 .Sum(x => x.Amount);
         }
+
+        public decimal GetTotalExpensesByDealer(DateTime date, string dealerID)
+        {
+            return _db.Expenses
+                .Where(x => x.CreatedAt.Date == date.Date && x.UserID == dealerID)
+                .Sum(x => x.Amount);
+        }
     }
 }

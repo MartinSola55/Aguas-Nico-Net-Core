@@ -109,7 +109,7 @@
                                 {
                                     <tr data-id="@item.ID">
                                         <td>@Html.DisplayFor(c => item.Description)</td>
-                                        <td>$@(item.Amount.ToString("N0", new CultureInfo("es-ES")))</td>
+                                        <td>@Html.DisplayFor(c => item.Amount)</td>
                                         <td>@(item.CreatedAt.ToString("dd/MM/yyyy"))</td>
                                         <td class='d-flex flex-row justify-content-center'>
                                             <button type='button' class='btn btn-outline-info btn-rounded btn-sm mr-2'

@@ -18,7 +18,7 @@ namespace AguasNico.Models
 
         [Display(Name = "Precio")]
         [Column(TypeName = "money")]
-        [DisplayFormat(DataFormatString = "{0:F0}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "${0:#,##0}", ApplyFormatInEditMode = true)]
         public decimal SettedPrice { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow.AddHours(-3);

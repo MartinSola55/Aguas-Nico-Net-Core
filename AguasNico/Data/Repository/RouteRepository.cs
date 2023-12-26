@@ -103,5 +103,23 @@ namespace AguasNico.Data.Repository
                     .OrderBy(x => x.User.UserName),
             };
         }
+
+        public List<CartPaymentMethod> GetTotalCollected(long routeID)
+        {
+            List<PaymentMethod> methods = _db.PaymentMethods.ToList();
+            List<CartPaymentMethod> cartPaymentMethods = new();
+
+            foreach (PaymentMethod method in methods)
+            {
+                cartPaymentMethods.Add(new CartPaymentMethod()
+                {
+                    PaymentMethod = method,
+                    Amount = _db.CartPaymentMethods
+                        .Where(x => x.Cart.RouteID == routeID && x.PaymentMethodID == method.ID)
+                        .Sum(x => x.Amount)
+                });
+            }
+            return cartPaymentMethods;
+        }
     }
 }

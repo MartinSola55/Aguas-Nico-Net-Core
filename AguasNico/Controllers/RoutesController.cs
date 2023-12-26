@@ -1,7 +1,7 @@
 using AguasNico.Data.Repository.IRepository;
 using AguasNico.Models;
 using AguasNico.Models.ViewModels.Routes;
-using AguasNico.Models.ViewModels.Tables;
+using AguasNico.Models.ViewModels.Routes.Details;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -68,7 +68,7 @@ namespace AguasNico.Controllers
                     Dealers = _workContainer.ApplicationUser.GetDealers(),
                     Route = new()
                 };
-                return View(viewModel);
+                return View("~/Views/Routes/Admin/Create.cshtml", viewModel);
             }
             catch (Exception)
             {
@@ -79,27 +79,26 @@ namespace AguasNico.Controllers
         [HttpPost]
         [ActionName("Create")]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(CreateViewModel viewModel)
+        public IActionResult Create(Models.Route route)
         {
+            ModelState.Remove("route.Carts");
+            ModelState.Remove("route.User");
             if (ModelState.IsValid)
             {
                 try
                 {
-                    Models.Route route = viewModel.Route;
-
                     route.IsStatic = true;
-                    route.CreatedAt = DateTime.UtcNow.AddHours(-3);
+                    if (_workContainer.Route.GetFirstOrDefault(x => x.DayOfWeek == route.DayOfWeek && x.IsStatic && x.UserID == route.UserID) is not null)
+                    {
+                        return CustomBadRequest(title: "Error al crear la planilla", message: "El repartidor ya tiene una planilla para ese día");
+                    }
                     _workContainer.Route.Add(route);
                     
-                    // TODO: Agregar productos despachados
-
                     _workContainer.Save();
 
-                    Models.Route newRoute = _workContainer.Route.GetOne(route.ID);
                     return Json(new
                     {
                         success = true,
-                        data = newRoute,
                         message = "La planilla se creó correctamente",
                     });
                 }
@@ -119,24 +118,34 @@ namespace AguasNico.Controllers
             {
                 ApplicationUser user = _workContainer.ApplicationUser.GetFirstOrDefault(u => u.UserName.Equals(User.Identity.Name));
                 string role = _signInManager.UserManager.GetRolesAsync(user).Result.First();
-                Models.Route route = _workContainer.Route.GetFirstOrDefault(x => x.ID == id, includeProperties: "User, Carts, Carts.Client, Carts.CartPaymentMethod, Carts.CartPaymentMethod.PaymentMethod");
-                if (route is null)
-                {
-                    return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nLa planilla no existe", ErrorCode = 404 });
-                }
+                Models.Route route = _workContainer.Route.GetFirstOrDefault(x => x.ID == id, includeProperties: "User, Carts, Carts.Client, Carts.PaymentMethods, Carts.PaymentMethods.PaymentMethod");
+                
+                if (route is null) return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nLa planilla no existe", ErrorCode = 404 });
+                if (route.UserID != user.Id && role != Constants.Admin) return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nNo tiene permisos para ver esta planilla", ErrorCode = 403 });
 
-                DetailsViewModel viewModel = new()
+                switch (role)
                 {
-                    Route = route,
-                    PaymentMethods = _workContainer.PaymentMethod.GetDropDownList(),
-                };
-
-                if (role == Constants.Admin)
-                {
-                    viewModel.DispatchedProducts = _workContainer.DispatchedProduct.GetAllFromRoute(id).OrderBy(x => x.Type);
-                    // TODO: Get stats
+                    case Constants.Admin:
+                        AdminViewModel adminViewModel = new()
+                        {
+                            Route = route,
+                            TotalExpenses = _workContainer.Expense.GetTotalExpensesByDealer(DateTime.UtcNow.AddHours(-3).Date, route.UserID),
+                            TotalSold = _workContainer.Route.GetTotalSold(DateTime.UtcNow.AddHours(-3).Date),
+                            CompletedCarts = _workContainer.Cart.GetAll(x => x.RouteID == id && x.State != State.Pending).Count(),
+                            PendingCarts = _workContainer.Cart.GetAll(x => x.RouteID == id && x.State == State.Pending).Count(),
+                            SoldProducts = _workContainer.Tables.GetSoldProductsByDateAndRoute(DateTime.UtcNow.AddHours(-3).Date, id),
+                            Payments = _workContainer.Route.GetTotalCollected(route.ID),
+                        };
+                        return View("~/Views/Routes/Admin/Details.cshtml", adminViewModel);
+                    case Constants.Dealer:
+                        DealerViewModel dealerViewModel = new()
+                        {
+                            Route = route,
+                        };
+                        return View("~/Views/Routes/Dealer/Details.cshtml", dealerViewModel);
+                    default:
+                        return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
                 }
-                return View(viewModel);
             }
             catch (Exception)
             {
@@ -169,6 +178,7 @@ namespace AguasNico.Controllers
             }
         }
 
+        #region Pegadas AJAX
         [HttpGet]
         [ActionName("SearchByDate")]
         public IActionResult SearchByDate(string dateString)
@@ -249,7 +259,9 @@ namespace AguasNico.Controllers
             }
         }
 
-        #region Route Details Actions
+        #endregion
+
+        #region Details actions
 
         [HttpPost]
         [ActionName("UpdateClients")] // For admin. Deletes and creates all static carts.

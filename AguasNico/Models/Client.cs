@@ -21,10 +21,11 @@ namespace AguasNico.Models
     {
         public static string GetDisplayName(this Enum value)
         {
-            var displayAttribute = value.GetType()
-                                        .GetField(value.ToString())
-                                        .GetCustomAttributes(typeof(DisplayAttribute), false)
-                                        as DisplayAttribute[];
+            var displayAttribute = value
+                .GetType()
+                .GetField(value.ToString())
+                .GetCustomAttributes(typeof(DisplayAttribute), false)
+                as DisplayAttribute[];
 
             return displayAttribute[0].Name;
         }
@@ -59,7 +60,7 @@ namespace AguasNico.Models
         [Display(Name = "Deuda")]
         [Column(TypeName = "money")]
         [DefaultValue(0)]
-        [DisplayFormat(DataFormatString = "{0:F0}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:#,##0}", ApplyFormatInEditMode = true)]
         public decimal Debt { get; set; } = 0;
 
         [Display(Name = "Repartidor")]

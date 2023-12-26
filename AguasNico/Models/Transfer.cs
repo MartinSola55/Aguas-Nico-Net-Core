@@ -18,7 +18,7 @@ namespace AguasNico.Models
         [Display(Name = "Monto")]
         [Range(1, 1000000, ErrorMessage = "El monto debe ser mayor a 0")]
         [Column(TypeName = "money")]
-        [DisplayFormat(DataFormatString = "{0:F0}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "${0:#,##0}", ApplyFormatInEditMode = true)]
         public decimal Amount { get; set; }
 
         public DateTime Date { get; set; } = DateTime.UtcNow.AddHours(-3);
