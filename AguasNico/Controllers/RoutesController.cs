@@ -42,16 +42,15 @@ namespace AguasNico.Controllers
                 {
                     case Constants.Admin:
                         filter = entity => entity.DayOfWeek == (Day)DateTime.UtcNow.AddHours(-3).DayOfWeek && entity.IsStatic;
-                        viewModel.Routes = _workContainer.Route.GetAll(filter, includeProperties: "User.UserName, Carts").OrderBy(x => x.User.UserName);
-                        break;
+                        viewModel.Routes = _workContainer.Route.GetAll(filter, includeProperties: "User, Carts").OrderBy(x => x.User.UserName);
+                        return View("~/Views/Routes/Admin/Index.cshtml", viewModel);
                     case Constants.Dealer:
                         filter = entity => entity.UserID == user.Id && entity.IsStatic;
-                        viewModel.Routes = _workContainer.Route.GetAll(filter, includeProperties: "User.UserName, Carts").OrderBy(x => x.User.UserName);
-                        break;
+                        viewModel.Routes = _workContainer.Route.GetAll(filter, includeProperties: "User, Carts").OrderBy(x => x.User.UserName);
+                        return View("~/Views/Routes/Dealer/Index.cshtml", viewModel);
                     default:
                         return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
                 }
-                return View(viewModel);
             }
             catch (Exception)
             {
