@@ -1,5 +1,6 @@
 
 $(document).ready(function () {
+    const dayOfWeek = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
     $("#selectProduct").on('change', function () {
         $("#clientsTable tbody").empty();
         let loadingRow = `<tr>
@@ -18,11 +19,13 @@ $(document).ready(function () {
             method: $(form).attr('method'),
             data: $(form).serialize(),
             success: function (response) {
+                console.log(response)
                 $('#clientsTable tbody').empty();
                 response.data.forEach(client => {
                     let row = `<tr>
                         <td>${client.name}</td>
                         <td>${client.address}</td>
+                        <td>${client.dealer.userName} - ${dayOfWeek[client.deliveryDay]}</td>
                     </tr>`;
                     $('#clientsTable tbody').append($(row));
                 });

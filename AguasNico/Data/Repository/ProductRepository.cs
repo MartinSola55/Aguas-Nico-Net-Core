@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using AguasNico.Data.Repository.IRepository;
 using AguasNico.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace AguasNico.Data.Repository
 {
@@ -39,7 +40,7 @@ namespace AguasNico.Data.Repository
 
         public IEnumerable<Client> GetClients(long productID)
         {
-            return _db.ClientProducts.Where(x => x.ProductID == productID).Select(x => x.Client);
+            return _db.ClientProducts.Where(x => x.ProductID == productID).Include(x => x.Client).ThenInclude(x => x.Dealer).Select(x => x.Client);
         }
 
         public List<SelectListItem> GetTypes()
