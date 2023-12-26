@@ -23,6 +23,7 @@ namespace AguasNico.Data.Repository
             DispatchedProduct = new DispatchedProductRepository(_db);
             Cart = new CartRepository(_db);
             Tables = new TablesRepository(_db);
+            Dealer = new DealerRepository(_db);
         }
 
         public IApplicationUserRepository ApplicationUser { get; private set; }
@@ -35,6 +36,7 @@ namespace AguasNico.Data.Repository
         public IDispatchedProductRepository DispatchedProduct { get; private set; }
         public ICartRepository Cart { get; private set; }
         public ITablesRepository Tables { get; private set; }
+        public IDealerRepository Dealer { get; private set; }
 
         public void BeginTransaction()
         {

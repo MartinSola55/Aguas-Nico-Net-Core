@@ -13,5 +13,6 @@ namespace AguasNico.Data.Repository.IRepository
         void SoftDelete(long id);
         decimal GetTotalSold(DateTime date);
         void UpdateClients(long routeID, List<Client> clients);
+        IEnumerable<Models.Route> GetStaticsByDay(Day day, string? userID = null);
     }
 }

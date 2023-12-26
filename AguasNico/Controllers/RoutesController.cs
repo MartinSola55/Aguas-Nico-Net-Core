@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NuGet.Common;
+using System.Globalization;
 using System.Linq.Expressions;
 
 namespace AguasNico.Controllers
@@ -37,16 +38,14 @@ namespace AguasNico.Controllers
                 {
                     User = user
                 };
-                Expression<Func<Models.Route, bool>> filter;
+
                 switch (role)
                 {
                     case Constants.Admin:
-                        filter = entity => entity.DayOfWeek == (Day)DateTime.UtcNow.AddHours(-3).DayOfWeek && entity.IsStatic;
-                        viewModel.Routes = _workContainer.Route.GetAll(/*filter, */includeProperties: "User, Carts").OrderBy(x => x.User.UserName);
+                        viewModel.Routes = _workContainer.Route.GetStaticsByDay((Day)(int)DateTime.UtcNow.AddHours(-3).DayOfWeek);
                         return View("~/Views/Routes/Admin/Index.cshtml", viewModel);
                     case Constants.Dealer:
-                        filter = entity => entity.UserID == user.Id && entity.IsStatic;
-                        viewModel.Routes = _workContainer.Route.GetAll(filter, includeProperties: "User, Carts").OrderBy(x => x.User.UserName);
+                        viewModel.Routes = _workContainer.Route.GetStaticsByDay((Day)(int)DateTime.UtcNow.AddHours(-3).DayOfWeek, user.Id);
                         return View("~/Views/Routes/Dealer/Index.cshtml", viewModel);
                     default:
                         return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
@@ -139,7 +138,7 @@ namespace AguasNico.Controllers
                 }
                 return View(viewModel);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
             }
@@ -218,6 +217,31 @@ namespace AguasNico.Controllers
                         data = _workContainer.Tables.GetSoldProductsByDateAndRoute(date, routeID.Value)
                     }),
                 };
+            }
+            catch (Exception)
+            {
+                return CustomBadRequest(title: "No se encontraron planillas", message: "Intente nuevamente o comuníquese para soporte");
+            }
+        }
+
+        [HttpGet]
+        [ActionName("SearchByDay")]
+        public IActionResult SearchByDay(Day dayString)
+        {
+            try
+            {
+                IEnumerable<Models.Route> routes = _workContainer.Route.GetAll(x => x.DayOfWeek == dayString && x.IsStatic, includeProperties: "User, Carts");
+
+                return Json(new
+                {
+                    success = true,
+                    routes = routes.Select(x => new
+                    {
+                        id = x.ID,
+                        dealer = x.User.UserName,
+                        totalCarts = x.Carts.Count(),
+                    })
+                });
             }
             catch (Exception)
             {

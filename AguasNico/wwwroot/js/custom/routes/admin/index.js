@@ -29,8 +29,8 @@ $(document).ready(function () {
                 $('#routesTable tbody').empty();
                 response.routes.forEach(route => {
                     let row = `<tr class="clickable" data-url="/Routes/Details/${route.id}">
-                        <td><h6>${route.dealer}</h6></td>
-                        <td>${route.totalCarts}</td>
+                        <td><span class="label label-info"><h6 class="text-white">${route.dealer}</h6></span></td>
+                        <td><h6>${route.totalCarts}</h6></td>
                     </tr>`;
                     $('#routesTable tbody').append($(row));
                 });

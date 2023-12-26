@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using AguasNico.Data.Repository.IRepository;
 using AguasNico.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace AguasNico.Data.Repository
 {
@@ -84,6 +85,23 @@ namespace AguasNico.Data.Repository
                 _db.Database.RollbackTransaction();
                 throw;
             }
+        }
+
+        public IEnumerable<Models.Route> GetStaticsByDay(Day day, string? userID = null)
+        {
+            return userID switch
+            {
+                null => _db.Routes
+                    .Where(x => x.IsStatic && x.DayOfWeek == day)
+                    .Include(x => x.User)
+                    .Include(x => x.Carts)
+                    .OrderBy(x => x.User.UserName),
+                _ => _db.Routes
+                    .Where(x => x.IsStatic && x.DayOfWeek == day && x.UserID == userID)
+                    .Include(x => x.User)
+                    .Include(x => x.Carts)
+                    .OrderBy(x => x.User.UserName),
+            };
         }
     }
 }
