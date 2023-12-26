@@ -80,7 +80,7 @@
                             </div>
                         </div>
                         <div>
-                            <table class="table table-bordered table-striped" id="TableBottles">
+                            <table class="table table-bordered table-striped" id="TableProductsHistory">
                                 <thead>
                                     <tr>
                                         <th>Nombre</th>
@@ -90,13 +90,13 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var bottle in Model.BottleHistory)
+                                    @foreach (var product in Model.ProductsHistory)
                                     {
                                         <tr>
-                                            <td>@bottle.Bottle</td>
-                                            <td>@bottle.ActionType</td>
-                                            <td>@bottle.Quantity</td>
-                                            <td>@bottle.Date.ToString("dd/MM/yyyy")</td>
+                                            <td>@product.ProductType</td>
+                                            <td>@product.ActionType</td>
+                                            <td>@product.Quantity</td>
+                                            <td>@product.Date.ToString("dd/MM/yyyy")</td>
                                         </tr>
                                     }
                                 </tbody>
@@ -562,7 +562,7 @@
         }
     });
     
-    $('#TableBottles').DataTable({
+    $('#TableProductsHistory').DataTable({
         "order": false,
         "paging": false,
         "info": false,

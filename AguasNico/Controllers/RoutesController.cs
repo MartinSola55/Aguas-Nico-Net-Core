@@ -1,6 +1,7 @@
 using AguasNico.Data.Repository.IRepository;
 using AguasNico.Models;
 using AguasNico.Models.ViewModels.Routes;
+using AguasNico.Models.ViewModels.Tables;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -134,7 +135,7 @@ namespace AguasNico.Controllers
 
                 if (role == Constants.Admin)
                 {
-                    viewModel.DispatchedProducts = _workContainer.DispatchedProduct.GetAllFromRoute(id).OrderBy(x => x.Bottle);
+                    viewModel.DispatchedProducts = _workContainer.DispatchedProduct.GetAllFromRoute(id).OrderBy(x => x.Type);
                     // TODO: Get stats
                 }
                 return View(viewModel);
@@ -198,6 +199,32 @@ namespace AguasNico.Controllers
             }
         }
 
+        [HttpGet]
+        [ActionName("SearchSoldProducts")]
+        public IActionResult SearchSoldProducts(string dateString, long? routeID = null)
+        {
+            try
+            {
+                DateTime date = DateTime.Parse(dateString);
+                return routeID switch
+                {
+                    null => Json(new
+                    {
+                        success = true,
+                        data = _workContainer.Tables.GetSoldProductsByDate(date)
+                    }),
+                    _ => Json(new
+                    {
+                        success = true,
+                        data = _workContainer.Tables.GetSoldProductsByDateAndRoute(date, routeID.Value)
+                    }),
+                };
+            }
+            catch (Exception)
+            {
+                return CustomBadRequest(title: "No se encontraron planillas", message: "Intente nuevamente o comuníquese para soporte");
+            }
+        }
 
         #region Route Details Actions
 
@@ -281,29 +308,6 @@ namespace AguasNico.Controllers
                     product.UpdatedAt = DateTime.UtcNow.AddHours(-3);
                     _workContainer.DispatchedProduct.Add(product);
                 }
-                /*
-                $products_quantity = json_decode($request->input('products_quantity'), true);
-                $route_id = $request->input('route_id');
-
-                foreach ($products_quantity as $product) {
-
-                    if ($product['dispatch_id'] !== null) {
-                        ProductDispatched::find($product['dispatch_id'])
-                            ->update(['quantity' => $product['quantity']]);
-                    }else {
-                        if ($product['bottle_types_id'] === 'null') {
-                            $product['bottle_types_id'] = null;
-                        }else if ($product['product_id'] === 'null') {
-                            $product['product_id'] = null;
-                        }
-                        ProductDispatched::create([
-                            'product_id' => $product['product_id'],
-                            'bottle_types_id' => $product['bottle_types_id'],
-                            'route_id' => $route_id,
-                            'quantity' => $product['quantity'],
-                        ]);
-                    }
-                */
                 return Json(new
                 {
                     success = true,

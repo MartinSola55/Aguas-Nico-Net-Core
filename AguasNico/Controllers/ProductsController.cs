@@ -29,7 +29,8 @@ namespace AguasNico.Controllers
                 IndexViewModel viewModel = new()
                 {
                     Products = _workContainer.Product.GetAll().OrderBy(x => x.Name).ThenBy(x => x.Price),
-                    CreateViewModel = new Product()
+                    CreateViewModel = new Product(),
+                    ProductTypes = _workContainer.Product.GetTypes()
                 };
 
                 return View(viewModel);
@@ -118,6 +119,7 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
+        [ActionName("SoftDelete")]
         [ValidateAntiForgeryToken]
         public IActionResult SoftDelete(long id)
         {
@@ -145,6 +147,7 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
+        [ActionName("GetClients")]
         public IActionResult GetClients(long productID)
         {
             try
@@ -152,7 +155,7 @@ namespace AguasNico.Controllers
                 return Json(new
                 {
                     success = true,
-                    data = _workContainer.Product.GetClients(productID),
+                    data = _workContainer.Product.GetClients(productID).ToList(),
                 });
             }
             catch (Exception e)

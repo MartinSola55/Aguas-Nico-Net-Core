@@ -15,7 +15,7 @@ namespace AguasNico.Data.Repository
 
         public void Update(DispatchedProduct product)
         {
-            var dbObject = _db.DispatchedProducts.First(x => x.Bottle == product.Bottle && x.RouteID == product.RouteID) ?? throw new Exception("No se ha encontrado el producto");
+            var dbObject = _db.DispatchedProducts.First(x => x.Type == product.Type && x.RouteID == product.RouteID) ?? throw new Exception("No se ha encontrado el producto");
             dbObject.Quantity = product.Quantity;
             dbObject.UpdatedAt = DateTime.UtcNow.AddHours(-3);
             _db.SaveChanges();

@@ -8,7 +8,7 @@ namespace AguasNico.Models
         public long RouteID { get; set; }
         
         [Required]
-        public Bottle Bottle { get; set; }
+        public ProductType Type { get; set; }
 
         public string ProductName { get; set; } = null!;
 

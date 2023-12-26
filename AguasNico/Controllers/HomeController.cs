@@ -31,6 +31,8 @@ namespace AguasNico.Controllers
                         viewModel.TotalSold = _workContainer.Route.GetTotalSold(DateTime.UtcNow.AddHours(-3).Date);
                         viewModel.CompletedRoutes = _workContainer.Route.GetAll(x => x.CreatedAt.Date == DateTime.UtcNow.AddHours(-3).Date && x.Carts.All(x => x.State != State.Pending)).Count();
                         viewModel.PendingRoutes = _workContainer.Route.GetAll(x => x.CreatedAt.Date == DateTime.UtcNow.AddHours(-3).Date && x.Carts.Any(x => x.State == State.Pending)).Count();
+                        viewModel.SoldProducts = _workContainer.Tables.GetSoldProductsByDate(DateTime.UtcNow.AddHours(-3).Date);
+                        viewModel.Expenses = _workContainer.Expense.GetAll(x => x.CreatedAt.Date == DateTime.UtcNow.AddHours(-3).Date, includeProperties: "User");
                         break;
                     case Constants.Dealer:
                         

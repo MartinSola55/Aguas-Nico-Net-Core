@@ -76,7 +76,8 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        public IActionResult SearchByDates(string dateFrom, string dateTo)
+        [ActionName("SearchBetweenDates")]
+        public IActionResult SearchBetweenDates(string dateFrom, string dateTo)
         {
             try
             {
@@ -93,6 +94,32 @@ namespace AguasNico.Controllers
             catch (Exception e)
             {
                 return CustomBadRequest(title: "Error al buscar el gasto", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
+        }
+
+        [HttpGet]
+        [ActionName("SearchByDate")]
+        public IActionResult SearchByDate(string dateString)
+        {
+            try
+            {
+                DateTime date = DateTime.Parse(dateString);
+                IEnumerable<Expense> expenses = _workContainer.Expense.GetAll(x => x.CreatedAt.Date == date.Date, includeProperties: "User").OrderByDescending(x => x.Amount);
+
+                return Json(new
+                {
+                    success = true,
+                    data = expenses.Select(x => new
+                    {
+                        dealer = x.User.UserName,
+                        description = x.Description,
+                        amount = x.Amount
+                    })
+                });
+            }
+            catch (Exception)
+            {
+                return CustomBadRequest(title: "No se encontraron planillas", message: "Intente nuevamente o comuníquese para soporte");
             }
         }
     }

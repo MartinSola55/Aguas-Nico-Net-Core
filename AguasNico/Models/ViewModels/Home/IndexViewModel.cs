@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using AguasNico.Models.ViewModels.Tables;
 
 namespace AguasNico.Models.ViewModels.Home
 {
@@ -14,6 +15,7 @@ namespace AguasNico.Models.ViewModels.Home
         public decimal TotalSpent { get; set; } = 0;
         public int CompletedRoutes { get; set; } = 0;   
         public int PendingRoutes { get; set; } = 0;
-        public Tuple<Product, int[]> Products { get; set; } = null!;
+        public List<SoldProductsTable> SoldProducts { get; set; } = [];
+        public IEnumerable<Expense> Expenses { get; set; } = [];
     }
 }

@@ -37,6 +37,6 @@ namespace AguasNico.Data.Repository.IRepository
         void UpdateInvoiceData(Client client);
 
         void UpdateProducts(long clientID, List<ClientProduct> clientProduct);
-        IEnumerable<Models.ViewModels.Clients.BottleHistory> GetBottleHistory(long clientID);
+        IEnumerable<ProductHistory> GetProductsHistory(long clientID);
     }
 }

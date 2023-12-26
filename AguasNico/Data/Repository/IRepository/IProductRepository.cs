@@ -13,5 +13,6 @@ namespace AguasNico.Data.Repository.IRepository
         bool IsDuplicated(Product product);
         void SoftDelete(long id);
         IEnumerable<Client> GetClients(long productID);
+        List<SelectListItem> GetTypes();
     }
 }

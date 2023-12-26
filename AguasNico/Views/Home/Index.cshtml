@@ -1,5 +1,6 @@
 ﻿@model AguasNico.Models.ViewModels.Home.IndexViewModel
 @using System.Globalization
+@using AguasNico.Models.ViewModels.Tables
 
 @{
     ViewData["Title"] = "Inicio";
@@ -15,7 +16,7 @@
 <script src="~/lib/datatables/datatables.min.js"></script>
 <script src="~/lib/moment/moment-with-locales.js"></script>
 <script src="~/lib/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js"></script>
-<script src="~/js/custom/home/index.js"></script>
+<script src="~/js/custom/Home/Index.js"></script>
 
 
 
@@ -102,17 +103,12 @@
         <div class="col-lg-6 col-md-12">
             <div class="card shadow">
                 <div class="card-body">
-                    <div class="d-flex no-block">
-                        <h4 class="card-title">Productos vendidos</h4>
-                    </div>
-                    <div class="d-flex no-block">
-                        <div class="mr-auto d-flex align-items-center">
-                            <label for="DatePickerProducts" class="mb-0 p-1">Día</label>
-                            <input type="text" class="form-control" id="DatePickerProducts" name="date" value='@DateTime.UtcNow.AddHours(-3).ToString("dd/MM/yyyy")' />
-                        </div>
+                    <div class="d-flex flex-row mr-auto">
+                        <h4 class="my-auto card-title">Productos vendidos el</h4>
+                        <input type="text" class="form-control ml-3 my-auto" id="ProductsDatePicker" name="date" value='@DateTime.UtcNow.AddHours(-3).ToString("dd/MM/yyyy")' style="max-width: fit-content;" />
                     </div>
                     <div class="table-responsive">
-                        <table class="table stylish-table">
+                        <table id="productsTable" class="table stylish-table">
                             <thead>
                                 <tr>
                                     <th style="width:10%;"></th>
@@ -123,24 +119,16 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @* @foreach ($data->items as $item) *@
+                                @foreach (SoldProductsTable product in Model.SoldProducts)
+                                {
                                     <tr>
                                         <td><span class="round"><i class="ti-shopping-cart"></i></span></td>
-                                        <td>
-                                            <h6>Bidon 20L</h6>
-                                        </td>
-                                        <td>
-                                            <h6>11</h6>
-                                        </td>
-                                        <td>
-                                            <h5>1</h5>
-                                        </td>
-                                        <td>
-                                            <h5>1</h5>
-                                        </td>
-                                        </td>
+                                        <td><h6>@Html.DisplayFor(x => product.Name)</h6></td>
+                                        <td><h6>@Html.DisplayFor(x => product.Dispatched)</h6></td>
+                                        <td><h5>@Html.DisplayFor(x => product.Sold)</h5></td>
+                                        <td><h5>@Html.DisplayFor(x => product.Returned)</h5></td>
                                     </tr>
-                                @* @endforeach *@
+                                }
                             </tbody>
                         </table>
                     </div>
@@ -150,17 +138,12 @@
         <div class="col-lg-6 col-md-12">
             <div class="card shadow">
                 <div class="card-body">
-                    <div class="d-flex no-block">
-                        <h4 class="card-title">Gastos del día</h4>
-                    </div>
-                    <div class="d-flex no-block">
-                        <div class="mr-auto d-flex align-items-center">
-                            <label for="DatePickerExpenses" class="mb-0 p-1">Día</label>
-                            <input type="text" class="form-control" id="DatePickerExpenses" name="date" value='@DateTime.UtcNow.AddHours(-3).ToString("dd/MM/yyyy")' />
-                        </div>
+                    <div class="d-flex flex-row mr-auto">
+                        <h3 class="my-auto card-title">Gastos del día</h3>
+                        <input type="text" class="form-control ml-3 my-auto" id="ExpensesDatePicker" name="date" value='@DateTime.UtcNow.AddHours(-3).ToString("dd/MM/yyyy")' style="max-width: fit-content;" />
                     </div>
                     <div class="table-responsive">
-                        <table class="table stylish-table">
+                        <table id="expensesTable" class="table stylish-table">
                             <thead>
                                 <tr>
                                     <th>Repartidor</th>
@@ -169,19 +152,20 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @* @foreach ($data->day_expenses as $item) *@
-                                <tr>
-                                    <td>
-                                        <h6>Reparto 1</h6>
-                                    </td>
-                                    <td>
-                                        <h6>Lavadero</h6>
-                                    </td>
-                                    <td>
-                                        <h5>$11111</h5>
-                                    </td>
-                                </tr>
-                                @* @endforeach *@
+                                @foreach(Expense expense in Model.Expenses)
+                                {
+                                    <tr>
+                                        <td>
+                                            <h6>@Html.DisplayFor(x => expense.User.UserName)</h6>
+                                        </td>
+                                        <td>
+                                            <h6>@Html.DisplayFor(x => expense.Description)</h6>
+                                        </td>
+                                        <td>
+                                            <h5>$@Html.DisplayFor(x => expense.Amount)</h5>
+                                        </td>
+                                    </tr>
+                                }
                             </tbody>
                         </table>
                     </div>
@@ -193,12 +177,9 @@
         <div class="col-lg-12">
             <div class="card shadow">
                 <div class="card-body">
-                    <h3 class="card-title">Repartos</h3>
-                    <div class="d-flex no-block">
-                        <div class="mr-auto d-flex align-items-center">
-                            <label for="DatePicker" class="mb-0 p-1">Día</label>
-                            <input type="text" class="form-control" id="DatePicker" name="date" value='@DateTime.UtcNow.AddHours(-3).ToString("dd/MM/yyyy")' />
-                        </div>
+                    <div class="d-flex flex-row mr-auto">
+                        <h3 class="my-auto card-title">Repartos del día</h3>
+                        <input type="text" class="form-control ml-3 my-auto" id="RoutesDatePicker" name="date" value='@DateTime.UtcNow.AddHours(-3).ToString("dd/MM/yyyy")' style="max-width: fit-content;" />
                     </div>
                     <div class="table-responsive m-t-20">
                         <table id="routesTable" class="table stylish-table">
@@ -220,6 +201,12 @@
     </div>
 
     <form id="form-searchRoutesByDate" method="get" asp-area="" asp-controller="Routes" asp-action="SearchByDate">
+        @Html.Hidden("dateString", "")
+    </form>
+    <form id="form-searchProductsByDate" method="get" asp-area="" asp-controller="Routes" asp-action="SearchSoldProducts">
+        @Html.Hidden("dateString", "")
+    </form>
+    <form id="form-searchExpensesByDate" method="get" asp-area="" asp-controller="Expenses" asp-action="SearchByDate">
         @Html.Hidden("dateString", "")
     </form>
 </div>

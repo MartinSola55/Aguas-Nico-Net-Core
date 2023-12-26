@@ -19,7 +19,7 @@ namespace AguasNico.Data.Repository
             {
                 dbObject.Name = product.Name;
                 dbObject.Price = product.Price;
-                dbObject.Bottle = product.Bottle;
+                dbObject.Type = product.Type;
                 dbObject.UpdatedAt = DateTime.UtcNow.AddHours(-3);
                 _db.SaveChanges();
             }
@@ -40,6 +40,19 @@ namespace AguasNico.Data.Repository
         public IEnumerable<Client> GetClients(long productID)
         {
             return _db.ClientProducts.Where(x => x.ProductID == productID).Select(x => x.Client);
+        }
+
+        public List<SelectListItem> GetTypes()
+        {
+            List<SelectListItem> types =
+            [
+                new() { Value = "", Text = "Seleccione un tipo de producto", Disabled = true, Selected = true }
+            ];
+            foreach (ProductType type in Enum.GetValues(typeof(ProductType)))
+            {
+                types.Add(new SelectListItem { Value = type.ToString(), Text = type.GetDisplayName() });
+            }
+            return types;
         }
     }
 }

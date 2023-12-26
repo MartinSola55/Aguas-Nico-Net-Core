@@ -4,6 +4,7 @@ using AguasNico.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AguasNico.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231225191749_ProductType")]
+    partial class ProductType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -190,7 +193,7 @@ namespace AguasNico.Migrations
                             ID = 1L,
                             Address = "Rivadavia 1097",
                             CUIT = "20123123127",
-                            CreatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4390),
+                            CreatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8360),
                             Debt = 1500m,
                             HasInvoice = true,
                             InvoiceType = 2,
@@ -198,18 +201,18 @@ namespace AguasNico.Migrations
                             Observations = "Cuidado con el perro",
                             Phone = "3404123123",
                             TaxCondition = 2,
-                            UpdatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4390)
+                            UpdatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8360)
                         },
                         new
                         {
                             ID = 2L,
                             Address = "A la vuelta de la cristalería",
-                            CreatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4410),
+                            CreatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8360),
                             Debt = 0m,
                             HasInvoice = false,
                             Name = "Agustín Bettig",
                             Phone = "3404123123",
-                            UpdatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4410)
+                            UpdatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8360)
                         });
                 });
 
@@ -353,6 +356,9 @@ namespace AguasNico.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ID"));
 
+                    b.Property<int?>("Bottle")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -384,112 +390,119 @@ namespace AguasNico.Migrations
                         new
                         {
                             ID = 1L,
-                            CreatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4280),
+                            CreatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8250),
                             IsActive = true,
                             Name = "Máquina frío/calor",
                             Price = 7800m,
-                            Type = 4,
-                            UpdatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4290)
+                            Type = 0,
+                            UpdatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8260)
                         },
                         new
                         {
                             ID = 2L,
-                            CreatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4290),
+                            Bottle = 2,
+                            CreatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8270),
                             IsActive = true,
                             Name = "B12L",
                             Price = 1800m,
-                            Type = 2,
-                            UpdatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4290)
+                            Type = 0,
+                            UpdatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8270)
                         },
                         new
                         {
                             ID = 3L,
-                            CreatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4300),
+                            Bottle = 1,
+                            CreatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8270),
                             IsActive = true,
                             Name = "B20L",
                             Price = 2400m,
-                            Type = 1,
-                            UpdatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4300)
+                            Type = 0,
+                            UpdatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8270)
                         },
                         new
                         {
                             ID = 4L,
-                            CreatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4300),
+                            CreatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8270),
                             IsActive = true,
                             Name = "Soda 1/2",
                             Price = 600m,
-                            Type = 3,
-                            UpdatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4300)
+                            Type = 0,
+                            UpdatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8270)
                         },
                         new
                         {
                             ID = 5L,
-                            CreatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4300),
+                            Bottle = 1,
+                            CreatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8270),
                             IsActive = true,
                             Name = "B20L BAJADO",
                             Price = 2800m,
-                            Type = 1,
-                            UpdatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4300)
+                            Type = 0,
+                            UpdatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8270)
                         },
                         new
                         {
                             ID = 6L,
-                            CreatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4300),
+                            Bottle = 1,
+                            CreatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8270),
                             IsActive = true,
                             Name = "B20L",
                             Price = 1331m,
-                            Type = 1,
-                            UpdatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4300)
+                            Type = 0,
+                            UpdatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8270)
                         },
                         new
                         {
                             ID = 7L,
-                            CreatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4300),
+                            CreatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8270),
                             IsActive = true,
                             Name = "Dispenser",
                             Price = 3500m,
-                            Type = 4,
-                            UpdatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4300)
+                            Type = 0,
+                            UpdatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8270)
                         },
                         new
                         {
                             ID = 8L,
-                            CreatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4300),
+                            CreatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8270),
                             IsActive = true,
                             Name = "MAQUINA SIN CARGO",
                             Price = 0m,
-                            Type = 4,
-                            UpdatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4300)
+                            Type = 0,
+                            UpdatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8270)
                         },
                         new
                         {
                             ID = 9L,
-                            CreatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4300),
+                            Bottle = 1,
+                            CreatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8280),
                             IsActive = true,
                             Name = "B20L SIN CARGO",
                             Price = 0m,
-                            Type = 1,
-                            UpdatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4300)
+                            Type = 0,
+                            UpdatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8280)
                         },
                         new
                         {
                             ID = 10L,
-                            CreatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4310),
+                            Bottle = 1,
+                            CreatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8280),
                             IsActive = true,
                             Name = "B20L",
                             Price = 2000m,
-                            Type = 1,
-                            UpdatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4310)
+                            Type = 0,
+                            UpdatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8280)
                         },
                         new
                         {
                             ID = 11L,
-                            CreatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4310),
+                            Bottle = 1,
+                            CreatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8280),
                             IsActive = true,
                             Name = "B20L",
                             Price = 1800m,
-                            Type = 1,
-                            UpdatedAt = new DateTime(2023, 12, 25, 19, 16, 35, 207, DateTimeKind.Utc).AddTicks(4310)
+                            Type = 0,
+                            UpdatedAt = new DateTime(2023, 12, 25, 16, 17, 48, 927, DateTimeKind.Utc).AddTicks(8280)
                         });
                 });
 

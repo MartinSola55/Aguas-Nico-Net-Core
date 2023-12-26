@@ -8,9 +8,9 @@ namespace AguasNico.Models.ViewModels.Clients
         Baja,
         Devuelve,
     }
-    public class BottleHistory
+    public class ProductHistory
     {
-        public Bottle Bottle { get; set; }
+        public ProductType ProductType { get; set; }
         public ActionType ActionType { get; set; }
         public int Quantity { get; set; }
         public DateTime Date { get; set; }
@@ -46,6 +46,6 @@ namespace AguasNico.Models.ViewModels.Clients
             new() { Text = Day.Viernes.ToString(), Value = Day.Viernes.ToString() },
         };
         // Objeto para el historial de botellas
-        public IEnumerable<BottleHistory> BottleHistory { get; set; } = [];        
+        public IEnumerable<ProductHistory> ProductsHistory { get; set; } = [];        
     }
 }
