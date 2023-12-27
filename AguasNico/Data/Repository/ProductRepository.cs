@@ -51,7 +51,7 @@ namespace AguasNico.Data.Repository
             ];
             foreach (ProductType type in Enum.GetValues(typeof(ProductType)))
             {
-                types.Add(new SelectListItem { Value = type.ToString(), Text = type.GetDisplayName() });
+                types.Add(new SelectListItem { Value = ((int)type).ToString(), Text = type.GetDisplayName() });
             }
             return types;
         }

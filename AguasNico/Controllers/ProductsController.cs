@@ -29,7 +29,7 @@ namespace AguasNico.Controllers
                 IndexViewModel viewModel = new()
                 {
                     Products = _workContainer.Product.GetAll().OrderBy(x => x.Name).ThenBy(x => x.Price),
-                    CreateViewModel = new Product(),
+                    Product = new Product(),
                     ProductTypes = _workContainer.Product.GetTypes()
                 };
 
@@ -44,23 +44,16 @@ namespace AguasNico.Controllers
         [HttpPost]
         [ActionName("Create")]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(IndexViewModel viewModel)
+        public IActionResult Create(Product product)
         {
+            ModelState.Remove("product.ID");
             if (ModelState.IsValid)
             {
                 try
                 {
-                    Product product = viewModel.CreateViewModel;
-                    if (_workContainer.Product.IsDuplicated(product))
-                    {
-                        return BadRequest(new
-                        {
-                            success = false,
-                            title = "Error al crear el producto",
-                            message = "Ya existe uno con el mismo nombre y precio",
-                        });
-                    }
-                    product.CreatedAt = DateTime.UtcNow.AddHours(-3);
+                    if (product.Type == 0) return CustomBadRequest(title: "Error al crear el producto", message: "Debe seleccionar un tipo de producto");
+                    if (_workContainer.Product.IsDuplicated(product)) return CustomBadRequest(title: "Error al crear el producto", message: "Ya existe uno con el mismo nombre y precio");
+
                     _workContainer.Product.Add(product);
                     _workContainer.Save();
 
@@ -83,13 +76,12 @@ namespace AguasNico.Controllers
         [HttpPost]
         [ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(IndexViewModel viewModel)
+        public IActionResult Edit(Product product)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    Product product = viewModel.CreateViewModel;
                     if (_workContainer.Product.IsDuplicated(product))
                     {
                         return BadRequest(new

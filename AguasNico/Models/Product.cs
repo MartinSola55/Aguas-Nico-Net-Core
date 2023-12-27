@@ -31,10 +31,6 @@ namespace AguasNico.Models
         [Required(ErrorMessage = "Debes ingresar un tipo de producto")]
         [Display(Name = "Tipo de producto")]
         public ProductType Type { get; set; }
-        
-        [Display(Name = "¿Está activo?")]
-        [DefaultValue(true)]
-        public bool IsActive { get; set; } = true;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow.AddHours(-3);
 

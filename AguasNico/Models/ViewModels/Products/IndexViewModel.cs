@@ -6,7 +6,7 @@ namespace AguasNico.Models.ViewModels.Products
     {
         public ApplicationUser User = new();
         public IEnumerable<Product> Products { get; set; } = new List<Product>();
-        public Product CreateViewModel { get; set; } = new();
+        public Product Product { get; set; } = new();
         public List<SelectListItem> ProductTypes { get; set; } = [];
     }
 }
