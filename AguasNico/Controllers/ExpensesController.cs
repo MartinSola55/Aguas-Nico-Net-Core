@@ -54,8 +54,6 @@ namespace AguasNico.Controllers
                 try
                 {
                     Expense expense = viewModel.CreateViewModel;
-
-                    expense.CreatedAt = DateTime.UtcNow.AddHours(-3);
                     _workContainer.Expense.Add(expense);
                     _workContainer.Save();
 
@@ -73,6 +71,60 @@ namespace AguasNico.Controllers
                 }
             }
             return CustomBadRequest(title: "Error al crear el gasto", message: "Alguno de los campos ingresados no es válido");
+        }
+
+        [HttpPost]
+        [ActionName("Edit")]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(IndexViewModel viewModel)
+        {
+            ModelState.Remove("CreateViewModel.User");
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    Expense expense = viewModel.CreateViewModel;
+                    _workContainer.Expense.Update(expense);
+                    _workContainer.Save();
+
+                    Expense newExpense = _workContainer.Expense.GetOne(expense.ID);
+                    return Json(new
+                    {
+                        success = true,
+                        data = newExpense,
+                        message = "El gasto se editó correctamente",
+                    });
+                }
+                catch (Exception e)
+                {
+                    return CustomBadRequest(title: "Error al editar el gasto", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+                }
+            }
+            return CustomBadRequest(title: "Error al editar el gasto", message: "Alguno de los campos ingresados no es válido");
+        }
+
+        [HttpPost]
+        [ActionName("SoftDelete")]
+        [ValidateAntiForgeryToken]
+        public IActionResult SoftDelete(long id)
+        {
+            try
+            {
+                Expense expense = _workContainer.Expense.GetOne(id) ?? throw new Exception("No se encontró el gasto");
+                _workContainer.Expense.SoftDelete(id);
+                _workContainer.Save();
+
+                return Json(new
+                {
+                    success = true,
+                    data = id,
+                    message = "El gasto se eliminó correctamente",
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al eliminar el gasto", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
         }
 
         [HttpGet]

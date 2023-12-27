@@ -10,13 +10,13 @@ namespace AguasNico.Models
 
         [Required]
         [Display(Name = "Repartidor")]
-        public string UserID { get; set; }
+        public string UserID { get; set; } = null!;
 
         [Required(ErrorMessage = "Debes seleccionar un repartidor")]
         [Display(Name = "Monto")]
         [Column(TypeName = "money")]
         [Range(0, 1000000, ErrorMessage = "El monto debe ser mayor a 0")]
-        [DisplayFormat(DataFormatString = "${0:#,##0}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:#,##0}", ApplyFormatInEditMode = true)]
         public decimal Amount { get; set; }
 
         [Required(ErrorMessage = "Debes ingresar una descripción")]
