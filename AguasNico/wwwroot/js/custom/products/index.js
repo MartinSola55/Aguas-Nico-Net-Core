@@ -41,4 +41,99 @@ $(document).ready(function () {
             }
         });
     });
+
+    // Crear, editar y eliminar productos
+    $("#btnDeleteProduct").click(function () {
+        Swal.fire({
+            title: '¿Está seguro que desea eliminar el producto?',
+            text: "Esta acción no se puede revertir",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#1e88e5',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let form = $('#form-deleteProduct');
+                $("#form-deleteProduct input[name='id']").val($("#Product_ID").val());
+                $.ajax({
+                    url: $(form).attr('action'),
+                    method: $(form).attr('method'),
+                    data: $(form).serialize(),
+                    success: function (response) {
+                        $("#btnCloseModal").click();
+                        Swal.fire({
+                            icon: 'success',
+                            title: response.message,
+                            confirmButtonColor: '#1e88e5',
+                            allowOutsideClick: false,
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.reload();
+                            }
+                        });
+                    },
+                    error: function (errorThrown) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: errorThrown.responseJSON.title,
+                            text: errorThrown.responseJSON.message,
+                            confirmButtonColor: '#1e88e5',
+                        });
+                    }
+                });
+            }
+        });
+    });
+
+    $("#btnSendModal").click(function () {
+        let form = $('#form-product');
+        $.ajax({
+            url: $(form).attr('action'),
+            method: $(form).attr('method'),
+            data: $(form).serialize(),
+            success: function (response) {
+                $("#btnCloseModal").click();
+                Swal.fire({
+                    icon: 'success',
+                    title: response.message,
+                    confirmButtonColor: '#1e88e5',
+                    allowOutsideClick: false,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.reload();
+                    }
+                });
+            },
+            error: function (errorThrown) {
+                Swal.fire({
+                    icon: 'error',
+                    title: errorThrown.responseJSON.title,
+                    text: errorThrown.responseJSON.message,
+                    confirmButtonColor: '#1e88e5',
+                });
+            }
+        });
+    });
 });
+
+function editProduct(product) {
+    $("#Product_ID").val(product.id);
+    $("#Product_Name").val(product.name);
+    $("#Product_Price").val(product.price);
+    $("#Product_Type").val(product.type);
+    $(".modal-title").text("Editar producto");
+    $("#btnDeleteProduct").show();
+    $("#form-product").attr("action", "/Products/Edit");
+}
+
+function createProduct() {
+    $("#Product_ID").val("");
+    $("#Product_Name").val("");
+    $("#Product_Price").val("");
+    $("#Product_Type").val("");
+    $(".modal-title").text("Crear producto");
+    $("#btnDeleteProduct").hide();
+    $("#form-product").attr("action", "/Products/Create");
+}

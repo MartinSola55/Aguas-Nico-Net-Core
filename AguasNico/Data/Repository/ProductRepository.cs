@@ -28,7 +28,7 @@ namespace AguasNico.Data.Repository
 
         public bool IsDuplicated(Product product)
         {
-            return _db.Products.Any(x => x.Name == product.Name && x.Price == product.Price);
+            return _db.Products.Any(x => x.Name == product.Name && x.Price == product.Price && x.ID != product.ID);
         }
 
         public void SoftDelete(long id)

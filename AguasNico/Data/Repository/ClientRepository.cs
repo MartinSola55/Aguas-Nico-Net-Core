@@ -56,7 +56,7 @@ namespace AguasNico.Data.Repository
 
         public bool IsDuplicated(Client client)
         {
-            return _db.Clients.Any(x => x.Name == client.Name && x.Address == client.Address);
+            return _db.Clients.Any(x => x.Name == client.Name && x.Address == client.Address && x.ID != client.ID);
         }
 
         public void SoftDelete(long id)
