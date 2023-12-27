@@ -130,11 +130,12 @@ namespace AguasNico.Controllers
                         {
                             Route = route,
                             TotalExpenses = _workContainer.Expense.GetTotalExpensesByDealer(DateTime.UtcNow.AddHours(-3).Date, route.UserID),
-                            TotalSold = _workContainer.Route.GetTotalSold(DateTime.UtcNow.AddHours(-3).Date),
+                            TotalSold = _workContainer.Route.GetTotalSoldByRoute(DateTime.UtcNow.AddHours(-3).Date, id),
                             CompletedCarts = _workContainer.Cart.GetAll(x => x.RouteID == id && x.State != State.Pending).Count(),
                             PendingCarts = _workContainer.Cart.GetAll(x => x.RouteID == id && x.State == State.Pending).Count(),
                             SoldProducts = _workContainer.Tables.GetSoldProductsByDateAndRoute(DateTime.UtcNow.AddHours(-3).Date, id),
                             Payments = _workContainer.Route.GetTotalCollected(route.ID),
+                            Transfers = _workContainer.Transfer.GetAll(x => x.UserID == route.UserID && x.Date.Date == route.CreatedAt.Date),
                         };
                         return View("~/Views/Routes/Admin/Details.cshtml", adminViewModel);
                     case Constants.Dealer:
@@ -197,7 +198,7 @@ namespace AguasNico.Controllers
                         totalCarts = x.Carts.Count(),
                         completedCarts = x.Carts.Count(y => y.State == State.Confirmed),
                         state = x.Carts.Count(y => y.State != State.Pending) == x.Carts.Count() ? "Completado" : "Pendiente",
-                        collected = x.Carts.Sum(y => y.PaymentMethods.Sum(z => z.Amount)),
+                        collected = x.Carts.Sum(y => y.PaymentMethods.Where(z => z.CreatedAt.Date == date.Date).Sum(z => z.Amount)),
                     })
                 });
             }

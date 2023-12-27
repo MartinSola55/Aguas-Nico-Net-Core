@@ -16,6 +16,7 @@ namespace AguasNico.Models.ViewModels.Routes.Details
         public decimal TotalExpenses { get; set; } = 0;
 
         public List<CartPaymentMethod> Payments { get; set; } = [];
+        public IEnumerable<Transfer> Transfers { get; set; } = [];
 
         public int CompletedCarts { get; set; } = 0;
         public int PendingCarts { get; set; } = 0;

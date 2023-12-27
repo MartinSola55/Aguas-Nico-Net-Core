@@ -47,7 +47,17 @@ namespace AguasNico.Data.Repository
                 .Where(x => x.CreatedAt.Date == date.Date)
                 .Sum(x => x.Amount)
                 + _db.Transfers
-                .Where(x => x.CreatedAt.Date == date.Date)
+                .Where(x => x.Date.Date == date.Date)
+                .Sum(x => x.Amount);
+        }
+
+        public decimal GetTotalSoldByRoute(DateTime date, long routeID)
+        {
+            return _db.CartPaymentMethods
+                .Where(x => x.CreatedAt.Date == date.Date && x.Cart.RouteID == routeID)
+                .Sum(x => x.Amount)
+                + _db.Transfers
+                .Where(x => x.Date.Date == date.Date)
                 .Sum(x => x.Amount);
         }
 

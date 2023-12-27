@@ -99,6 +99,13 @@
                                                                                 <td><h6 class="text-white text-left">@Html.DisplayFor(x => method.PaymentMethod.Name): @Html.DisplayFor(x => method.Amount)</h6></td>
                                                                             </tr>
                                                                         }
+                                                                        @if(Model.Transfers.Any())
+                                                                        {
+                                                                            <tr>
+                                                                                <td><h6 class="text-white text-left">Transferencia (administración): @Model.Transfers.Sum(y => y.Amount).ToString("$#,##")</h6></td>
+                                                                            </tr>
+                                                                        }
+                                                                    </tbody>
                                                                 </table>
                                                             </div>
                                                         </span>
@@ -381,7 +388,7 @@
                                         </div>
                                         <hr>
                                         <div class="d-flex flex-row justify-content-start">
-                                            <p class="m-0">Entrega en efectivo: $@(cart.PaymentMethods.Where(x => x.PaymentMethod.Name == "Efectivo").Sum(x => x.Amount).ToString("#,##"))</p>
+                                            <p class="m-0">Entrega en efectivo: $@(cart.PaymentMethods.Any() ? cart.PaymentMethods.Where(x => x.PaymentMethod.Name == "Efectivo").Sum(x => x.Amount).ToString("#,##") : "0")</p>
                                         </div>
                                     }
                                     <!-- Resetear estado del carrito (no confirmado) -->
