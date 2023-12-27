@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 
 namespace AguasNico.Models
 {
@@ -11,6 +12,7 @@ namespace AguasNico.Models
         [Display(Name = "Método de pago")]
         public string Name { get; set; } = null!;
 
+        [JsonIgnore]
         public virtual IEnumerable<CartPaymentMethod> Carts { get; set; } = null!;
     }
 }

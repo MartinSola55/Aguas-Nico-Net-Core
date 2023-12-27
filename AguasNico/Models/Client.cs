@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace AguasNico.Models
 {
@@ -93,6 +94,7 @@ namespace AguasNico.Models
 
         public virtual ICollection<ClientProduct> ClientProducts { get; set; } = null!;
 
+        [JsonIgnore]
         public virtual ICollection<Cart> Carts { get; set; } = null!;
 
         public virtual ICollection<Transfer> Transfers { get; set; } = null!;

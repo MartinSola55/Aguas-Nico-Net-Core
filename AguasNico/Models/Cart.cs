@@ -1,16 +1,17 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace AguasNico.Models
 {
     public enum State
     {
-        Pending = 0,
-        Confirmed = 1,
-        Ausent = 2,
-        NotNeeded = 3,
-        Holidays = 4
+        [Display(Name = "Pendiente")] Pending = 0,
+        [Display(Name = "Confirmado")] Confirmed = 1,
+        [Display(Name = "No estaba")] Ausent = 2,
+        [Display(Name = "No necesitaba")] NotNeeded = 3,
+        [Display(Name = "De vacaciones")] Holidays = 4
     }
     public class Cart
     {
@@ -38,8 +39,10 @@ namespace AguasNico.Models
 
         public virtual Client Client { get; set; } = null!;
         public virtual IEnumerable<CartProduct> Products { get; set; } = null!;
+        public virtual IEnumerable<ReturnedProduct> ReturnedProducts { get; set; } = null!;
         public virtual IEnumerable<CartPaymentMethod> PaymentMethods { get; set; } = null!;
-        
+
+        [JsonIgnore]
         public virtual Route Route { get; set; } = null!;
     }
 }

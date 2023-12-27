@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace AguasNico.Models
 {
@@ -23,6 +24,7 @@ namespace AguasNico.Models
 
         public virtual Product Product { get; set; } = null!;
 
+        [JsonIgnore]
         public virtual Cart Cart { get; set; } = null!;
     }
 }
