@@ -31,7 +31,8 @@ namespace AguasNico.Data.Repository
                 .Take(10)
                 .Include(x => x.Products)
                     .ThenInclude(x => x.Product)
-                .Include(x => x.PaymentMethods);
+                .Include(x => x.PaymentMethods)
+                    .ThenInclude(x => x.PaymentMethod);
         }
 
         public void Update(Cart cart)
