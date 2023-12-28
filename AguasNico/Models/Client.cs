@@ -5,34 +5,6 @@ using System.Text.Json.Serialization;
 
 namespace AguasNico.Models
 {
-    public enum InvoiceType
-    {
-        A = 1,
-        B = 2
-    }
-    public enum TaxCondition
-    {
-        [Display(Name = "Responsable Inscripto")] RI = 1,
-        [Display(Name = "Monotributo")] MO = 2,
-        [Display(Name = "Exento")] EX = 3,
-        [Display(Name = "Consumidor Final")] CF = 4,
-    }
-    // Mostrar el nombre de la enumeración en lugar del nombre del campo
-    public static class EnumExtensions
-    {
-        public static string GetDisplayName(this Enum value)
-        {
-            var displayAttribute = value
-                .GetType()
-                .GetField(value.ToString())
-                .GetCustomAttributes(typeof(DisplayAttribute), false)
-                as DisplayAttribute[];
-
-            return displayAttribute[0].Name;
-        }
-    }
-
-
     public class Client
     {
         [Key]

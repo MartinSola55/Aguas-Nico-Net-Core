@@ -2,6 +2,7 @@
 using AguasNico.Models;
 using AguasNico.Models.ViewModels.Expenses;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 
@@ -27,10 +28,9 @@ namespace AguasNico.Controllers
         {
             try
             {
-                Expression<Func<Expense, bool>> filter = entity => entity.CreatedAt.Date == DateTime.UtcNow.AddHours(-3).Date;
                 IndexViewModel viewModel = new()
                 {
-                    Expenses = _workContainer.Expense.GetAll(filter, includeProperties: "User").OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Amount),
+                    Expenses = _workContainer.Expense.GetAll(x => x.CreatedAt.Date == DateTime.UtcNow.AddHours(-3).Date, includeProperties: "User").OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Amount),
                     Dealers = _workContainer.ApplicationUser.GetDealersDropDownList(),
                     CreateViewModel = new Expense()
                 };
@@ -136,7 +136,7 @@ namespace AguasNico.Controllers
                 DateTime dateFromParsed = DateTime.Parse(dateFrom);
                 DateTime dateToParsed = DateTime.Parse(dateTo);
                 Expression<Func<Expense, bool>> filter = entity => entity.CreatedAt >= dateFromParsed && entity.CreatedAt <= dateToParsed;
-                IEnumerable<Expense> expenses = _workContainer.Expense.GetAll(filter, includeProperties: "User.UserName").OrderByDescending(x => x.Amount);
+                IEnumerable<Expense> expenses = _workContainer.Expense.GetAll(filter, includeProperties: "User").OrderByDescending(x => x.Amount);
                 return Json(new
                 {
                     success = true,

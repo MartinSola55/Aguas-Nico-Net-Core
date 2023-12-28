@@ -19,6 +19,10 @@ namespace AguasNico.Data.Repository
                 Client client = _db.Clients.First(x => x.ID == transfer.ClientID) ?? throw new Exception("No se ha encontrado el cliente");
                 _db.Database.BeginTransaction();
                 client.Debt -= transfer.Amount;
+                if (client.DealerID != null)
+                {
+                    transfer.UserID = client.DealerID;
+                }
                 _db.Transfers.Add(transfer);
                 _db.SaveChanges();
                 _db.Database.CommitTransaction();
@@ -32,13 +36,28 @@ namespace AguasNico.Data.Repository
 
         public void Update(Transfer transfer)
         {
-            var dbObject = _db.Transfers.First(x => x.ID == transfer.ID) ?? throw new Exception("No se ha encontrado la transferencia");
-            dbObject.UserID = transfer.UserID;
-            dbObject.ClientID = transfer.ClientID;
-            dbObject.Amount = transfer.Amount;
-            dbObject.Date = transfer.Date;
-            dbObject.UpdatedAt = DateTime.UtcNow.AddHours(-3);
-            _db.SaveChanges();
+            try
+            {
+                var dbObject = _db.Transfers.First(x => x.ID == transfer.ID) ?? throw new Exception("No se ha encontrado la transferencia");
+                Client client = _db.Clients.First(x => x.ID == dbObject.ClientID) ?? throw new Exception("No se ha encontrado el cliente");
+                _db.Database.BeginTransaction();
+                client.Debt += dbObject.Amount;
+                client.Debt -= transfer.Amount;
+                if (client.DealerID != null)
+                {
+                    dbObject.UserID = client.DealerID;
+                }
+                dbObject.Amount = transfer.Amount;
+                dbObject.Date = transfer.Date;
+                dbObject.UpdatedAt = DateTime.UtcNow.AddHours(-3);
+                _db.SaveChanges();
+                _db.Database.CommitTransaction();
+            }
+            catch (Exception)
+            {
+                _db.Database.RollbackTransaction();
+                throw;
+            }
         }
 
         public void SoftDelete(long id)

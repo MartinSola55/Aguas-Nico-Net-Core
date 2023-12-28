@@ -4,13 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AguasNico.Models
 {
-    public enum ProductType
-    {
-        [Display(Name = "Bidón 20L")] B20L = 1,
-        [Display(Name = "Bidón 12")] B12L = 2,
-        [Display(Name = "Soda")] Soda = 3,
-        [Display(Name = "Máquina frío calor")] Máquina = 4,
-    }
     public class Product
     {
         [Key]

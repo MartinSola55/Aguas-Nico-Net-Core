@@ -280,5 +280,40 @@ namespace AguasNico.Controllers
                 return CustomBadRequest(title: "Error al eliminar el cliente", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
             }
         }
+
+
+        #region Pegadas AJAX
+
+        [HttpGet]
+        [ActionName("SearchByName")]
+        public IActionResult SearchByName(string name)
+        {
+            try
+            {
+                IEnumerable<Client> clients = _workContainer.Client.GetAll(x => x.Name.Contains(name), includeProperties: "Dealer");
+                List<object> clientsList = [];
+                foreach (Client client in clients)
+                {
+                    clientsList.Add(new
+                    {
+                        id = client.ID,
+                        name = client.Name,
+                        address = client.Address,
+                        dealer = client.Dealer is not null ? client.Dealer.UserName : "",
+                    });
+                }
+                return Json(new
+                {
+                    success = true,
+                    data = clientsList,
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al obtener los clientes", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
+        }
+
+        #endregion
     }
 }

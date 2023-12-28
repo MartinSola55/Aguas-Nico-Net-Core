@@ -93,7 +93,7 @@
                                 </tr>
                             </thead>
                             <tbody id="table_body">
-                                @foreach (var item in Model.Expenses)
+                                @foreach (Expense item in Model.Expenses)
                                 {
                                     <tr data-id="@item.ID">
                                         <td>@Html.DisplayFor(c => item.Description)</td>

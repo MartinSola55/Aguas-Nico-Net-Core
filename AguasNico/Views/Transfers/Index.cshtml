@@ -1,0 +1,146 @@
+﻿@model AguasNico.Models.ViewModels.Transfers.IndexViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Transferencias";
+}
+
+<link href="~/lib/bootstrap-material-datetimepicker/css/bootstrap-material-datetimepicker.css" rel="stylesheet">
+<link href="~/lib/datatables/media/css/dataTables.bootstrap4.css" rel="stylesheet">
+
+<script src="~/lib/datatables/datatables.min.js"></script>
+<script src="~/lib/moment/moment-with-locales.js"></script>
+<script src="~/lib/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js"></script>
+<script src="~/js/custom/transfers/index.js"></script>
+
+
+<div class="container-fluid">
+    <div class="row page-titles">
+        <div class="col-md-5 col-8 align-self-center">
+            <h3 class="text-themecolor m-b-0 m-t-0">Gastos</h3>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">Inicio</a></li>
+                <li class="breadcrumb-item active">Gastos</li>
+            </ol>
+        </div>
+    </div>
+
+
+    <!-- Modal -->
+    <div id="modalCreate" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+        <div id="formContainer" class="modal-dialog modal-lg">
+            <form id="form-create" method="post" asp-area="" asp-controller="Transfers" asp-action="Create" id="form-create" autocomplete="off">
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(c => c.CreateViewModel.ClientID)
+                @Html.HiddenFor(c => c.CreateViewModel.ID)
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 id="modalTitle" class="modal-title"></h4>
+                        <button type="button" class="close" id="btnCloseModalCreate" data-dismiss="modal" aria-hidden="true">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-column">
+                                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                    <div class="d-flex flex-column flex-sm-row">
+                                        <div class="col-sm-6 mb-3">
+                                            <label asp-for="CreateViewModel.Amount" class="mb-0"></label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">$</span>
+                                                </div>
+                                                <input asp-for="CreateViewModel.Amount" class="form-control" required type="number" data-val-number="Debes ingresar un número" />
+                                            </div>
+                                            <span asp-validation-for="CreateViewModel.Amount" class="text-danger"></span>
+                                        </div>
+                                        <div class="col-sm-6 mb-3">
+                                            <label asp-for="CreateViewModel.Date" class="mb-0"></label>
+                                            <input asp-for="CreateViewModel.Date" class="form-control" required type="text" placeholder="dd/mm/aaaa" />
+                                            <span asp-validation-for="CreateViewModel.Date" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mb-3" id="contentSearchClients">
+                                        <label for="searchClient" class="mb-0">Cliente</label>
+                                        <div class="d-flex flex-row">
+                                            <input type="text" id="searchClient" class="form-control mr-2" />
+                                            <button type="button" id="btnSearchClients" class="btn btn-info waves-effect waves-light pr-4">Buscar</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-12" id="contentTableClients" style="display: none;">
+                                        <table id="tableClients" class="table table-bordered table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nombre</th>
+                                                    <th>Dirección</th>
+                                                    <th>Reparto</th>
+                                                    <th>Acción</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="display: none">
+                        <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cerrar</button>
+                        <button id="btnSendModal" type="button" class="btn btn-success waves-effect waves-light">Agregar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- End Modal -->
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex flex-row justify-content-between">
+                        <h2 class="card-title">Listado de transferencias</h2>
+                        <button id="btnAdd" type="button" class="btn btn-info btn-rounded waves-effect waves-light m-t-10 float-right" data-toggle="modal" data-target="#modalCreate">Agregar transferencia</button>
+                    </div>
+                    <div class="table-responsive m-t-10">
+                        <table id="DataTable" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Repartidor</th>
+                                    <th>Monto</th>
+                                    <th>Fecha establecida</th>
+                                    <th>Recibida</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table_body">
+                                @foreach (Transfer item in Model.Transfers)
+                                {
+                                    <tr data-id="@item.ID">
+                                        <td>@Html.DisplayFor(c => item.Client.Name)</td>
+                                        <td>@Html.DisplayFor(c => item.User.UserName)</td>
+                                        <td>$@Html.DisplayFor(c => item.Amount)</td>
+                                        <td>@(item.Date.ToString("dd/MM/yyyy"))</td>
+                                        <td>@(item.CreatedAt.ToString("dd/MM/yyyy"))</td>
+                                        <td class='d-flex flex-row justify-content-center'>
+                                            <button type='button' class='btn btn-outline-info btn-rounded btn-sm mr-2' onclick='editTransfer(@Json.Serialize(item))' data-toggle="modal" data-target="#modalCreate"><i class="bi bi-pencil"></i></button>
+                                            <button type='button' class='btn btn-danger btn-rounded btn-sm ml-2' onclick='deleteObj(@item.ID)'><i class='bi bi-trash3'></i></button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <form id="form-delete" method="post" asp-area="" asp-controller="Transfers" asp-action="SoftDelete">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="">
+                    </form>
+                    <form id="form-searchClients" method="get" asp-area="" asp-controller="Clients" asp-action="SearchByName">
+                        <input type="hidden" name="name" value="">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

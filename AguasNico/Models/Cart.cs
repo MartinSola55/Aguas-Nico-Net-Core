@@ -5,14 +5,6 @@ using System.Text.Json.Serialization;
 
 namespace AguasNico.Models
 {
-    public enum State
-    {
-        [Display(Name = "Pendiente")] Pending = 0,
-        [Display(Name = "Confirmado")] Confirmed = 1,
-        [Display(Name = "No estaba")] Ausent = 2,
-        [Display(Name = "No necesitaba")] NotNeeded = 3,
-        [Display(Name = "De vacaciones")] Holidays = 4
-    }
     public class Cart
     {
         [Key]
