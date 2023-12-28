@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using AguasNico.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AguasNico.Data.Repository.IRepository
 {
@@ -14,5 +15,8 @@ namespace AguasNico.Data.Repository.IRepository
         void SoftDelete(long id);
         IEnumerable<Client> GetClients(long productID);
         List<SelectListItem> GetTypes();
+        int[] GetAnnualSales(long productID, DateTime year);
+        int GetClientStock(long productID);
+        decimal GetTotalSold(long productID, DateTime year);
     }
 }

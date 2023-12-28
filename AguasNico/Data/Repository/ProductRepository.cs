@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using AguasNico.Data.Repository.IRepository;
 using AguasNico.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AguasNico.Data.Repository
 {
@@ -54,6 +55,36 @@ namespace AguasNico.Data.Repository
                 types.Add(new SelectListItem { Value = ((int)type).ToString(), Text = type.GetDisplayName() });
             }
             return types;
+        }
+
+        public int[] GetAnnualSales(long productID, DateTime year)
+        {
+            var salesByMonth = _db.CartProducts
+                .Where(x => x.ProductID == productID && x.CreatedAt.Year == year.Year)
+                .GroupBy(x => x.CreatedAt.Month)
+                .Select(x => new
+                {
+                    Month = x.Key,
+                    Total = x.Sum(x => x.Quantity)
+                });
+            
+            int[] sales = new int[12];
+
+            foreach (var sale in salesByMonth)
+            {
+                sales[sale.Month - 1] = sale.Total;
+            }
+            return sales;
+        }
+
+        public int GetClientStock(long productID)
+        {
+            return _db.ClientProducts.Where(x => x.ProductID == productID).Sum(x => x.Stock);
+        }
+
+        public decimal GetTotalSold(long productID, DateTime year)
+        {
+            return _db.CartProducts.Where(x => x.ProductID == productID && x.CreatedAt.Year == year.Year).Sum(x => x.Quantity * x.SettedPrice);
         }
     }
 }

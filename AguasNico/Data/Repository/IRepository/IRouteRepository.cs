@@ -9,6 +9,7 @@ namespace AguasNico.Data.Repository.IRepository
 {
     public interface IRouteRepository : IRepository<Models.Route>
     {
+        IEnumerable<SelectListItem> GetYears();
         void Update(Models.Route route);
         void SoftDelete(long id);
         decimal GetTotalSold(DateTime date);

@@ -1,0 +1,193 @@
+﻿@model AguasNico.Models.ViewModels.Stats.IndexViewModel
+
+@{
+    ViewData["Title"] = "Estadísticas";
+}
+
+<!-- Morris CSS -->
+<link href="~/lib/morrisjs/morris.css" rel="stylesheet" />
+
+<!--Morris JavaScript -->
+<script src="~/lib/raphael/raphael-min.js"></script>
+<script src="~/lib/morrisjs/morris.js"></script>
+
+<div class="container-fluid px-2 px-md-3">
+    <!-- ============================================================== -->
+    <!-- Bread crumb and right sidebar toggle -->
+    <!-- ============================================================== -->
+    <div class="row page-titles">
+        <div class="col-md-5 col-8 align-self-center">
+            <h3 class="text-themecolor m-b-0 m-t-0">Estadísticas</h3>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">Inicio</a></li>
+                <li class="breadcrumb-item active">Estadísticas</li>
+            </ol>
+        </div>
+    </div>
+    <!-- ============================================================== -->
+    <!-- End Bread crumb and right sidebar toggle -->
+    <!-- ============================================================== -->
+    <!-- ============================================================== -->
+    <!-- Start Page Content -->
+    <!-- ============================================================== -->
+    <div class="row">
+        <div class="col-12 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex flex-column flex-sm-row justify-content-start align-items-center ">
+                        <h4 class="card-title mr-2 mb-2">Ventas anuales</h4>
+                        @Html.DropDownList("annualProfitsYear", Model.Years, new { @class = "form-control mb-2", @style = "max-width: fit-content" })
+                    </div>
+                    <div id="extra-area-chart"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex flex-column flex-sm-row justify-content-start align-items-center">
+                        <h4 class="card-title mr-2 mb-2">Ventas del mes:</h4>
+                        <select id="monthlyProfitsMonth" class="form-control mb-2" style="max-width: fit-content">
+                            <option value="1">Enero</option>
+                            <option value="2">Febrero</option>
+                            <option value="3">Marzo</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Mayo</option>
+                            <option value="6">Junio</option>
+                            <option value="7">Julio</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+                        <h4 class="card-title mx-2 mb-2">&nbsp;Año:</h4>
+                        @Html.DropDownList("monthlySalesYear", Model.Years, new { @class = "form-control mb-2", @style = "max-width: fit-content" })
+                    </div>
+                    <div id="morris-area-chart"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+    const colors = [
+        '#ff5b51', '#2f3d4a', '#5e0153', '#ffbc34', '#f62d51', '#59de68', '#009efb',
+        '#7460ee', '#00bcd4', '#2ec492', '#b02745', '#0013477', '#6f3575',
+        '#795548', '#4ab1c3', '#dc3939', '#009688', '#4ec052', '#2d3242', '#ff9800'];
+    const reversedColors = colors.slice().reverse();
+    let currentDate = new Date().toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" });
+    $("#monthlyProfitsMonth").val(new Date(currentDate).getMonth() + 1);
+    $("select").css("cursor", "pointer");
+</script>
+
+@*Cambiar gráficos*@
+<script>
+    // Ventas anuales
+    $("#annualProfitsYear").on("change", function () {
+        let data = { yearString: $(this).val() }
+        sendForm("AnnualProfits", data);
+    });
+
+    // Ventas mensuales
+    $("#monthlySalesYear").on("change", function () {
+        let data = { yearString: $(this).val(), monthString: $("#monthlyProfitsMonth").val() }
+        sendForm("MonthlyProfits", data);
+    });
+
+    $("#monthlyProfitsMonth").on("change", function () {
+        let data = { yearString: $("#monthlySalesYear").val(), monthString: $(this).val() }
+        sendForm("MonthlyProfits", data);
+    });
+
+    function sendForm(type, data) {
+        $.ajax({
+            url: `/Stats/Get${type}`,
+            method: "GET",
+            data: data,
+            success: function (response) {
+                switch (type) {
+                    case "AnnualProfits":
+                        deleteAnnualGraph();
+                        createAnnualGraph(response.data);
+                        break;
+                    case "MonthlyProfits":
+                        deleteMonthlyGraph();
+                        createMonthlyGraph(response.data);
+                        break;
+                    default:
+                        break;
+                }
+            },
+            error: function (errorThrown) {
+                Swal.fire({
+                    icon: 'error',
+                    title: errorThrown.responseJSON.title,
+                    text: errorThrown.responseJSON.message,
+                    confirmButtonColor: '#1e88e5',
+                });
+            }
+        });
+    }
+</script>
+
+@*Ventas anuales*@
+<script>
+    let annualSales = @(Json.Serialize(Model.AnnualProfits)).value.data;
+    createAnnualGraph(annualSales);
+
+    function createAnnualGraph(data) {
+        Morris.Area({
+            element: 'extra-area-chart',
+            data: data,
+            lineColors: ['#2f3d4a'],
+            xkey: 'period',
+            ykeys: ['sold'],
+            labels: ['$'],
+            pointSize: 0,
+            lineWidth: 0,
+            resize: true,
+            fillOpacity: 0.8,
+            behaveLikeLine: true,
+            gridLineColor: '#e0e0e0',
+            hideHover: 'auto'
+        });
+    }
+
+    function deleteAnnualGraph() {
+        $("#extra-area-chart").empty();
+    }
+</script>
+
+@*Ventas mensuales*@
+<script>
+    let monthlySales = @(Json.Serialize(Model.MonthlyProfits)).value.data;
+    createMonthlyGraph(monthlySales);
+
+    function createMonthlyGraph(data) {
+        Morris.Area({
+            element: 'morris-area-chart',
+            data: data,
+            xkey: 'period',
+            ykeys: ['sold'],
+            labels: ['$'],
+            pointSize: 3,
+            fillOpacity: 0,
+            pointStrokeColors: ['#2f3d4a'],
+            behaveLikeLine: true,
+            gridLineColor: '#009efb',
+            lineWidth: 3,
+            hideHover: 'auto',
+            lineColors: ['#2f3d4a'],
+            resize: true,
+        });
+    }
+
+    function deleteMonthlyGraph() {
+        $("#morris-area-chart").empty();
+    }
+</script>

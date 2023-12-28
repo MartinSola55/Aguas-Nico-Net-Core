@@ -22,6 +22,22 @@ namespace AguasNico.Data.Repository
             _db.SaveChanges();
         }
 
+        public IEnumerable<SelectListItem> GetYears()
+        {
+            var years = this.GetAll()
+            .Select(route => route.CreatedAt.Year)
+            .Distinct()
+            .OrderByDescending(year => year)
+            .ToList();
+
+            return years.Select(year => new SelectListItem
+            {
+                Text = year.ToString(),
+                Value = year.ToString(),
+                Selected = (year == DateTime.UtcNow.AddHours(-3).Year)
+            });
+        }
+
         public void SoftDelete(long id)
         {
             try
