@@ -29,17 +29,26 @@ namespace AguasNico.Data.Seeding
                 _roleManager.CreateAsync(new IdentityRole(Constants.Dealer)).GetAwaiter().GetResult();
 
                 // Crear usuarios
-                ApplicationUser user = new()
+                ApplicationUser admin = new()
                 {
-                    UserName = _config["UserEmail"],
-                    Email = _config["UserEmail"],
+                    UserName = _config["AdminEmail"],
+                    Email = _config["AdminEmail"],
                     EmailConfirmed = true,
                 };
-                _userManager.CreateAsync(user, _config["UserPassword"]).GetAwaiter().GetResult();
+                ApplicationUser dealer = new()
+                {
+                    UserName = _config["DealerEmail"],
+                    Email = _config["DealerEmail"],
+                    EmailConfirmed = true,
+                };
+                _userManager.CreateAsync(admin, _config["AdminPassword"]).GetAwaiter().GetResult();
+                _userManager.CreateAsync(dealer, _config["DealerPassword"]).GetAwaiter().GetResult();
 
-                ApplicationUser newUser = _db.User.Where(u => u.UserName.Equals(user.UserName)).First();
+                ApplicationUser newAdmin = _db.User.Where(u => u.UserName.Equals(admin.UserName)).First();
+                ApplicationUser newDealer = _db.User.Where(u => u.UserName.Equals(dealer.UserName)).First();
 
-                _userManager.AddToRoleAsync(newUser, Constants.Admin).GetAwaiter().GetResult();
+                _userManager.AddToRoleAsync(newAdmin, Constants.Admin).GetAwaiter().GetResult();
+                _userManager.AddToRoleAsync(newDealer, Constants.Dealer).GetAwaiter().GetResult();
             }
             catch (Exception)
             {
