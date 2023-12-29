@@ -81,10 +81,10 @@ namespace AguasNico.Data.Repository
         {
             try
             {
-                var dbObject = _db.Routes.Where(x => x.ID == routeID).Include(x => x.Carts).First() ?? throw new Exception("No se ha encontrado la planilla");
+                Models.Route route = _db.Routes.Where(x => x.ID == routeID).Include(x => x.Carts).First() ?? throw new Exception("No se ha encontrado la planilla");
                 
                 _db.Database.BeginTransaction();
-                foreach (Cart cart in dbObject.Carts)
+                foreach (Cart cart in route.Carts)
                 {
                     cart.DeletedAt = DateTime.UtcNow.AddHours(-3);
                 }
@@ -92,6 +92,10 @@ namespace AguasNico.Data.Repository
                 int priority = 1;
                 foreach (var client in clients)
                 {
+                    Client dbClient = _db.Clients.First(x => x.ID == client.ID) ?? throw new Exception("No se ha encontrado uno de los clientes");
+                    dbClient.UpdatedAt = DateTime.UtcNow.AddHours(-3);
+                    dbClient.DealerID = route.UserID;
+                    dbClient.DeliveryDay = route.DayOfWeek;
                     Cart cart = new()
                     {
                         ClientID = client.ID,
