@@ -11,6 +11,7 @@ namespace AguasNico.Data.Repository.IRepository
     public interface ITablesRepository
     {
         List<SoldProductsTable> GetSoldProductsByDate(DateTime date);
+        List<SoldProductsTable> GetSoldProductsByRoute(long routeID);
         List<SoldProductsTable> GetSoldProductsByDateAndRoute(DateTime date, long routeID);
     }
 }

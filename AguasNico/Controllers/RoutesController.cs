@@ -133,7 +133,7 @@ namespace AguasNico.Controllers
                             TotalSold = _workContainer.Route.GetTotalSoldByRoute(DateTime.UtcNow.AddHours(-3).Date, id),
                             CompletedCarts = _workContainer.Cart.GetAll(x => x.RouteID == id && x.State != State.Pending).Count(),
                             PendingCarts = _workContainer.Cart.GetAll(x => x.RouteID == id && x.State == State.Pending).Count(),
-                            SoldProducts = _workContainer.Tables.GetSoldProductsByDateAndRoute(DateTime.UtcNow.AddHours(-3).Date, id),
+                            SoldProducts = _workContainer.Tables.GetSoldProductsByRoute(id),
                             Payments = _workContainer.Route.GetTotalCollected(route.ID),
                             Transfers = _workContainer.Transfer.GetAll(x => x.UserID == route.UserID && x.Date.Date == route.CreatedAt.Date),
                         };
@@ -241,18 +241,38 @@ namespace AguasNico.Controllers
         {
             try
             {
-                IEnumerable<Models.Route> routes = _workContainer.Route.GetAll(x => x.DayOfWeek == dayString && x.IsStatic, includeProperties: "User, Carts");
-
-                return Json(new
+                ApplicationUser user = _workContainer.ApplicationUser.GetFirstOrDefault(u => u.UserName.Equals(User.Identity.Name));
+                string role = _signInManager.UserManager.GetRolesAsync(user).Result.First();
+                return role switch
                 {
-                    success = true,
-                    routes = routes.Select(x => new
+                    Constants.Admin => Json(new
                     {
-                        id = x.ID,
-                        dealer = x.User.UserName,
-                        totalCarts = x.Carts.Count(),
-                    })
-                });
+                        success = true,
+                        routes = _workContainer.Route.GetAll(x => x.DayOfWeek == dayString && x.IsStatic, includeProperties: "User, Carts").Select(x => new
+                        {
+                            id = x.ID,
+                            dealer = x.User.UserName,
+                            totalCarts = x.Carts.Count(),
+                        })
+                    }),
+                    Constants.Dealer => Json(new
+                    {
+                        success = true,
+                        routes = _workContainer.Route.GetAll(x => x.DayOfWeek == dayString && !x.IsStatic, includeProperties: "User, Carts, Carts.PaymentMethods")
+                        .OrderByDescending(x => x.CreatedAt)
+                        .Select(x => new
+                        {
+                            id = x.ID,
+                            dealer = x.User.UserName,
+                            totalCarts = x.Carts.Count(),
+                            completedCarts = x.Carts.Count(y => y.State != State.Pending),
+                            state = x.Carts.Count(y => y.State != State.Pending) == x.Carts.Count() ? "Completado" : "Pendiente",
+                            totalCollected = x.Carts.Sum(y => y.PaymentMethods.Sum(z => z.Amount)),
+                            date = x.CreatedAt.ToString("dd/MM/yyyy"),
+                        })
+                    }),
+                    _ => CustomBadRequest(title: "No se encontraron planillas", message: "Intente nuevamente o comuníquese para soporte"),
+                };
             }
             catch (Exception)
             {
