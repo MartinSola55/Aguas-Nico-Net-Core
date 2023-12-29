@@ -117,21 +117,21 @@ namespace AguasNico.Data.Repository
             }
         }
 
-        public IEnumerable<Models.Route> GetStaticsByDay(Day day, string? userID = null)
+        public IEnumerable<Models.Route> GetStaticsByDay(Day day)
         {
-            return userID switch
-            {
-                null => _db.Routes
+            return _db.Routes
                     .Where(x => x.IsStatic && x.DayOfWeek == day)
                     .Include(x => x.User)
                     .Include(x => x.Carts)
-                    .OrderBy(x => x.User.UserName),
-                _ => _db.Routes
-                    .Where(x => x.IsStatic && x.DayOfWeek == day && x.UserID == userID)
+                    .OrderBy(x => x.User.UserName);
+        }
+
+        public IEnumerable<Models.Route> GetStaticsByDealer(string dealerID)
+        {
+            return _db.Routes
+                    .Where(x => x.IsStatic && x.UserID == dealerID)
                     .Include(x => x.User)
-                    .Include(x => x.Carts)
-                    .OrderBy(x => x.User.UserName),
-            };
+                    .Include(x => x.Carts);
         }
 
         public List<CartPaymentMethod> GetTotalCollected(long routeID)
@@ -166,6 +166,45 @@ namespace AguasNico.Data.Repository
             [
                 .. _db.Clients.Where(x => !x.Carts.Any(x => x.RouteID == routeID && x.IsStatic)),
             ];
+        }
+
+        public long CreateByDealer(long routeID)
+        {
+            try
+            {
+                Models.Route route = _db.Routes.Include(x => x.Carts).First(x => x.ID == routeID && x.IsStatic) ?? throw new Exception("No se ha encontrado la planilla");
+            
+                _db.Database.BeginTransaction();
+                Models.Route newRoute = new()
+                {
+                    UserID = route.UserID,
+                    DayOfWeek = route.DayOfWeek,
+                    IsStatic = false,
+                };
+                _db.Routes.Add(newRoute);
+                _db.SaveChanges();
+
+                foreach (Cart cart in route.Carts)
+                {
+                    Cart newCart = new()
+                    {
+                        ClientID = cart.ClientID,
+                        RouteID = newRoute.ID,
+                        Priority = cart.Priority,
+                        State = State.Pending,
+                        IsStatic = false,
+                    };
+                    _db.Carts.Add(newCart);
+                }
+                _db.SaveChanges();
+                _db.Database.CommitTransaction();
+                return newRoute.ID;
+            }
+            catch (Exception)
+            {
+                _db.Database.RollbackTransaction();
+                throw;
+            }
         }
     }
 }

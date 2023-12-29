@@ -45,7 +45,7 @@ namespace AguasNico.Controllers
                         viewModel.Routes = _workContainer.Route.GetStaticsByDay(today);
                         return View("~/Views/Routes/Admin/Index.cshtml", viewModel);
                     case Constants.Dealer:
-                        viewModel.Routes = _workContainer.Route.GetStaticsByDay(today, user.Id);
+                        viewModel.Routes = _workContainer.Route.GetStaticsByDealer(user.Id);
                         return View("~/Views/Routes/Dealer/Index.cshtml", viewModel);
                     default:
                         return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
@@ -110,6 +110,28 @@ namespace AguasNico.Controllers
             return CustomBadRequest(title: "Error al crear la planilla", message: "Alguno de los campos ingresados no es válido");
         }
 
+        [HttpPost]
+        [ActionName("CreateByDealer")]
+        [ValidateAntiForgeryToken]
+        public IActionResult CreateByDealer(long routeID)
+        {
+            try
+            {
+                long id = _workContainer.Route.CreateByDealer(routeID);
+
+                return Json(new
+                {
+                    success = true,
+                    id,
+                    message = "La planilla se creó correctamente",
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al crear la planilla", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
+        }
+
         [HttpGet]
         [ActionName("Details")]
         public IActionResult Details(long id)
@@ -121,7 +143,7 @@ namespace AguasNico.Controllers
                 Models.Route route = _workContainer.Route.GetFirstOrDefault(x => x.ID == id, includeProperties: "User, Carts, Carts.Products, Carts.ReturnedProducts, Carts.Client, Carts.PaymentMethods, Carts.PaymentMethods.PaymentMethod");
                 
                 if (route is null) return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nLa planilla no existe", ErrorCode = 404 });
-                if (route.UserID != user.Id && role != Constants.Admin) return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nNo tiene permisos para ver esta planilla", ErrorCode = 403 });
+                if ((route.UserID != user.Id && role != Constants.Admin) || (route.IsStatic && role != Constants.Admin)) return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nNo tiene permisos para ver esta planilla", ErrorCode = 403 });
 
                 switch (role)
                 {

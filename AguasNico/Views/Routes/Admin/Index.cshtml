@@ -43,7 +43,7 @@
                         <div class="ml-auto">
                             <form method="GET" asp-area="" asp-controller="Routes" asp-action="SearchByDay" id="formSearchRoutes">
                                 <label class="form-control-label">Día</label>
-                                @Html.DropDownList("daysDropDowm", Model.Days, new { @class = "form-control form-select", @id = "daySelect" })
+                                @Html.DropDownList("daysDropDowm", Model.DaysDropDown, new { @class = "form-control form-select", @id = "daySelect" })
                             </form>
                         </div>
                     </div>

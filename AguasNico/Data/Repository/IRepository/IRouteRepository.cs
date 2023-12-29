@@ -15,9 +15,11 @@ namespace AguasNico.Data.Repository.IRepository
         decimal GetTotalSold(DateTime date);
         decimal GetTotalSoldByRoute(DateTime date, long routeID);
         void UpdateClients(long routeID, List<Client> clients);
-        IEnumerable<Models.Route> GetStaticsByDay(Day day, string? userID = null);
+        IEnumerable<Models.Route> GetStaticsByDay(Day day);
+        IEnumerable<Models.Route> GetStaticsByDealer(string dealerID);
         List<CartPaymentMethod> GetTotalCollected(long routeID);
         List<Client> ClientsInRoute (long routeID);
         List<Client> ClientsNotInRoute (long routeID);
+        long CreateByDealer (long routeID);
     }
 }

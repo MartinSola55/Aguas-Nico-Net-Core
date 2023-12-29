@@ -216,7 +216,7 @@
 
                                         <div class="d-flex flex-md-row flex-column justify-content-end">
                                             <button type="button" onclick="getReturnedProducts('@cart.ClientID', '@cart.Client.Name', '@cart.ID')" class="btn btn-sm btn-info btn-rounded px-3 mb-2 mb-md-0 ml-auto ml-md-0">Devuelve</button>
-                                            <button type="button" onclick="editCart(@Json.Serialize(cart))" class="btn btn-sm btn-info btn-rounded px-3 ml-auto ml-md-2">Editar Bajada</button>
+                                            <button type="button" onclick='editCart(@Json.Serialize(cart))' class="btn btn-sm btn-info btn-rounded px-3 ml-auto ml-md-2">Editar Bajada</button>
                                         </div>
                                         <hr>
                                         <div class="d-flex flex-row justify-content-start">
