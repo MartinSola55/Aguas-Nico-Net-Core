@@ -81,7 +81,7 @@ namespace AguasNico.Data.Repository
         {
             try
             {
-                var dbObject = _db.Routes.First(x => x.ID == routeID) ?? throw new Exception("No se ha encontrado la planilla");
+                var dbObject = _db.Routes.Where(x => x.ID == routeID).Include(x => x.Carts).First() ?? throw new Exception("No se ha encontrado la planilla");
                 
                 _db.Database.BeginTransaction();
                 foreach (Cart cart in dbObject.Carts)
@@ -146,6 +146,22 @@ namespace AguasNico.Data.Repository
                 });
             }
             return cartPaymentMethods;
+        }
+
+        public List<Client> ClientsInRoute(long routeID)
+        {
+            return
+            [
+                .. _db.Carts.Where(x => x.RouteID == routeID && x.IsStatic).OrderBy(x => x.Priority).Select(x => x.Client),
+            ];
+        }
+
+        public List<Client> ClientsNotInRoute(long routeID)
+        {
+            return
+            [
+                .. _db.Clients.Where(x => !x.Carts.Any(x => x.RouteID == routeID && x.IsStatic)),
+            ];
         }
     }
 }

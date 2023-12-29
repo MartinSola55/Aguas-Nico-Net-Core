@@ -17,5 +17,7 @@ namespace AguasNico.Data.Repository.IRepository
         void UpdateClients(long routeID, List<Client> clients);
         IEnumerable<Models.Route> GetStaticsByDay(Day day, string? userID = null);
         List<CartPaymentMethod> GetTotalCollected(long routeID);
+        List<Client> ClientsInRoute (long routeID);
+        List<Client> ClientsNotInRoute (long routeID);
     }
 }

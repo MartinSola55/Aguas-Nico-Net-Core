@@ -1,0 +1,138 @@
+﻿@model AguasNico.Models.ViewModels.Routes.EditViewModel
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Planillas";
+    int contador = 1;
+}
+<link href="~/lib/datatables/media/css/dataTables.bootstrap4.css" rel="stylesheet">
+<link href="~/lib/nestable/nestable.css" rel="stylesheet" type="text/css" />
+
+<script src="~/lib/datatables/datatables.min.js"></script>
+<script src="~/js/custom/routes/admin/edit.js"></script>
+<script src="~/lib/datatables/dataTables.rowReorder.min.js"></script>
+<script src="~/lib/nestable/jquery.nestable.js"></script>
+
+
+<div class="container-fluid">
+    <div class="row page-titles">
+        <div class="col-md-5 col-8 align-self-center">
+            <h3 class="text-themecolor m-b-0 m-t-0">Planillas</h3>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">Inicio</a></li>
+                <li class="breadcrumb-item"><a asp-area="" asp-controller="Routes" asp-action="Index">Planillas</a></li>
+                <li class="breadcrumb-item active">Editar clientes</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-left">Agregar cliente al reparto del <b>@Html.DisplayFor(x => Model.Route.DayOfWeek)</b> de <b>@Html.DisplayFor(x => Model.Route.User.UserName)</b></h2>
+            <hr />
+        </div>
+        <div class="col-12 col-xl-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h4 class="card-title">Clientes seleccionados</h4>
+                    <form id="form-confirm" method="post" asp-area="" asp-controller="Routes" asp-action="UpdateClients">
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(model => model.Route.ID)
+
+                        <div class="table-responsive">
+                            <table id="clientsInRouteTable" class="table DataTable table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Quitar</th>
+                                        <th>Nombre</th>
+                                        <th>Dirección</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach(Client client in Model.ClientsInRoute)
+                                    {
+                                        <tr data-id="@client.ID">
+                                            <td style="cursor: pointer">@(contador++)</td>
+                                            <td class="text-center">
+                                                <button type="button" name="remove_client" class="btn btn-danger btn-sm" onclick='removeClient(@Json.Serialize(client))'><i class="bi bi-x-lg"></i></button>
+                                            </td>
+                                            <td>@Html.DisplayFor(x => client.Name)</td>
+                                            <td>@Html.DisplayFor(x => client.Address)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            <div class="d-flex flex-row justify-content-end mt-4">
+                                <button onclick="createClientsArray()" type="button" class="btn btn-success">Guardar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h4 class="card-title">Listado de clientes</h4>
+                    <div class="table-responsive">
+                        <table id="clientsNotInRouteTable" class="table DataTable table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Seleccionar</th>
+                                    <th>Nombre</th>
+                                    <th>Dirección</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (Client client in Model.ClientsNotInRoute)
+                                {
+                                    <tr data-id="@client.ID">
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-info" onclick='addClient(@Json.Serialize(client))'><i class="bi bi-arrow-left"></i></button>
+                                        </td>
+                                        <td>@Html.DisplayFor(x => client.Name)</td>
+                                        <td>@Html.DisplayFor(x => client.Address)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    #clientsTable tbody tr:hover {
+        background-color: #dee2e6;
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+        var updateOutput = function (e) {
+            var list = e.length ? e : $(e.target),
+                output = list.data('output');
+            if (window.JSON) {
+                output.val(window.JSON.stringify(list.nestable('serialize'))); //, null, 2));
+            } else {
+                output.val('JSON browser support required');
+            }
+        };
+
+        $('#nestable-menu').on('click', function (e) {
+            var target = $(e.target),
+                action = target.data('action');
+            if (action === 'expand-all') {
+                $('.dd').nestable('expandAll');
+            }
+            if (action === 'collapse-all') {
+                $('.dd').nestable('collapseAll');
+            }
+        });
+
+        $('#nestable-menu').nestable();
+    });
+</script>

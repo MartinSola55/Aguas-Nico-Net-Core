@@ -154,6 +154,51 @@ namespace AguasNico.Controllers
             }
         }
 
+        [HttpGet]
+        [ActionName("Edit")]
+        public IActionResult Edit(long id)
+        {
+            try
+            {
+                Models.Route route = _workContainer.Route.GetFirstOrDefault(x => x.ID == id, includeProperties: "User, Carts, Carts.Client");
+                if (route is null) return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nLa planilla no existe", ErrorCode = 404 });
+
+                EditViewModel viewModel = new()
+                {
+                    Route = route,
+                    ClientsInRoute = _workContainer.Route.ClientsInRoute(id),
+                    ClientsNotInRoute = _workContainer.Route.ClientsNotInRoute(id),
+                };
+                return View("~/Views/Routes/Admin/Edit.cshtml", viewModel);
+            }
+            catch (Exception)
+            {
+                return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
+            }
+        }
+
+        [HttpPost]
+        [ActionName("UpdateClients")]
+        [ValidateAntiForgeryToken]
+        public IActionResult UpdateClients(Models.Route route, List<Client> clients)
+        {
+            try
+            {
+                _workContainer.Route.UpdateClients(route.ID, clients);
+                _workContainer.Save();
+                return Json(new
+                {
+                    success = true,
+                    id = route.ID,
+                    message = "La planilla se actualizó correctamente",
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al actualizar la planilla", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
+        }
+
         [HttpPost]
         [ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -283,31 +328,6 @@ namespace AguasNico.Controllers
         #endregion
 
         #region Details actions
-
-        [HttpPost]
-        [ActionName("UpdateClients")] // For admin. Deletes and creates all static carts.
-        public IActionResult UpdateClients(long routeID, List<Client> clients)
-        {
-            try
-            {
-                Models.Route route = _workContainer.Route.GetOne(routeID);
-                if (route is null)
-                {
-                    return CustomBadRequest(title: "Error al actualizar los clientes", message: "La planilla no existe");
-                }
-                _workContainer.Route.UpdateClients(routeID, clients);
-                _workContainer.Save();
-                return Json(new
-                {
-                    success = true,
-                    message = "Los clientes se actualizaron correctamente",
-                });
-            }
-            catch (Exception e)
-            {
-                return CustomBadRequest(title: "Error al actualizar los clientes", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
-            }
-        }
 
         [HttpPost]
         [ActionName("AddClient")] // For employee. Adds a new cart.
