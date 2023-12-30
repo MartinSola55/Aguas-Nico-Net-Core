@@ -140,7 +140,7 @@ namespace AguasNico.Controllers
             {
                 ApplicationUser user = _workContainer.ApplicationUser.GetFirstOrDefault(u => u.UserName.Equals(User.Identity.Name));
                 string role = _signInManager.UserManager.GetRolesAsync(user).Result.First();
-                Models.Route route = _workContainer.Route.GetFirstOrDefault(x => x.ID == id, includeProperties: "User, Carts, Carts.Products, Carts.ReturnedProducts, Carts.Client, Carts.PaymentMethods, Carts.PaymentMethods.PaymentMethod");
+                Models.Route route = _workContainer.Route.GetFirstOrDefault(x => x.ID == id, includeProperties: "User, Carts, Carts.Products, Carts.Products.Product, Carts.ReturnedProducts, Carts.Client, Carts.PaymentMethods, Carts.PaymentMethods.PaymentMethod");
                 
                 if (route is null) return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nLa planilla no existe", ErrorCode = 404 });
                 if ((route.UserID != user.Id && role != Constants.Admin) || (route.IsStatic && role != Constants.Admin)) return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nNo tiene permisos para ver esta planilla", ErrorCode = 403 });
@@ -164,6 +164,7 @@ namespace AguasNico.Controllers
                         DealerViewModel dealerViewModel = new()
                         {
                             Route = route,
+                            PaymentMethods = _workContainer.PaymentMethod.GetDropDownList(),
                         };
                         foreach (State state in Enum.GetValues(typeof(State)))
                         {

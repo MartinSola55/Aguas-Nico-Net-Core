@@ -39,5 +39,52 @@ namespace AguasNico.Data.Repository
         {
             _db.Carts.Update(cart);
         }
+
+        public void Confirm(Cart cart)
+        {
+            try
+            {
+                _db.Database.BeginTransaction();
+                Client client = _db.Clients.Find(cart.ClientID) ?? throw new Exception("No se ha encontrado el cliente");
+
+                decimal total = 0;
+                if (cart.Products is not null)
+                {
+                    foreach (CartProduct product in cart.Products)
+                    {
+                        if (product.Quantity <= 0) continue;
+                        ClientProduct clientProduct = _db.ClientProducts.Where(x => x.ClientID == cart.ClientID && x.ProductID == product.ProductID).Include(x => x.Product).FirstOrDefault() ?? throw new Exception("No se ha encontrado un producto del cliente");
+                        clientProduct.Stock += product.Quantity;
+                        product.SettedPrice = clientProduct.Product.Price;
+                        product.CartID = cart.ID;
+                        total += product.Quantity * product.SettedPrice;
+                        _db.CartProducts.Add(product);
+                    }
+                    client.Debt += total;
+                }
+
+                total = 0;
+                if (cart.PaymentMethods is not null)
+                {
+                    foreach (CartPaymentMethod paymentMethod in cart.PaymentMethods)
+                    {
+                        paymentMethod.CartID = cart.ID;
+                        total += paymentMethod.Amount;
+                        _db.CartPaymentMethods.Add(paymentMethod);
+                    }
+                    client.Debt -= total;
+                }
+
+                Cart updatedCart = _db.Carts.Find(cart.ID) ?? throw new Exception("No se ha encontrado la bajada");
+                updatedCart.State = State.Confirmed;
+                _db.SaveChanges();
+                _db.Database.CommitTransaction();
+            }
+            catch (Exception)
+            {
+                _db.Database.RollbackTransaction();
+                throw;
+            }
+        }
     }
 }

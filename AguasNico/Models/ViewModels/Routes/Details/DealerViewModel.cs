@@ -11,12 +11,12 @@ namespace AguasNico.Models.ViewModels.Routes.Details
         public IEnumerable<SelectListItem> CartStates { get; set; } = new List<SelectListItem>
         {
             new() { Text = "Por estado", Value = "", Selected = true },
-            new() { Text = State.Pending.GetDisplayName(), Value = State.Pending.ToString() },
-            new() { Text = State.Confirmed.GetDisplayName(), Value = State.Confirmed.ToString() },
-            new() { Text = State.Ausent.GetDisplayName(), Value = State.Ausent.ToString() },
-            new() { Text = State.NotNeeded.GetDisplayName(), Value = State.NotNeeded.ToString() },
-            new() { Text = State.NotNeeded.GetDisplayName(), Value = State.NotNeeded.ToString() },
-            new() { Text = State.Holidays.GetDisplayName(), Value = State.Holidays.ToString() }
+            new() { Text = State.Pending.GetDisplayName(), Value = State.Pending.GetDisplayName() },
+            new() { Text = State.Confirmed.GetDisplayName(), Value = State.Confirmed.GetDisplayName() },
+            new() { Text = State.Ausent.GetDisplayName(), Value = State.Ausent.GetDisplayName() },
+            new() { Text = State.NotNeeded.GetDisplayName(), Value = State.NotNeeded.GetDisplayName() },
+            new() { Text = State.NotNeeded.GetDisplayName(), Value = State.NotNeeded.GetDisplayName() },
+            new() { Text = State.Holidays.GetDisplayName(), Value = State.Holidays.GetDisplayName() }
         };
         public IEnumerable<SelectListItem> ProductTypes { get; set; } = new List<SelectListItem>
         {
@@ -26,6 +26,7 @@ namespace AguasNico.Models.ViewModels.Routes.Details
             new() { Text = ProductType.Máquina.GetDisplayName(), Value = ProductType.Máquina.ToString() },
             new() { Text = ProductType.Soda.GetDisplayName(), Value = ProductType.Soda.ToString() }
         };
+        public IEnumerable<SelectListItem> PaymentMethods { get; set; } = [];
         public List<State> States { get; set; } = [];
     }
 }

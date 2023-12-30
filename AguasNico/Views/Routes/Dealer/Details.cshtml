@@ -10,6 +10,7 @@
 
 <script src="~/lib/datatables/datatables.min.js"></script>
 <script src="~/js/custom/routes/dealer/details/confirmCart.js"></script>
+<script src="~/js/custom/routes/filters.js"></script>
 
 <div class="container-fluid">
     <div class="row page-titles">
@@ -25,46 +26,50 @@
 
     <!-- MODAL DE CONFIRMACIÓN -->
     <div id="modalConfirmation" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-        <div class="modal-dialog">
-            <form id="form-confirmCart" method="post" asp-area="" asp-controller="Cart" asp-action="Confirm">                <input type="hidden" name="discount">
-                @Html.AntiForgeryToken()
-                @Html.HiddenFor(x => x.Cart.ID)
-                @Html.HiddenFor(x => x.Cart.ClientID)
-                @Html.Hidden("CartProducts", "")
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">Confirmar pedido</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Confirmar bajada</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-12 table-responsive">
+                        <table class="table" id="clientProductsTable">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Precio</th>
+                                    <th class="col-2">Cantidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <hr>
+                        <div class="d-flex row justify-content-between">
+                            <p id="totalCart" class="col-12 align-items-center justify-content-end mb-0">Total: $0</p>
+                        </div>
                     </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <div class="table-responsive">
-                                    <table class="table" id="clientProductsTable">
-                                        <thead>
-                                            <tr>
-                                                <th>Producto</th>
-                                                <th>Precio</th>
-                                                <th>Cantidad</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                        </tbody>
-                                    </table>
-                                    <hr>
-                                    <div class="d-flex row justify-content-between">
-                                        <p id="totalCart" class="col-12 align-items-center justify-content-end mb-0">Total pedido: $0</p>
-                                    </div>
+                    <div class="col-12">
+                        <hr />
+                        <div class="col-6 col-md-12">
+                            @Html.DropDownList("cartPaymentMethod", Model.PaymentMethods, new { @class = "form-control mb-2", @id = "cartPaymentMethod" })
+                        </div>
+                        <div class="col-6 col-md-12" id="cartPaymentAmountContainer">
+                            <div class="input-group mb-2">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">$</div>
                                 </div>
+                                <input type="number" class="form-control" id="cartPaymentAmount" placeholder="Entrega" min="0" step="1">
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cerrar</button>
-                        <button type="button" id="btnPayCart" class="btn btn-success waves-effect waves-light">Confirmar bajada</button>
-                    </div>
                 </div>
-            </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cerrar</button>
+                    <button type="button" onclick="confirmCart()" class="btn btn-success waves-effect waves-light">Confirmar bajada</button>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -187,7 +192,7 @@
                                     }
                                     else
                                     {
-                                        <p class="m-0"><small class="text-success">A favor: $@Html.DisplayFor(x => cart.Client.Debt * -1)</small></p>
+                                        <p class="m-0"><small class="text-success">A favor: $@((cart.Client.Debt * -1).ToString("#,##"))</small></p>
                                     }
 
                                     <!-- Deuda del mes actual -->
@@ -266,7 +271,12 @@
                                         </div>
                                         <hr>
                                         <div class="d-flex flex-row justify-content-start">
-                                            <p class="m-0">Entrega en efectivo: $@(cart.PaymentMethods.Any() ? cart.PaymentMethods.Where(x => x.PaymentMethod.Name == "Efectivo").Sum(x => x.Amount).ToString("#,##") : "0")</p>
+                                            <ul>
+                                                @foreach (CartPaymentMethod paymentMethod in cart.PaymentMethods)
+                                                {
+                                                    <li>@Html.DisplayFor(x => paymentMethod.PaymentMethod.Name): $@Html.DisplayFor(x => paymentMethod.Amount)</li>
+                                                }
+                                            </ul>
                                         </div>
                                     }
                                     @if (cart.State == State.Pending)
@@ -311,6 +321,12 @@
     
     <form id="form-searchClientProducts" method="get" asp-area="" asp-controller="Clients" asp-action="GetProducts">
         @Html.Hidden("id", "")
+    </form>
+
+    <form id="form-confirmCart" method="post" asp-area="" asp-controller="Cart" asp-action="Confirm">
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(x => x.Cart.ID)
+        @Html.HiddenFor(x => x.Cart.ClientID)
     </form>
 </div>
 
