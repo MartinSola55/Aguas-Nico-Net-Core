@@ -9,8 +9,9 @@
 <link href="~/lib/datatables/media/css/dataTables.bootstrap4.css" rel="stylesheet">
 
 <script src="~/lib/datatables/datatables.min.js"></script>
-<script src="~/js/custom/routes/dealer/details/confirmCart.js"></script>
 <script src="~/js/custom/routes/filters.js"></script>
+<script src="~/js/custom/routes/dealer/details/confirmCart.js"></script>
+<script src="~/js/custom/routes/dealer/details/cartStates.js"></script>
 
 <div class="container-fluid">
     <div class="row page-titles">
@@ -289,7 +290,7 @@
                                                     <div class="dropdown-divider"></div>
                                                     @foreach (State state in Model.States)
                                                     {
-                                                        <button class="dropdown-item" type="button" style="cursor: pointer;" onclick="sendStateChange(@((int)state), @cart.ID, '@((int)state)')">@state.GetDisplayName()</button>
+                                                        <button class="dropdown-item" type="button" style="cursor: pointer;" onclick="setState(@cart.ID, @((int)state), '@state.GetDisplayName().ToLower()')">@state.GetDisplayName()</button>
                                                     }
                                                 </div>
                                             </div>
@@ -300,7 +301,7 @@
                                     {
                                         <hr>
                                         <div class="d-flex flex-row justify-content-end">
-                                            <button name="btnResetCartState" type="button" class="btn btn-sm btn-danger btn-rounded px-3" onclick="cancelState(@cart.ID)">Cancelar estado</button>
+                                            <button type="button" class="btn btn-sm btn-danger btn-rounded px-3" onclick="cancelState(@cart.ID)">Cancelar estado</button>
                                         </div>
                                     }
                                 </div>
@@ -313,17 +314,22 @@
         </div>
     </div>
 
-    <form id="form-resetState" method="post" asp-area="" asp-controller="Cart" asp-action="ResetState">
+    <form id="form-resetState" method="post" asp-area="" asp-controller="Carts" asp-action="ResetState">
         @Html.AntiForgeryToken()
-        @Html.HiddenFor(x => x.Cart.ID)
-        @Html.HiddenFor(x => x.Cart.State)
+        @Html.Hidden("cartID", "")
+    </form>
+    
+    <form id="form-setState" method="post" asp-area="" asp-controller="Carts" asp-action="SetState">
+        @Html.AntiForgeryToken()
+        @Html.Hidden("cartID", "")
+        @Html.Hidden("state", "")
     </form>
     
     <form id="form-searchClientProducts" method="get" asp-area="" asp-controller="Clients" asp-action="GetProducts">
         @Html.Hidden("id", "")
     </form>
 
-    <form id="form-confirmCart" method="post" asp-area="" asp-controller="Cart" asp-action="Confirm">
+    <form id="form-confirmCart" method="post" asp-area="" asp-controller="Carts" asp-action="Confirm">
         @Html.AntiForgeryToken()
         @Html.HiddenFor(x => x.Cart.ID)
         @Html.HiddenFor(x => x.Cart.ClientID)
