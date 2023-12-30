@@ -98,7 +98,7 @@ namespace AguasNico.Controllers
             ModelState.Remove("Client.Carts");
             ModelState.Remove("Client.Dealer");
             ModelState.Remove("Client.Transfers");
-            ModelState.RemoveAll<CreateViewModel>(x => x.Client.ClientProducts);
+            ModelState.RemoveAll<CreateViewModel>(x => x.Client.Products);
             if (ModelState.IsValid)
             {
                 try
@@ -311,6 +311,37 @@ namespace AguasNico.Controllers
             catch (Exception e)
             {
                 return CustomBadRequest(title: "Error al obtener los clientes", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
+        }
+
+        [HttpGet]
+        [ActionName("GetProducts")]
+        public IActionResult GetProducts(long id)
+        {
+            try
+            {
+                Client client = _workContainer.Client.GetFirstOrDefault(x => x.ID == id, includeProperties: "Products, Products.Product");
+                if (client is null) return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "El cliente no existe", ErrorCode = 404 });
+
+                List<object> products = [];
+                foreach (ClientProduct clientProduct in client.Products)
+                {
+                    products.Add(new
+                    {
+                        id = clientProduct.ProductID,
+                        name = clientProduct.Product.Name,
+                        price = clientProduct.Product.Price,
+                    });
+                }
+                return Json(new
+                {
+                    success = true,
+                    data = products,
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al obtener los productos", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
             }
         }
 

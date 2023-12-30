@@ -7,6 +7,7 @@ namespace AguasNico.Models.ViewModels.Routes.Details
     public class DealerViewModel
     {
         public Route Route = new();
+        public Cart Cart = new();
         public IEnumerable<SelectListItem> CartStates { get; set; } = new List<SelectListItem>
         {
             new() { Text = "Por estado", Value = "", Selected = true },
@@ -25,5 +26,6 @@ namespace AguasNico.Models.ViewModels.Routes.Details
             new() { Text = ProductType.Máquina.GetDisplayName(), Value = ProductType.Máquina.ToString() },
             new() { Text = ProductType.Soda.GetDisplayName(), Value = ProductType.Soda.ToString() }
         };
+        public List<State> States { get; set; } = [];
     }
 }

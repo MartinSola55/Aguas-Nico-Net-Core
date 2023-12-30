@@ -165,6 +165,12 @@ namespace AguasNico.Controllers
                         {
                             Route = route,
                         };
+                        foreach (State state in Enum.GetValues(typeof(State)))
+                        {
+                            if (state == State.Pending) continue;
+                            if (state == State.Confirmed) continue;
+                            dealerViewModel.States.Add(state);
+                        }
                         return View("~/Views/Routes/Dealer/Details.cshtml", dealerViewModel);
                     default:
                         return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
@@ -222,9 +228,9 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("Delete")]
+        [ActionName("SoftDelete")]
         [ValidateAntiForgeryToken]
-        public IActionResult Delete(long id)
+        public IActionResult SoftDelete(long id)
         {
             try
             {
@@ -325,7 +331,7 @@ namespace AguasNico.Controllers
                     Constants.Dealer => Json(new
                     {
                         success = true,
-                        routes = _workContainer.Route.GetAll(x => x.DayOfWeek == dayString && !x.IsStatic, includeProperties: "User, Carts, Carts.PaymentMethods")
+                        routes = _workContainer.Route.GetAll(x => x.DayOfWeek == dayString && !x.IsStatic && x.UserID == user.Id, includeProperties: "User, Carts, Carts.PaymentMethods")
                         .OrderByDescending(x => x.CreatedAt)
                         .Select(x => new
                         {

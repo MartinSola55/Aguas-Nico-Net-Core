@@ -64,7 +64,7 @@ namespace AguasNico.Models
 
         public virtual ApplicationUser Dealer { get; set; } = null!;
 
-        public virtual ICollection<ClientProduct> ClientProducts { get; set; } = null!;
+        public virtual ICollection<ClientProduct> Products { get; set; } = null!;
 
         [JsonIgnore]
         public virtual ICollection<Cart> Carts { get; set; } = null!;
