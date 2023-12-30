@@ -12,6 +12,7 @@
 <script src="~/js/custom/routes/filters.js"></script>
 <script src="~/js/custom/routes/dealer/details/confirmCart.js"></script>
 <script src="~/js/custom/routes/dealer/details/cartStates.js"></script>
+<script src="~/js/custom/routes/dealer/details/clientHistory.js"></script>
 
 <div class="container-fluid">
     <div class="row page-titles">
@@ -168,7 +169,7 @@
                                         {
                                             <h4 class="timeline-title name-element col-8" style="color: #6c757d">@Html.DisplayFor(x => cart.Client.Name)</h4>
                                         }
-                                        <button class="btn btn-info rounded-circle mr-2" onclick="getHistory(@cart.ClientID,'@cart.Client.Name')"><i class="bi bi-clipboard"></i></button>
+                                        <button class="btn btn-info rounded-circle mr-2" onclick="getClientHistory(@cart.ClientID, '@cart.Client.Name')"><i class="bi bi-clipboard"></i></button>
                                     </div>
                                     <p class="m-0"><small class="text-muted">Cliente #@cart.ClientID</small></p>
 
@@ -326,6 +327,10 @@
     </form>
     
     <form id="form-searchClientProducts" method="get" asp-area="" asp-controller="Clients" asp-action="GetProducts">
+        @Html.Hidden("id", "")
+    </form>
+
+    <form id="form-searchClientHistory" method="get" asp-area="" asp-controller="Clients" asp-action="GetProductsHistory">
         @Html.Hidden("id", "")
     </form>
 

@@ -5,8 +5,8 @@ namespace AguasNico.Models.ViewModels.Clients
 {
     public enum ActionType
     {
-        Baja,
-        Devuelve,
+        [Display(Name = "Baja")] Baja,
+        [Display(Name = "Devuelve")] Devuelve,
     }
     public class ProductHistory
     {

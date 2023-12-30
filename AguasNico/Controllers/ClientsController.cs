@@ -345,6 +345,35 @@ namespace AguasNico.Controllers
             }
         }
 
+        [HttpGet]
+        [ActionName("GetProductsHistory")]
+        public IActionResult GetProductsHistory(long id)
+        {
+            try
+            {
+                Client client = _workContainer.Client.GetOne(id) ?? throw new Exception("El cliente no existe");
+                List<object> data = [];
+                foreach (ProductHistory productHistory in _workContainer.Client.GetProductsHistory(id))
+                {
+                    data.Add(new
+                    {
+                        productType = productHistory.ProductType.GetDisplayName(),
+                        actionType = productHistory.ActionType.GetDisplayName(),
+                        quantity = productHistory.Quantity,
+                        date = productHistory.Date.ToString("dd/MM/yyyy"),
+                    });
+                }
+                return Json(new
+                {
+                    success = true,
+                    data,
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al obtener los productos", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
+        }
         #endregion
     }
 }
