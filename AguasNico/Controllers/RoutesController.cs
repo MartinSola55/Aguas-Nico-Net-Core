@@ -359,7 +359,7 @@ namespace AguasNico.Controllers
         #region Details actions
 
         [HttpPost]
-        [ActionName("AddClient")] // For employee. Adds a new cart.
+        [ActionName("AddClient")] // For dealer
         public IActionResult AddClient(long routeID, long clientID)
         {
             try
@@ -396,41 +396,43 @@ namespace AguasNico.Controllers
             }
         }
 
-        [HttpPost]
-        [ActionName("UpdateDispatched")] // For employee. Adds a new cart.
-        public IActionResult UpdateDispatched(long routeID, List<DispatchedProduct> products)
+        [HttpGet]
+        [ActionName("GetDispatched")]
+        public IActionResult GetDispatched(long routeID)
         {
             try
             {
-                Models.Route route = _workContainer.Route.GetOne(routeID);
-                if (route is null)
+                List<DispatchedProduct> dispatchedProducts = _workContainer.DispatchedProduct.GetAll(x => x.RouteID == routeID).ToList();
+                List<object> data = [];
+                foreach (ProductType productType in Enum.GetValues(typeof(ProductType)))
                 {
-                    return CustomBadRequest(title: "Error al obtener la planilla", message: "La planilla no existe");
-                }
-                foreach (DispatchedProduct product in products)
-                {
-                    product.RouteID = routeID;
-                    product.UpdatedAt = DateTime.UtcNow.AddHours(-3);
-                    _workContainer.DispatchedProduct.Add(product);
+                    if (productType == ProductType.Máquina) continue;
+                    data.Add(new
+                    {
+                        type = productType,
+                        name = productType.GetDisplayName(),
+                        quantity = dispatchedProducts.Any(x => x.Type == productType) ? dispatchedProducts.Where(x => x.Type == productType).First().Quantity : 0,
+                    });
                 }
                 return Json(new
                 {
                     success = true,
-                    message = "Los productos se actualizaron correctamente",
+                    data
                 });
             }
             catch (Exception e)
             {
-                return CustomBadRequest(title: "Error al actualizar los productos", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+                return CustomBadRequest(title: "Error al obtener los productos", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
             }
         }
 
         [HttpPost]
-        [ActionName("UpdateReturned")] // For employee. Adds a new cart.
-        public IActionResult UpdateReturned()
+        [ActionName("UpdateDispatched")]
+        public IActionResult UpdateDispatched(long routeID, List<DispatchedProduct> products)
         {
             try
             {
+                _workContainer.Route.UpdateDispatched(routeID, products);
                 return Json(new
                 {
                     success = true,

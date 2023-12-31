@@ -206,5 +206,48 @@ namespace AguasNico.Data.Repository
                 throw;
             }
         }
+
+        public void UpdateDispatched(long routeID, List<DispatchedProduct> products)
+        {
+            try
+            {
+                Models.Route route = _db.Routes.Include(x => x.DispatchedProducts).First(x => x.ID == routeID) ?? throw new Exception("No se ha encontrado la planilla");
+                _db.Database.BeginTransaction();
+
+                foreach (DispatchedProduct dispatchedProduct in route.DispatchedProducts)
+                {
+                    dispatchedProduct.DeletedAt = DateTime.UtcNow.AddHours(-3);
+                }
+
+                List<DispatchedProduct> oldProducts = [.. _db.DispatchedProducts.IgnoreQueryFilters().Where(x => x.RouteID == routeID)];
+                foreach (DispatchedProduct dispatchedProduct in products)
+                {
+                    if (oldProducts.Any(x => x.Type == dispatchedProduct.Type))
+                    {
+                        oldProducts.First(x => x.Type == dispatchedProduct.Type).DeletedAt = null;
+                        oldProducts.First(x => x.Type == dispatchedProduct.Type).Quantity = dispatchedProduct.Quantity;
+                        oldProducts.First(x => x.Type == dispatchedProduct.Type).UpdatedAt = DateTime.UtcNow.AddHours(-3);
+                        _db.SaveChanges();
+                    }
+                    else
+                    {
+                        _db.DispatchedProducts.Add(new()
+                        {
+                            RouteID = routeID,
+                            Type = dispatchedProduct.Type,
+                            Quantity = dispatchedProduct.Quantity,
+                        });
+                    
+                    }
+                }
+                _db.SaveChanges();
+                _db.Database.CommitTransaction();
+            }
+            catch (Exception)
+            {
+                _db.Database.RollbackTransaction();
+                throw;
+            }
+        }
     }
 }

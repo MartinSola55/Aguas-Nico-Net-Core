@@ -11,6 +11,7 @@
 <script src="~/lib/datatables/datatables.min.js"></script>
 <script src="~/js/custom/routes/filters.js"></script>
 <script src="~/js/custom/routes/dealer/details/clientHistory.js"></script>
+<script src="~/js/custom/routes/admin/details/dispatchedProducts.js"></script>
 
 
 <div class="container-fluid">
@@ -28,11 +29,41 @@
             <div class="col-md-7 col-4 align-self-center">
                 <div class="d-flex m-t-10 justify-content-end">
                     <div class="d-flex m-r-20 m-l-10">
-                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalReturnedProducts">Productos cargados</button>
+                        <button type="button" class="btn btn-info" onclick="getDispatchedProducts(@Model.Route.ID)">Productos cargados</button>
                     </div>
                 </div>
             </div>
         }
+    </div>
+
+    <!-- MODAL DE DESPACHADOS -->
+    <div id="modalDispatched" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Productos cargados en el camión</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-12 table-responsive">
+                        <table class="table" id="dispatchedProductsTable">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th class="col-2">Cantidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cerrar</button>
+                    <button type="button" onclick="confirmDispatched()" class="btn btn-success waves-effect waves-light">Confirmar carga</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     @if(!Model.Route.IsStatic)
@@ -432,5 +463,13 @@
 
     <form id="form-searchClientHistory" method="get" asp-area="" asp-controller="Clients" asp-action="GetProductsHistory">
         @Html.Hidden("id", "")
+    </form>
+
+    <form id="form-confirmDispatchedProducts" method="post" asp-area="" asp-controller="Routes" asp-action="UpdateDispatched">
+        @Html.Hidden("routeID", "")
+    </form>
+    
+    <form id="form-dispatchedProducts" method="get" asp-area="" asp-controller="Routes" asp-action="GetDispatched">
+        @Html.Hidden("routeID", "")
     </form>
 </div>

@@ -10,8 +10,6 @@ namespace AguasNico.Models
         [Required]
         public ProductType Type { get; set; }
 
-        public string ProductName { get; set; } = null!;
-
         [Required(ErrorMessage = "Debes ingresar una cantidad")]
         [Display(Name = "Cantidad")]
         [Range(0, int.MaxValue, ErrorMessage = "La cantidad debe ser al menos 0")]

@@ -24,5 +24,6 @@ namespace AguasNico.Models
         public virtual ApplicationUser User { get; set; } = null!;
         
         public virtual IEnumerable<Cart> Carts { get; set; } = null!;
+        public virtual IEnumerable<DispatchedProduct> DispatchedProducts { get; set; } = null!;
     }
 }
