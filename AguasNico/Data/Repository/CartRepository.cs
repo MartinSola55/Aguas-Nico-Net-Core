@@ -22,7 +22,8 @@ namespace AguasNico.Data.Repository
         {
             try
             {
-                _db.Database.BeginTransaction();
+                bool isInTransaction = _db.Database.CurrentTransaction is not null;
+                if (!isInTransaction) _db.Database.BeginTransaction();
                 Cart cart = _db.Carts
                     .Where(x => x.ID == id)
                     .Include(x => x.Client)
@@ -69,7 +70,7 @@ namespace AguasNico.Data.Repository
                 cart.DeletedAt = DateTime.UtcNow.AddHours(-3);
 
                 _db.SaveChanges();
-                _db.Database.CommitTransaction();
+                if (!isInTransaction) _db.Database.CommitTransaction();
             }
             catch (Exception)
             {

@@ -231,16 +231,11 @@ namespace AguasNico.Controllers
         [HttpPost]
         [ActionName("SoftDelete")]
         [ValidateAntiForgeryToken]
-        public IActionResult SoftDelete(long id)
+        public IActionResult SoftDelete(Models.Route route)
         {
             try
             {
-                if (_workContainer.Route.GetOne(id) is null)
-                {
-                    return CustomBadRequest(title: "Error al eliminar la planilla", message: "La planilla no existe");
-                }
-                _workContainer.Route.SoftDelete(id);
-                _workContainer.Save();
+                _workContainer.Route.SoftDelete(route.ID);
                 return Json(new
                 {
                     success = true,
@@ -249,7 +244,7 @@ namespace AguasNico.Controllers
             }
             catch (Exception e)
             {
-                return CustomBadRequest(title: "Error al eliminar la planilla", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+                return CustomBadRequest(title: "Error", message: "No se ha podido eliminar la planilla", error: e.Message);
             }
         }
 

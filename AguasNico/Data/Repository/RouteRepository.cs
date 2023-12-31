@@ -42,8 +42,28 @@ namespace AguasNico.Data.Repository
         {
             try
             {
-                var dbObject = _db.Routes.First(x => x.ID == id) ?? throw new Exception("No se ha encontrado la planilla");
+                _db.Database.BeginTransaction();
 
+                Models.Route route = _db.Routes
+                    .Where(x => x.ID == id)
+                    .Include(x => x.Carts)
+                    .Include(x => x.DispatchedProducts)
+                    .FirstOrDefault() ?? throw new Exception("No se ha encontrado la planilla");
+
+                foreach (DispatchedProduct product in route.DispatchedProducts)
+                {
+                    product.DeletedAt = DateTime.UtcNow.AddHours(-3);
+                }
+
+                CartRepository cartRepository = new(_db);
+                foreach (Cart cart in route.Carts)
+                {
+                    cartRepository.SoftDelete(cart.ID);
+                }
+
+                route.DeletedAt = DateTime.UtcNow.AddHours(-3);
+                _db.SaveChanges();
+                _db.Database.CommitTransaction();
             }
             catch (Exception)
             {

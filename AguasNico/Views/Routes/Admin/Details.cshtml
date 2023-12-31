@@ -13,6 +13,7 @@
 <script src="~/js/custom/routes/dealer/details/clientHistory.js"></script>
 <script src="~/js/custom/routes/admin/details/dispatchedProducts.js"></script>
 <script src="~/js/custom/routes/admin/deleteCart.js"></script>
+<script src="~/js/custom/routes/admin/deleteRoute.js"></script>
 
 
 <div class="container-fluid">
@@ -214,13 +215,17 @@
         <div class="col-12 px-0">
             <div class="card shadow">
                 <div class="card-header mx-0 d-flex row justify-content-between">
-                    <div class="col-sm-12">
+                    <div class="col-12 col-md-8 col-lg-6 mb-3 mb-md-0">
                         <h4 class="mb-0">Repartos de <b>@Model.Route.User.UserName</b> para el <b>@Model.Route.DayOfWeek</b></h4>
                     </div>
                     @if (Model.Route.IsStatic)
                     {
                         <hr>
                         <a class="btn btn-info btn-rounded float-right" asp-area="" asp-controller="Invoice" asp-action="GenerateInvoice" asp-route-id="@Model.Route.ID">Ver facturación</a>
+                    }
+                    else
+                    {
+                        <button type="button" onclick="deleteRoute(@Model.Route.ID)" class="btn btn-outline-danger btn-rounded px-3 ml-auto" style="max-width: fit-content;">Eliminar planilla</button>
                     }
                 </div>
                 <div class="card-body pl-0 pr-1">
@@ -422,7 +427,7 @@
                                         </div>
                                         <hr>
                                         <div class="d-flex flex-row justify-content-start">
-                                            <p class="m-0">Entrega en efectivo: $@(cart.PaymentMethods.Any() ? cart.PaymentMethods.Where(x => x.PaymentMethod.Name == "Efectivo").Sum(x => x.Amount).ToString("#,##") : "0")</p>
+                                            <p class="m-0">Entrega en efectivo: $@(cart.PaymentMethods.Any(x => x.PaymentMethod.Name == "Efectivo") ? cart.PaymentMethods.Where(x => x.PaymentMethod.Name == "Efectivo").Sum(x => x.Amount).ToString("#,##") : "0")</p>
                                         </div>
                                     }
                                     <!-- Resetear estado del carrito (no confirmado) -->
@@ -464,6 +469,10 @@
 
     <form id="form-searchClientHistory" method="get" asp-area="" asp-controller="Clients" asp-action="GetProductsHistory">
         @Html.Hidden("id", "")
+    </form>
+
+    <form id="form-deleteRoute" method="post" asp-area="" asp-controller="Routes" asp-action="SoftDelete">
+        @Html.HiddenFor(x => Model.Route.ID)
     </form>
 
     <form id="form-confirmDispatchedProducts" method="post" asp-area="" asp-controller="Routes" asp-action="UpdateDispatched">
