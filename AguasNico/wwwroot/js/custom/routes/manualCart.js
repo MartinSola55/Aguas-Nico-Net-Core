@@ -1,10 +1,11 @@
-function openModal(cartID, clientID) {
+function openModal(clientID, clientName) {
     $("#form-searchClientProducts input[name='id']").val(clientID);
-    $("#form-confirmCart input[name='Cart.ID']").val(cartID);
     $("#form-confirmCart input[name='Cart.ClientID']").val(clientID);
     $("#form-confirmCart input:not([type='hidden']").val("");
     $("#cartPaymentMethod").val("");
     $("#cartPaymentAmountContainer").hide();
+
+    $(".modal-title").text(`Confirmar bajada para ${clientName}`);
 
     let form = $("#form-searchClientProducts");
     $.ajax({
@@ -22,7 +23,7 @@ function openModal(cartID, clientID) {
                     </tr>
                 `);
             });
-            $("#modalConfirmation").modal('show');
+            $("#modal").modal('show');
             $("input[name='quantity']").on("input", function () {
                 let total = 0;
                 let rows = $('#clientProductsTable tbody tr');
@@ -101,7 +102,7 @@ function confirmCart() {
                 allowOutsideClick: false,
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.reload();
+                    window.location.href = window.location.origin + "/Routes/Details/" + response.data;
                 }
             });
         },

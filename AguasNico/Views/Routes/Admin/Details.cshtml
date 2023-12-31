@@ -89,8 +89,8 @@
                                 @foreach (Transfer transfer in Model.Transfers)
                                 {
                                     <tr>
-                                        <td><a target=”_blank” asp-area="" asp-controller="Clients" asp-action="Details" asp-route-id="@transfer.ClientID">@Html.DisplayFor(x => transfer.Client.Name)</a></td>
-                                        <td>@Html.DisplayFor(x => transfer.Amount)</td>
+                                        <td><a target="_blank" asp-area="" asp-controller="Clients" asp-action="Details" asp-route-id="@transfer.ClientID">@Html.DisplayFor(x => transfer.Client.Name)</a></td>
+                                        <td>$@Html.DisplayFor(x => transfer.Amount)</td>
                                     </tr>
                                 }
                             </tbody>
@@ -270,7 +270,7 @@
                         <div class="d-flex flex-row justify-content-end mr-2 mb-2">
                             <a class="btn btn-info btn-rounded float-right" asp-area="" asp-controller="Routes" asp-action="Edit" asp-route-id="@Model.Route.ID">Editar planilla</a>
                         </div>
-                    }                    
+                    }
 
                     @if (!Model.Route.IsStatic)
                     {
@@ -281,7 +281,7 @@
                                 </div>
 
                                 <!-- FILTRO DE BÚSQUEDA -->
-                                <div class="container mb-2">
+                                <div class="col-12 mb-2">
                                     <div class="accordion" id="myAccordion">
                                         <div cla`ss="card shadow rounded">
                                             <div class="card-header p-2" id="headingOne">
@@ -313,11 +313,11 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6 col-sm-12">
-                                @if (Model.Route.IsStatic)
+                            <div class="col-md-6 col-sm-12 my-3">
+                                @if (!Model.Route.IsStatic)
                                 {
                                     <div class="d-flex flex-row justify-content-end mx-3">
-                                        <a class="btn btn-info btn-rounded float-right" href="#">Agregar venta manual</a>
+                                        <a class="btn btn-info btn-rounded float-right" asp-area="" asp-controller="Routes" asp-action="ManualCart" asp-route-id="@Model.Route.ID">Agregar fuera de reparto</a>
                                     </div>
                                 }
                             </div>
@@ -362,7 +362,7 @@
                                         }
                                         <button class="btn btn-info rounded-circle mr-2" onclick="getClientHistory(@cart.ClientID,'@cart.Client.Name')"><i class="bi bi-clipboard"></i></button>
                                     </div>
-                                    <p class="m-0"><small class="text-muted">Cliente #@cart.ClientID</small></p>
+                                    <p class="m-0"><small class="text-muted">Bajada #@cart.ID</small></p>
 
                                     <!-- Datos del último reparto -->
                                     @* @if ($cart->Client->lastCart != null && $cart->Client->lastCart->created_at != null)
@@ -459,11 +459,16 @@
                                         }
 
                                         <div class="d-flex flex-md-row flex-column justify-content-end">
-                                            <button type="button" onclick="editCart(@Json.Serialize(cart))" class="btn btn-sm btn-info btn-rounded px-3 ml-auto ml-md-2">Editar Bajada</button>
+                                            <a asp-area="" asp-controller="Carts" asp-action="Edit" asp-route-id="@cart.ID" class="btn btn-sm btn-info btn-rounded px-3 ml-auto ml-md-2">Editar Bajada</a>
                                         </div>
                                         <hr>
                                         <div class="d-flex flex-row justify-content-start">
-                                            <p class="m-0">Entrega en efectivo: $@(cart.PaymentMethods.Any(x => x.PaymentMethod.Name == "Efectivo") ? cart.PaymentMethods.Where(x => x.PaymentMethod.Name == "Efectivo").Sum(x => x.Amount).ToString("#,##") : "0")</p>
+                                            <ul>
+                                                @foreach (CartPaymentMethod paymentMethod in cart.PaymentMethods)
+                                                {
+                                                    <li>@Html.DisplayFor(x => paymentMethod.PaymentMethod.Name): $@Html.DisplayFor(x => paymentMethod.Amount)</li>
+                                                }
+                                            </ul>
                                         </div>
                                     }
                                     <!-- Resetear estado del carrito (no confirmado) -->

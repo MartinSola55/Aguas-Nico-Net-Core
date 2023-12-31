@@ -22,6 +22,23 @@ namespace AguasNico.Controllers
             });
         }
 
+        [HttpGet]
+        [ActionName("Edit")]
+        public IActionResult Edit(long id)
+        {
+            try
+            {
+                Cart cart = _workContainer.Cart.GetFirstOrDefault(x => x.ID == id, includeProperties: "Products, Client, ReturnedProducts, PaymentMethods, PaymentMethods.PaymentMethod") ?? throw new Exception("No se ha encontrado la bajada solicitada");
+                if (cart.State != State.Confirmed) throw new Exception("No se puede editar una bajada que no esté confirmada");
+
+                return View(cart);
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error", message: "No se ha podido recuperar la bajada", error: e.Message);
+            }
+        }
+
         [HttpPost]
         [ActionName("Confirm")]
         [ValidateAntiForgeryToken]
@@ -40,6 +57,28 @@ namespace AguasNico.Controllers
                     success = true,
                     title = "Confirmado",
                     message = "Se ha confirmado la bajada",
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error", message: "No se ha podido confirmar la bajada", error: e.Message);
+            }
+        }
+
+        [HttpPost]
+        [ActionName("ConfirmManual")]
+        [ValidateAntiForgeryToken]
+        public IActionResult ConfirmManual(Cart cart)
+        {
+            try
+            {
+                _workContainer.Cart.CreateManual(cart);
+                return Json(new
+                {
+                    success = true,
+                    title = "Confirmado",
+                    message = "Se ha confirmado la bajada",
+                    data = cart.RouteID,
                 });
             }
             catch (Exception e)

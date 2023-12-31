@@ -206,6 +206,28 @@ namespace AguasNico.Controllers
             }
         }
 
+        [HttpGet]
+        [ActionName("ManualCart")]
+        public IActionResult ManualCart(long id)
+        {
+            try
+            {
+                Models.Route route = _workContainer.Route.GetFirstOrDefault(x => x.ID == id, includeProperties: "User, Carts") ?? throw new Exception("La planilla no existe");
+
+                ManualCartViewModel viewModel = new()
+                {
+                    Route = route,
+                    Clients = _workContainer.Route.ClientsNotInRoute(id),
+                    PaymentMethods = _workContainer.PaymentMethod.GetDropDownList()
+                };
+                return View(viewModel);
+            }
+            catch (Exception)
+            {
+                return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
+            }
+        }
+
         [HttpPost]
         [ActionName("UpdateClients")]
         [ValidateAntiForgeryToken]
@@ -267,7 +289,7 @@ namespace AguasNico.Controllers
                         totalCarts = x.Carts.Count(),
                         completedCarts = x.Carts.Count(y => y.State == State.Confirmed),
                         state = x.Carts.Count(y => y.State != State.Pending) == x.Carts.Count() ? "Completado" : "Pendiente",
-                        collected = x.Carts.Sum(y => y.PaymentMethods.Where(z => z.CreatedAt.Date == date.Date).Sum(z => z.Amount)),
+                        collected = x.Carts.Sum(y => y.PaymentMethods.Where(z => z.CreatedAt.Date == date.Date).Sum(z => z.Amount)).ToString("#,##"),
                     })
                 });
             }

@@ -7,6 +7,7 @@ using AguasNico.Data.Repository.IRepository;
 using AguasNico.Models;
 using Microsoft.EntityFrameworkCore;
 using AguasNico.Models.ViewModels.Clients;
+using AguasNico.Models.ViewModels.Tables;
 
 namespace AguasNico.Data.Repository
 {
@@ -177,6 +178,41 @@ namespace AguasNico.Data.Repository
                     Name = x.Name,
                     Address = x.Address,
                 });
+        }
+
+        public List<CartsTransfersHistoryTable> GetCartsTransfersHistoryTable(long clientID)
+        {
+            TransferRepository transferRepository = new(_db);
+            IEnumerable<Transfer> transfers = transferRepository.GetLastTen(clientID);
+            CartRepository cartRepository = new(_db);
+            IEnumerable<Cart> carts = cartRepository.GetLastTen(clientID);
+            
+            List<CartsTransfersHistoryTable> cartsTransfersHistory = [];
+
+            foreach (Transfer transfer in transfers)
+            {
+                cartsTransfersHistory.Add(new()
+                {
+                    Date = transfer.Date,
+                    Type = CartsTransfersType.Transfer,
+                    TransferAmount = transfer.Amount,
+                });
+            }
+
+            foreach (Cart cart in carts)
+            {
+                List<CartPaymentMethod> payments = cart.PaymentMethods.ToList();
+                List<CartProduct> products = cart.Products.ToList();
+
+                cartsTransfersHistory.Add(new()
+                {
+                    Date = cart.CreatedAt,
+                    Type = CartsTransfersType.Cart,
+                    PaymentMethods = payments,
+                    Products = products,
+                });
+            }
+            return [.. cartsTransfersHistory.OrderByDescending(x => x.Date)];
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using AguasNico.Models;
 using AguasNico.Models.ViewModels.Clients;
+using AguasNico.Models.ViewModels.Tables;
 
 namespace AguasNico.Data.Repository.IRepository
 {
@@ -39,5 +40,6 @@ namespace AguasNico.Data.Repository.IRepository
         void UpdateProducts(long clientID, List<ClientProduct> clientProduct);
         IEnumerable<ProductHistory> GetProductsHistory(long clientID);
         IEnumerable<Client> GetNotVisited(DateTime dateFrom, DateTime dateTo, string dealerID);
+        List<CartsTransfersHistoryTable> GetCartsTransfersHistoryTable(long clientID);
     }
 }

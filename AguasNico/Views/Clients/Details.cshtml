@@ -1,5 +1,6 @@
 ﻿@model AguasNico.Models.ViewModels.Clients.DetailsViewModel
 @using System.Globalization
+@using AguasNico.Models.ViewModels.Tables;
 @{
     ViewData["Title"] = "Clientes";
 }
@@ -42,34 +43,34 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach(Transfer transfer in Model.Transfers)
+                                    @foreach (CartsTransfersHistoryTable item in Model.CartsTransfersHistory)
                                     {
                                         <tr>
-                                            <td>@transfer.Date.ToString("dd/MM/yyyy")</td>
-                                            <td>Transferencia</td>
-                                            <td>$@Html.DisplayFor(x => transfer.Amount)</td>
-                                        </tr>
-                                    }
-                                    @foreach(var cart in Model.Carts)
-                                    {
-                                        <tr>
-                                            <td>@cart.CreatedAt.ToString("dd/MM/yyyy")</td>
-                                            <td>
-                                                <ul class="pl-3 mb-0">
-                                                    @foreach(CartProduct product in cart.Products)
-                                                    {
-                                                        <li>@Html.DisplayFor(x => product.Product.Name)</li>
-                                                    }
-                                                </ul>
-                                            </td>
-                                            <td>
-                                                <ul class="pl-3 mb-0">
-                                                @foreach (CartPaymentMethod method in cart.PaymentMethods)
-                                                {
-                                                    <li>@Html.DisplayFor(x => method.PaymentMethod.Name) - $@Html.DisplayFor(x => method.Amount)</li>
-                                                }
-                                                </ul>
-                                            </td>
+                                            <td>@item.Date.ToString("dd/MM/yyyy")</td>
+                                            @if (item.Type == CartsTransfersType.Transfer)
+                                            {
+                                                <td>@item.Type.GetDisplayName()</td>
+                                                <td>$@Html.DisplayFor(x => item.TransferAmount)</td>
+                                            }
+                                            else
+                                            {
+                                                <td>
+                                                    <ul class="pl-3 mb-0">
+                                                        @foreach (CartProduct product in item.Products)
+                                                        {
+                                                            <li>@Html.DisplayFor(x => product.Product.Name)</li>
+                                                        }
+                                                    </ul>
+                                                </td>
+                                                <td>
+                                                    <ul class="pl-3 mb-0">
+                                                        @foreach (CartPaymentMethod method in item.PaymentMethods)
+                                                        {
+                                                            <li>@Html.DisplayFor(x => method.PaymentMethod.Name) - $@Html.DisplayFor(x => method.Amount)</li>
+                                                        }
+                                                    </ul>
+                                                </td>
+                                            }
                                         </tr>
                                     }
                                 </tbody>

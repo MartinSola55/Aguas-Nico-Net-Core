@@ -73,13 +73,14 @@ namespace AguasNico.Controllers
                 {
                     return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "El cliente no existe", ErrorCode = 404 });
                 }
+                
+
                 DetailsViewModel viewModel = new()
                 {
                     Client = client,
                     Dealers = _workContainer.ApplicationUser.GetDealersDropDownList(),
-                    Transfers = _workContainer.Transfer.GetLastTen(id),
-                    Carts = _workContainer.Cart.GetLastTen(id),
                     Products = _workContainer.Client.GetAllProducts(id),
+                    CartsTransfersHistory = _workContainer.Client.GetCartsTransfersHistoryTable(id),
                     ProductsHistory = _workContainer.Client.GetProductsHistory(id),
                 };
                 return View(viewModel);
