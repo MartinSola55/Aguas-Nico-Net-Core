@@ -47,7 +47,7 @@
                                         <tr>
                                             <td>@transfer.Date.ToString("dd/MM/yyyy")</td>
                                             <td>Transferencia</td>
-                                            <td>@Html.DisplayFor(x => transfer.Amount)</td>
+                                            <td>$@Html.DisplayFor(x => transfer.Amount)</td>
                                         </tr>
                                     }
                                     @foreach(var cart in Model.Carts)
@@ -66,7 +66,7 @@
                                                 <ul class="pl-3 mb-0">
                                                 @foreach (CartPaymentMethod method in cart.PaymentMethods)
                                                 {
-                                                    <li>@Html.DisplayFor(x => method.PaymentMethod.Name) - @Html.DisplayFor(x => method.Amount)</li>
+                                                    <li>@Html.DisplayFor(x => method.PaymentMethod.Name) - $@Html.DisplayFor(x => method.Amount)</li>
                                                 }
                                                 </ul>
                                             </td>

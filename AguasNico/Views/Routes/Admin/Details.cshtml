@@ -12,6 +12,7 @@
 <script src="~/js/custom/routes/filters.js"></script>
 <script src="~/js/custom/routes/dealer/details/clientHistory.js"></script>
 <script src="~/js/custom/routes/admin/details/dispatchedProducts.js"></script>
+<script src="~/js/custom/routes/admin/deleteCart.js"></script>
 
 
 <div class="container-fluid">
@@ -450,15 +451,15 @@
     </div>
 
 
-    <form id="form-resetState" method="post" asp-area="" asp-controller="Cart" asp-action="ResetState">
+    <form id="form-resetState" method="post" asp-area="" asp-controller="Carts" asp-action="ResetState">
         @Html.AntiForgeryToken()
         <input type="hidden" name="id" value="">
         <input type="hidden" name="state" value="0">
     </form>
 
-    <form id="form-deleteCart" method="post" asp-area="" asp-controller="Cart" asp-action="SoftDelete">
+    <form id="form-deleteCart" method="post" asp-area="" asp-controller="Carts" asp-action="SoftDelete">
         @Html.AntiForgeryToken()
-        <input type="hidden" name="id">
+        @Html.Hidden("cartID", "")
     </form>
 
     <form id="form-searchClientHistory" method="get" asp-area="" asp-controller="Clients" asp-action="GetProductsHistory">

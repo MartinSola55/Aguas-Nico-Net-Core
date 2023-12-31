@@ -141,5 +141,27 @@ namespace AguasNico.Controllers
                 return CustomBadRequest(title: "Error", message: "No se han podido devolver los productos", error: e.Message);
             }
         }
+
+        [HttpPost]
+        [ActionName("SoftDelete")]
+        [ValidateAntiForgeryToken]
+        public IActionResult SoftDelete(long cartID)
+        {
+            try
+            {
+                _workContainer.Cart.SoftDelete(cartID);
+
+                return Json(new
+                {
+                    success = true,
+                    title = "Confirmado",
+                    message = "Se ha eliminado la bajada",
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error", message: "No se ha podido eliminar la bajada", error: e.Message);
+            }
+        }
     }
 }

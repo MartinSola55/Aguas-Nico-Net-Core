@@ -20,7 +20,62 @@ namespace AguasNico.Data.Repository
 
         public void SoftDelete(long id)
         {
-            // TODO: Implement this
+            try
+            {
+                _db.Database.BeginTransaction();
+                Cart cart = _db.Carts
+                    .Where(x => x.ID == id)
+                    .Include(x => x.Client)
+                    .Include(x => x.Products)
+                        .ThenInclude(x => x.Product)
+                    .Include(x => x.ReturnedProducts)
+                        .ThenInclude(x => x.Product)
+                    .Include(x => x.PaymentMethods)
+                    .FirstOrDefault() ?? throw new Exception("No se ha encontrado la bajada");
+
+                if (cart.Products is not null)
+                {
+                    foreach (CartProduct product in cart.Products)
+                    {
+                        ClientProduct clientProduct = _db.ClientProducts.Where(x => x.ClientID == cart.ClientID && x.ProductID == product.ProductID).FirstOrDefault() ?? throw new Exception("No se ha encontrado un producto del cliente");
+                        clientProduct.Stock -= product.Quantity;
+                        cart.Client.Debt -= product.Quantity * product.SettedPrice;
+                        product.DeletedAt = DateTime.UtcNow.AddHours(-3);
+                        _db.SaveChanges();
+                    }
+                }
+
+                if (cart.ReturnedProducts is not null)
+                {
+                    foreach (ReturnedProduct product in cart.ReturnedProducts)
+                    {
+                        ClientProduct clientProduct = _db.ClientProducts.Where(x => x.ClientID == cart.ClientID && x.ProductID == product.ProductID).FirstOrDefault() ?? throw new Exception("No se ha encontrado un producto del cliente");
+                        clientProduct.Stock += product.Quantity;
+                        product.DeletedAt = DateTime.UtcNow.AddHours(-3);
+                        _db.SaveChanges();
+                    }
+                }
+
+                if (cart.PaymentMethods is not null)
+                {
+                    foreach (CartPaymentMethod paymentMethod in cart.PaymentMethods)
+                    {
+                        cart.Client.Debt += paymentMethod.Amount;
+                        paymentMethod.DeletedAt = DateTime.UtcNow.AddHours(-3);
+                        _db.SaveChanges();
+                    }
+                }
+
+                cart.DeletedAt = DateTime.UtcNow.AddHours(-3);
+
+                _db.SaveChanges();
+                _db.Database.CommitTransaction();
+            }
+            catch (Exception)
+            {
+                _db.Database.RollbackTransaction();
+                throw;
+            }
         }
 
         public IEnumerable<Cart> GetLastTen(long clientID)

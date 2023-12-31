@@ -68,7 +68,7 @@ namespace AguasNico.Controllers
         {
             try
             {
-                Client client = _workContainer.Client.GetFirstOrDefault(x => x.ID == id, includeProperties: "Dealer, ClientProducts");
+                Client client = _workContainer.Client.GetFirstOrDefault(x => x.ID == id, includeProperties: "Dealer, Products");
                 if (client is null)
                 {
                     return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "El cliente no existe", ErrorCode = 404 });

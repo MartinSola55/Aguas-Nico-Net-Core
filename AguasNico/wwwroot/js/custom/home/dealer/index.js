@@ -35,7 +35,7 @@ $(document).ready(function () {
                         <td>${route.completedCarts}/${route.totalCarts}</td>
                         ${route.state == 'Pendiente' ? `<td><span class="label label-warning">${route.state}</span></td>` : `<td><span class="label label-success">${route.state}</span></td>`}
                         <td>$${route.totalCollected}</td>
-                        <td>$${route.date}</td>
+                        <td>${route.date}</td>
                     </tr>`;
                     $('#routesTable tbody').append($(row));
                 });
