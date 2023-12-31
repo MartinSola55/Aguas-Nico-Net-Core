@@ -40,6 +40,27 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
+        [ActionName("Edit")]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Cart cart)
+        {
+            try
+            {
+                _workContainer.Cart.Update(cart);
+                return Json(new
+                {
+                    success = true,
+                    message = "Se ha editado la bajada correctamente",
+                    data = cart.RouteID,
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error", message: "No se ha podido confirmar la bajada", error: e.Message);
+            }
+        }
+
+        [HttpPost]
         [ActionName("Confirm")]
         [ValidateAntiForgeryToken]
         public IActionResult Confirm(Cart cart)
@@ -148,8 +169,8 @@ namespace AguasNico.Controllers
                     success = true,
                     data = _workContainer.Cart.GetReturnedProducts(cartID).Select(x => new
                     {
-                        type = x.Product.Type,
-                        name = x.Product.Type.GetDisplayName(),
+                        type = x.Type,
+                        name = x.Type.GetDisplayName(),
                         quantity = x.Quantity,
                     }),
                 });

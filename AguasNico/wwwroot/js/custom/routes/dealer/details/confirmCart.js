@@ -15,7 +15,7 @@ function openModal(cartID, clientID) {
             $("#clientProductsTable tbody").empty();
             response.data.forEach(product => {
                 $("#clientProductsTable tbody").append(`
-                    <tr data-id="${product.id}">
+                    <tr data-type="${product.type}">
                         <td>${product.name}</td>
                         <td>$${product.price}</td>
                         <td><input type="number" class="form-control" name="quantity" value="" min="1"></td>
@@ -58,7 +58,7 @@ function confirmCart() {
         if (quantity > 0) {
             products.push({
                 Quantity: quantity,
-                ProductID: parseInt(row.dataset.id)
+                Type: parseInt(row.dataset.type)
             });
 
         }

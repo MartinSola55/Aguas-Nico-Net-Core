@@ -10,7 +10,7 @@ namespace AguasNico.Models
         public long CartID { get; set; }
 
         [Required]
-        public long ProductID { get; set; }
+        public ProductType Type { get; set; }
 
         [Required(ErrorMessage = "Debes ingresdar una cantidad")]
         [Display(Name = "Cantidad")]
@@ -30,7 +30,5 @@ namespace AguasNico.Models
 
         [JsonIgnore]
         public virtual Cart Cart { get; set; } = null!;
-        
-        public virtual Product Product { get; set; } = null!;
     }
 }

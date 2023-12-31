@@ -6,7 +6,7 @@ namespace AguasNico.Models
     public class ReturnedProduct
     {
         [Required]
-        public long ProductID { get; set; }
+        public ProductType Type { get; set; }
 
         [Required]
         public long CartID { get; set; }
@@ -21,8 +21,6 @@ namespace AguasNico.Models
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow.AddHours(-3);
 
         public DateTime? DeletedAt { get; set; }
-
-        public virtual Product Product { get; set; } = null!;
 
         [JsonIgnore]
         public virtual Cart Cart { get; set; } = null!;

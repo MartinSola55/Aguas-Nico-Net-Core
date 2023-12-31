@@ -329,7 +329,7 @@ namespace AguasNico.Controllers
                 {
                     products.Add(new
                     {
-                        id = clientProduct.ProductID,
+                        type = clientProduct.Product.Type,
                         name = clientProduct.Product.Name,
                         price = clientProduct.Product.Price,
                     });

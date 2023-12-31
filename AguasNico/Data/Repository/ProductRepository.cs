@@ -57,10 +57,10 @@ namespace AguasNico.Data.Repository
             return types;
         }
 
-        public int[] GetAnnualSales(long productID, DateTime year)
+        public int[] GetAnnualSales(ProductType productType, DateTime year)
         {
             var salesByMonth = _db.CartProducts
-                .Where(x => x.ProductID == productID && x.CreatedAt.Year == year.Year)
+                .Where(x => x.Type == productType && x.CreatedAt.Year == year.Year)
                 .GroupBy(x => x.CreatedAt.Month)
                 .Select(x => new
                 {
@@ -82,9 +82,9 @@ namespace AguasNico.Data.Repository
             return _db.ClientProducts.Where(x => x.ProductID == productID).Sum(x => x.Stock);
         }
 
-        public decimal GetTotalSold(long productID, DateTime year)
+        public decimal GetTotalSold(ProductType productType, DateTime year)
         {
-            return _db.CartProducts.Where(x => x.ProductID == productID && x.CreatedAt.Year == year.Year).Sum(x => x.Quantity * x.SettedPrice);
+            return _db.CartProducts.Where(x => x.Type == productType && x.CreatedAt.Year == year.Year).Sum(x => x.Quantity * x.SettedPrice);
         }
     }
 }

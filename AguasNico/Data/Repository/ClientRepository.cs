@@ -129,14 +129,12 @@ namespace AguasNico.Data.Repository
         {
             IEnumerable<CartProduct> soldProducts = _db.CartProducts
                 .Include(x => x.Cart)
-                .Include(x => x.Product)
-                .Where(x => x.Cart.ClientID == clientID && (x.Product.Type != ProductType.Máquina))
+                .Where(x => x.Cart.ClientID == clientID && (x.Type != ProductType.Máquina))
                 .OrderByDescending(x => x.CreatedAt)
                 .Take(10);
             IEnumerable<ReturnedProduct> returnedProducts = _db.ReturnedProducts
                 .Include(x => x.Cart)
-                .Include(x => x.Product)
-                .Where(x => x.Cart.ClientID == clientID && (x.Product.Type != ProductType.Máquina))
+                .Where(x => x.Cart.ClientID == clientID && (x.Type != ProductType.Máquina))
                 .OrderByDescending(x => x.CreatedAt)
                 .Take(10);
 
@@ -145,7 +143,7 @@ namespace AguasNico.Data.Repository
             {
                 ProductHistory product = new()
                 {
-                    ProductType = soldProduct.Product.Type,
+                    ProductType = soldProduct.Type,
                     ActionType = ActionType.Baja,
                     Quantity = soldProduct.Quantity,
                     Date = soldProduct.CreatedAt,
@@ -156,7 +154,7 @@ namespace AguasNico.Data.Repository
             {
                 ProductHistory product = new()
                 {
-                    ProductType = returnedProduct.Product.Type,
+                    ProductType = returnedProduct.Type,
                     ActionType = ActionType.Devuelve,
                     Quantity = returnedProduct.Quantity,
                     Date = returnedProduct.CreatedAt,
