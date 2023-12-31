@@ -13,7 +13,7 @@ namespace AguasNico.Data.Repository.IRepository
         void Update(Models.Route route);
         void SoftDelete(long id);
         decimal GetTotalSold(DateTime date);
-        decimal GetTotalSoldByRoute(DateTime date, long routeID);
+        decimal GetTotalSoldByRoute(long routeID);
         void UpdateClients(long routeID, List<Client> clients);
         void UpdateDispatched(long routeID, List<DispatchedProduct> products);
         IEnumerable<Models.Route> GetStaticsByDay(Day day);

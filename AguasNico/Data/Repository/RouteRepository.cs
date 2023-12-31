@@ -67,13 +67,14 @@ namespace AguasNico.Data.Repository
                 .Sum(x => x.Amount);
         }
 
-        public decimal GetTotalSoldByRoute(DateTime date, long routeID)
+        public decimal GetTotalSoldByRoute(long routeID)
         {
+            Models.Route route = _db.Routes.First(x => x.ID == routeID) ?? throw new Exception("No se ha encontrado la planilla");
             return _db.CartPaymentMethods
-                .Where(x => x.CreatedAt.Date == date.Date && x.Cart.RouteID == routeID)
+                .Where(x => x.Cart.RouteID == routeID)
                 .Sum(x => x.Amount)
                 + _db.Transfers
-                .Where(x => x.Date.Date == date.Date)
+                .Where(x => x.Date.Date == route.CreatedAt.Date)
                 .Sum(x => x.Amount);
         }
 

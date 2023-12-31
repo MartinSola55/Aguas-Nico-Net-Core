@@ -129,7 +129,7 @@
                                                                         @foreach (CartPaymentMethod method in Model.Payments)
                                                                         {
                                                                             <tr>
-                                                                                <td><h6 class="text-white text-left">@Html.DisplayFor(x => method.PaymentMethod.Name): @Html.DisplayFor(x => method.Amount)</h6></td>
+                                                                                <td><h6 class="text-white text-left">@Html.DisplayFor(x => method.PaymentMethod.Name): $@Html.DisplayFor(x => method.Amount)</h6></td>
                                                                             </tr>
                                                                         }
                                                                         @if(Model.Transfers.Any())

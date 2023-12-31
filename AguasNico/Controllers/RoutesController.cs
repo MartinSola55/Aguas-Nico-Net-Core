@@ -151,8 +151,8 @@ namespace AguasNico.Controllers
                         AdminViewModel adminViewModel = new()
                         {
                             Route = route,
-                            TotalExpenses = _workContainer.Expense.GetTotalExpensesByDealer(DateTime.UtcNow.AddHours(-3).Date, route.UserID),
-                            TotalSold = _workContainer.Route.GetTotalSoldByRoute(DateTime.UtcNow.AddHours(-3).Date, id),
+                            TotalExpenses = _workContainer.Expense.GetTotalExpensesByDealer(route.CreatedAt.Date, route.UserID),
+                            TotalSold = _workContainer.Route.GetTotalSoldByRoute(id),
                             CompletedCarts = _workContainer.Cart.GetAll(x => x.RouteID == id && x.State != State.Pending).Count(),
                             PendingCarts = _workContainer.Cart.GetAll(x => x.RouteID == id && x.State == State.Pending).Count(),
                             SoldProducts = _workContainer.Tables.GetSoldProductsByRoute(id),
