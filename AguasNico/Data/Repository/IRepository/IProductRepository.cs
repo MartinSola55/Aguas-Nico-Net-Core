@@ -15,8 +15,8 @@ namespace AguasNico.Data.Repository.IRepository
         void SoftDelete(long id);
         IEnumerable<Client> GetClients(long productID);
         List<SelectListItem> GetTypes();
-        int[] GetAnnualSales(long productID, DateTime year);
+        int[] GetAnnualSales(ProductType productType, DateTime year);
         int GetClientStock(long productID);
-        decimal GetTotalSold(long productID, DateTime year);
+        decimal GetTotalSold(ProductType productType, DateTime year);
     }
 }

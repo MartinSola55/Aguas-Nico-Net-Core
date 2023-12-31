@@ -16,7 +16,7 @@ function getReturnedProducts(clientID, clientName, cartID) {
             $("#modalReturned").modal("show");
             response.data.forEach(product => {
                 $("#returnedProductsTable tbody").append(`
-                    <tr data-id="${product.type}">
+                    <tr data-type="${product.type}">
                         <td>${product.name}</td>
                         <td>
                             <input type="number" class="form-control" name="returnedProduct" min="0" value="${product.quantity}">
@@ -52,9 +52,7 @@ function confirmReturned() {
         if (quantity > 0) {
             products.push({
                 Quantity: quantity,
-                Product: {
-                    Type: parseInt(row.dataset.id),
-                }
+                Type: parseInt(row.dataset.type),
             });
         }
     }

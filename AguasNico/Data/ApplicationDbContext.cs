@@ -18,11 +18,11 @@ namespace AguasNico.Data
             modelBuilder.Entity<CartPaymentMethod>()
                 .HasKey(entity => new { entity.CartID, entity.PaymentMethodID });
             modelBuilder.Entity<CartProduct>()
-                .HasKey(entity => new { entity.ProductID, entity.CartID });
+                .HasKey(entity => new { entity.Type, entity.CartID });
             modelBuilder.Entity<ClientProduct>()
                 .HasKey(entity => new { entity.ProductID, entity.ClientID });
             modelBuilder.Entity<ReturnedProduct>()
-                .HasKey(entity => new { entity.ProductID, entity.CartID });
+                .HasKey(entity => new { entity.Type, entity.CartID });
             modelBuilder.Entity<DispatchedProduct>()
                 .HasKey(entity => new { entity.RouteID, entity.Type });
 

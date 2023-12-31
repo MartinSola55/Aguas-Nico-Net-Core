@@ -53,12 +53,13 @@ namespace AguasNico.Controllers
         {
             try
             {
+                Product product = _workContainer.Product.GetFirstOrDefault(p => p.ID == id);
                 ProductViewModel viewModel = new()
                 {
-                    Product = _workContainer.Product.GetFirstOrDefault(p => p.ID == id),
+                    Product = product,
                     ClientStock = _workContainer.Product.GetClientStock(id),
-                    TotalSold = _workContainer.Product.GetTotalSold(id, DateTime.UtcNow.AddHours(-3)),
-                    Chart = _workContainer.Product.GetAnnualSales(id, DateTime.UtcNow.AddHours(-3)),
+                    TotalSold = _workContainer.Product.GetTotalSold(product.Type, DateTime.UtcNow.AddHours(-3)),
+                    Chart = _workContainer.Product.GetAnnualSales(product.Type, DateTime.UtcNow.AddHours(-3)),
                 };
                 return View("~/Views/Products/Stats.cshtml", viewModel);
             }

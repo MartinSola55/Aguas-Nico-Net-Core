@@ -419,7 +419,7 @@
                                                             {
                                                                 <tr>
                                                                     <td>@Html.DisplayFor(x => product.Quantity)</td>
-                                                                    <td class="product-element">@Html.DisplayFor(x => product.Product.Name)</td>
+                                                                    <td class="product-element">@product.Type.GetDisplayName()</td>
                                                                     <td>@Html.DisplayFor(x => product.SettedPrice)</td>
                                                                 </tr>
                                                             }
@@ -448,7 +448,7 @@
                                                             {
                                                                 <tr>
                                                                     <td>@Html.DisplayFor(x => product.Quantity)</td>
-                                                                    <td class="product-element">@product.Product.Type.GetDisplayName()</td>
+                                                                    <td class="product-element">@product.Type.GetDisplayName()</td>
                                                                 </tr>
                                                             }
                                                             </tbody>

@@ -145,7 +145,7 @@ namespace AguasNico.Data.Repository
             {
                 ProductHistory product = new()
                 {
-                    ProductType = soldProduct.Product.Type,
+                    ProductType = soldProduct.Type,
                     ActionType = ActionType.Baja,
                     Quantity = soldProduct.Quantity,
                     Date = soldProduct.CreatedAt,
@@ -156,7 +156,7 @@ namespace AguasNico.Data.Repository
             {
                 ProductHistory product = new()
                 {
-                    ProductType = returnedProduct.Product.Type,
+                    ProductType = returnedProduct.Type,
                     ActionType = ActionType.Devuelve,
                     Quantity = returnedProduct.Quantity,
                     Date = returnedProduct.CreatedAt,
