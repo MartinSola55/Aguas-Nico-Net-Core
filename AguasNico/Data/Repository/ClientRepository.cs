@@ -129,14 +129,12 @@ namespace AguasNico.Data.Repository
         {
             IEnumerable<CartProduct> soldProducts = _db.CartProducts
                 .Include(x => x.Cart)
-                .Include(x => x.Product)
-                .Where(x => x.Cart.ClientID == clientID && (x.Product.Type != ProductType.Máquina))
+                .Where(x => x.Cart.ClientID == clientID && (x.Type != ProductType.Máquina))
                 .OrderByDescending(x => x.CreatedAt)
                 .Take(10);
             IEnumerable<ReturnedProduct> returnedProducts = _db.ReturnedProducts
                 .Include(x => x.Cart)
-                .Include(x => x.Product)
-                .Where(x => x.Cart.ClientID == clientID && (x.Product.Type != ProductType.Máquina))
+                .Where(x => x.Cart.ClientID == clientID && (x.Type != ProductType.Máquina))
                 .OrderByDescending(x => x.CreatedAt)
                 .Take(10);
 
