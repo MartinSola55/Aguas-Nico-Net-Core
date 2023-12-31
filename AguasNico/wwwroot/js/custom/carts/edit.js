@@ -1,9 +1,9 @@
 function confirm() {
     let productosBajados = [];
-    let rows_PB = $('#ProductosBajados tbody tr');
-    for (let i = 0; i < rows_PB.length; i++) {
-        let row = rows_PB[i];
-        let quantity = parseInt(row.cells[2].children[0].value);
+    let rows = $('#ProductosBajados tbody tr');
+    for (let i = 0; i < rows.length; i++) {
+        let row = rows[i];
+        let quantity = parseInt(row.cells[1].children[0].value);
         if (quantity > 0) {
             productosBajados.push({
                 Quantity: quantity,
@@ -12,13 +12,13 @@ function confirm() {
         }
     }
     
-    let productosCargados = [];
-    let rows_PD = $('#ProductosDevueltos tbody tr');
-    for (let i = 0; i < rows_PD.length; i++) {
-        let row = rows_PD[i];
-        let quantity = parseInt(row.cells[2].children[0].value);
+    let productosDevueltos = [];
+    rows = $('#ProductosDevueltos tbody tr');
+    for (let i = 0; i < rows.length; i++) {
+        let row = rows[i];
+        let quantity = parseInt(row.cells[1].children[0].value);
         if (quantity > 0) {
-            productosCargados.push({
+            productosDevueltos.push({
                 Quantity: quantity,
                 Type: parseInt(row.dataset.type)
             });
@@ -38,7 +38,7 @@ function confirm() {
             ReturnedProducts: productosDevueltos
         }
     };
-    if (products.length <= 0 && methods[0].Amount <= 0) {
+    if (productosBajados.length <= 0 && methods[0].Amount <= 0) {
         Swal.fire({
             icon: 'warning',
             title: "Error",
@@ -48,7 +48,7 @@ function confirm() {
         return false;
     }
 
-    let form = $("#form-confirmCart");
+    let form = $("#form-edit");
     $.ajax({
         url: $(form).attr('action'),
         method: $(form).attr('method'),

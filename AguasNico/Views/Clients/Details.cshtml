@@ -58,7 +58,7 @@
                                                     <ul class="pl-3 mb-0">
                                                         @foreach (CartProduct product in item.Products)
                                                         {
-                                                            <li>@product.Type.GetDisplayName()</li>
+                                                            <li>@product.Type.GetDisplayName() x @product.Quantity u.</li>
                                                         }
                                                     </ul>
                                                 </td>

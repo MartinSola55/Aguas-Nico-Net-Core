@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using AguasNico.Models;
 using Microsoft.AspNetCore.Identity;
 using AguasNico.Models.ViewModels.Clients;
+using AguasNico.Models.ViewModels.Carts;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace AguasNico.Controllers
 {
@@ -28,10 +30,42 @@ namespace AguasNico.Controllers
         {
             try
             {
-                Cart cart = _workContainer.Cart.GetFirstOrDefault(x => x.ID == id, includeProperties: "Products, Client, ReturnedProducts, PaymentMethods, PaymentMethods.PaymentMethod") ?? throw new Exception("No se ha encontrado la bajada solicitada");
+                Cart cart = _workContainer.Cart.GetFirstOrDefault(x => x.ID == id, includeProperties: "Route.User, Products, Client, Client.Products.Product, ReturnedProducts, PaymentMethods") ?? throw new Exception("No se ha encontrado la bajada solicitada");
                 if (cart.State != State.Confirmed) throw new Exception("No se puede editar una bajada que no esté confirmada");
 
-                return View(cart);
+                List<CartProduct> cartProducts = [];
+                List<ReturnedProduct> returnedProducts = [];
+                foreach (ClientProduct clientProduct in cart.Client.Products)
+                {
+                    cartProducts.Add(new()
+                    {
+                        Type = clientProduct.Product.Type,
+                        Quantity = cart.Products.FirstOrDefault(x => x.Type == clientProduct.Product.Type)?.Quantity ?? 0,
+                        SettedPrice = cart.Products.FirstOrDefault(x => x.Type == clientProduct.Product.Type)?.SettedPrice ?? clientProduct.Product.Price,
+                    });
+                    returnedProducts.Add(new()
+                    {
+                        Type = clientProduct.Product.Type,
+                        Quantity = cart.ReturnedProducts.FirstOrDefault(x => x.Type == clientProduct.Product.Type)?.Quantity ?? 0,
+                    });
+                }
+
+                IEnumerable<SelectListItem> methods = _workContainer.PaymentMethod.GetAll().OrderBy(x => x.ID).Select(i => new SelectListItem()
+                {
+                    Text = i.Name,
+                    Value = i.ID.ToString(),
+                    Selected = cart.PaymentMethods.Any(x => x.PaymentMethodID == i.ID),
+                });
+
+                EditViewModel editViewModel = new()
+                {
+                    Cart = cart,
+                    Products = cartProducts,
+                    ReturnedProducts = returnedProducts,
+                    PaymentMethodsDropDown = methods,
+                };
+
+                return View(editViewModel);
             }
             catch (Exception)
             {

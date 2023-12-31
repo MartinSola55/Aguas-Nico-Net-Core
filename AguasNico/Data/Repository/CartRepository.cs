@@ -20,7 +20,6 @@ namespace AguasNico.Data.Repository
                 _db.Database.BeginTransaction();
                 
                 this.SoftDelete(cart.ID);
-                cart.DeletedAt = null;
                 Client client = _db.Clients.Include(x => x.Products).ThenInclude(x => x.Product).Where(x => x.ID == cart.ClientID).First() ?? throw new Exception("No se ha encontrado el cliente");
 
                 if (cart.Products is not null)
@@ -31,12 +30,14 @@ namespace AguasNico.Data.Repository
                         ClientProduct clientProduct = client.Products.First(x => x.Product.Type == product.Type);
                         if (clientProduct.Stock < product.Quantity) throw new Exception("El cliente no posee stock suficiente de: " + product.Type.GetDisplayName());
                         clientProduct.Stock += product.Quantity;
+                        client.Debt += product.Quantity * clientProduct.Product.Price;
 
                         //Ignorar los filtros globales
                         CartProduct? existingProduct = _db.CartProducts.IgnoreQueryFilters().Where(x => x.CartID == cart.ID && x.Type == product.Type).FirstOrDefault();
                         if (existingProduct is not null)
                         {
                             existingProduct.Quantity = product.Quantity;
+                            existingProduct.SettedPrice = clientProduct.Product.Price;
                             existingProduct.UpdatedAt = DateTime.UtcNow.AddHours(-3);
                             existingProduct.DeletedAt = null;
                             _db.SaveChanges();
@@ -109,6 +110,8 @@ namespace AguasNico.Data.Repository
                     }
                 }
 
+                Cart updatedCart = _db.Carts.Find(cart.ID) ?? throw new Exception("No se ha encontrado la bajada");
+                updatedCart.DeletedAt = null;
                 _db.SaveChanges();
                 _db.Database.CommitTransaction();
             }
@@ -181,7 +184,7 @@ namespace AguasNico.Data.Repository
         public IEnumerable<Cart> GetLastTen(long clientID)
         {
             return _db.Carts
-                .Where(x => x.ClientID == clientID && !x.IsStatic)
+                .Where(x => x.ClientID == clientID && !x.IsStatic && x.State != State.Pending)
                 .OrderByDescending(x => x.CreatedAt)
                 .Take(10)
                 .Include(x => x.Products)

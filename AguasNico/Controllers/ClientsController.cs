@@ -156,46 +156,21 @@ namespace AguasNico.Controllers
             ModelState.Remove("Client.InvoiceType");
             ModelState.Remove("Client.TaxCondition");
             ModelState.Remove("Client.CUIT");
-            ModelState.Remove("Client.ClientProducts");
+            ModelState.Remove("Client.Products");
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _workContainer.BeginTransaction();
                     _workContainer.Client.Update(client);
-                    Cart cart = _workContainer.Cart.GetFirstOrDefault(x => x.ClientID == client.ID && x.IsStatic);
-                    if (cart is not null)
-                    {
-                        cart.DeletedAt = DateTime.UtcNow.AddHours(-3);
-                        _workContainer.Cart.Update(cart);
-                    }
-                    Models.Route route = _workContainer.Route.GetFirstOrDefault(x => x.UserID == client.DealerID && x.DayOfWeek == client.DeliveryDay && x.IsStatic, includeProperties: "Carts");
-                    if (route is not null)
-                    {
-                        int priority = route.Carts.Any() ? route.Carts.Max(x => x.Priority) + 1 : 1;
-                        cart = new()
-                        {
-                            RouteID = route.ID,
-                            ClientID = client.ID,
-                            Priority = priority,
-                            State = State.Pending,
-                            IsStatic = true,
-                        };
-                        _workContainer.Cart.Add(cart);
-                    }
-                    _workContainer.Save();
-                    _workContainer.Commit();
 
                     return Json(new
                     {
                         success = true,
-                        data = 1,
                         message = "El cliente se actualizó correctamente",
                     });
                 }
                 catch (Exception e)
                 {
-                    _workContainer.Rollback();
                     return CustomBadRequest(title: "Error al actualizar el cliente", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
                 }
             }
