@@ -42,7 +42,7 @@
                                 {
                                     @* <tr data-type="@product.Type"> *@
                                     <tr>
-                                        <td>@product.Product.Type.GetDisplayName()</td>
+                                        <td>@product.Type.GetDisplayName()</td>
                                         <td><input type="number" name="quantity" class="form-control" value="@product.Quantity" /></td>
                                     </tr>
                                 }
@@ -68,7 +68,7 @@
                                 @foreach (ReturnedProduct product in Model.ReturnedProducts)
                                 {
                                     <tr>
-                                        <td>@product.Product.Type.GetDisplayName()</td>
+                                        <td>@product.Type.GetDisplayName()</td>
                                         <td><input type="number" name="quantity" class="form-control" value="@product.Quantity" /></td>
                                     </tr>
                                 }

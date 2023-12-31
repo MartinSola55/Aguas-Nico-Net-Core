@@ -28,14 +28,14 @@ namespace AguasNico.Controllers
         {
             try
             {
-                Cart cart = _workContainer.Cart.GetFirstOrDefault(x => x.ID == id, includeProperties: "Products, Products.Product, Client, ReturnedProducts, PaymentMethods, PaymentMethods.PaymentMethod") ?? throw new Exception("No se ha encontrado la bajada solicitada");
+                Cart cart = _workContainer.Cart.GetFirstOrDefault(x => x.ID == id, includeProperties: "Products, Client, ReturnedProducts, PaymentMethods, PaymentMethods.PaymentMethod") ?? throw new Exception("No se ha encontrado la bajada solicitada");
                 if (cart.State != State.Confirmed) throw new Exception("No se puede editar una bajada que no esté confirmada");
 
                 return View(cart);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                return CustomBadRequest(title: "Error", message: "No se ha podido recuperar la bajada", error: e.Message);
+                return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
             }
         }
 
