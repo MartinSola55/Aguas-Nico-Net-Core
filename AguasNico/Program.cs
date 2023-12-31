@@ -64,7 +64,7 @@ else
 }
 app.UseStaticFiles();
 
-// M�todo para hacer seeding
+// Metodo para hacer seeding
 Seed();
 
 app.UseRouting();

@@ -8,6 +8,8 @@
 
 <script src="~/lib/datatables/datatables.min.js"></script>
 
+<script src="~/js/custom/carts/edit.js"></script>
+
 
 <div class="container-fluid">
     <div class="row page-titles">
@@ -20,4 +22,96 @@
             </ol>
         </div>
     </div>
+    <h3 class="text-center">Bajada #@Model.ID @Model.Client.Name</h3>
+    <hr>
+    <div class="row">
+        <div class="col-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title">Productos Bajados</h2>
+                    <div class="table-responsive m-t-10">
+                        <table id="ProductosBajados" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (CartProduct product in Model.Products)
+                                {
+                                    @* <tr data-type="@product.Type"> *@
+                                    <tr>
+                                        <td>@product.Product.Type.GetDisplayName()</td>
+                                        <td><input type="number" name="quantity" class="form-control" value="@product.Quantity" /></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title">Devolución de Productos</h2>
+                    <div class="table-responsive m-t-10">
+                        <table id="ProductosDevueltos" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (ReturnedProduct product in Model.ReturnedProducts)
+                                {
+                                    <tr>
+                                        <td>@product.Product.Type.GetDisplayName()</td>
+                                        <td><input type="number" name="quantity" class="form-control" value="@product.Quantity" /></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title">Pagos</h2>
+                    <div class="table-responsive m-t-10">
+                        <table id="Pagos" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (CartPaymentMethod pay in Model.PaymentMethods)
+                                {
+                                    <tr>
+                                        <td>@pay.PaymentMethod.Name</td>
+                                        <td><input type="number" name="quantity" class="form-control" value='@pay.Amount.ToString("#")' min="0"/></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12 d-flex justify-content-end">
+            <button type="button" id="btnSave" class="btn btn-success btn-rounded px-3">Guardar cambios</button>
+        </div>
+    </div>
+
+
+    <form id="form-edit" method="post" asp-area="" asp-controller="Carts" asp-action="Edit">
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(x => x.ID)
+    </form>
 </div>
