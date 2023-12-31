@@ -8,11 +8,9 @@
 
 <script src="~/lib/datatables/datatables.min.js"></script>
 <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/js/custom/clients/create.js"></script>
 
 <div class="container-fluid">
-    <!-- ============================================================== -->
-    <!-- Bread crumb and right sidebar toggle -->
-    <!-- ============================================================== -->
     <div class="row page-titles">
         <div class="col-md-5 col-8 align-self-center">
             <h3 class="text-themecolor m-b-0 m-t-0">Clientes</h3>
@@ -26,7 +24,7 @@
 
     <div class="row">
         <div class="col-12 col-md-6">
-            <form id="form-submit" method="POST" asp-area="" asp-controller="Clients" asp-action="Create">
+            <form id="form-submit" method="post" asp-area="" asp-controller="Clients" asp-action="Create">
                 @Html.AntiForgeryToken()
                 <div class="card shadow">
                     <div class="card-body">
@@ -86,8 +84,8 @@
                                     <span asp-validation-for="Client.CUIT" class="text-danger"></span>
                                 </div>
                             </div>
-                            <div class="col-12 mb-3">
-                                <button id="btnSubmit" type="submit" class="btn btn-primary">Guardar</button>
+                            <div class="col-12 mb-3 d-flex justify-content-end">
+                                <button id="btnSubmit" type="submit" class="btn btn-success">Guardar</button>
                             </div>
                         </div>
                     </div>
@@ -124,78 +122,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    $('#DataTable').DataTable({
-        "order": false,
-        "paging": false,
-        "info": false,
-        "searching": false,
-    });
-
-    $('#Client_HasInvoice').change(function () {
-        if ($(this).is(':checked')) {
-            $('#invoiceDataContainer').show();
-            $('#Client_InvoiceType').val('');
-            $('#Client_TaxCondition').val('');
-            $('#Client_CUIT').val('');
-        } else {
-            $('#invoiceDataContainer').hide();
-        }
-    });
-</script>
-
-<script>
-    $(document).ready(function () {
-        $('#btnSubmit').click(function (e) {
-            e.preventDefault();
-            let products = [];
-            let rows = $('#table_body tr');
-            for (let i = 0; i < rows.length; i++) {
-                let row = rows[i];
-                let stock = parseInt(row.cells[2].children[0].value);
-                if (stock >= 0) {
-                    products.push({
-                        Stock: stock,
-                        ProductID: parseInt(row.dataset.id)
-                    });
-
-                }
-            }
-            let productsData = {
-                Client: {
-                    Products: products
-                }
-            };
-
-            let form = $("#form-submit");
-            $.ajax({
-                url: $(form).attr('action'),
-                method: $(form).attr('method'),
-                data: $(form).serialize() + "&" + $.param(productsData),
-                success: function (response) {
-                    Swal.fire({
-                        title: response.message,
-                        icon: 'success',
-                        showCancelButton: false,
-                        confirmButtonColor: '#1e88e5',
-                        confirmButtonText: 'OK',
-                        allowOutsideClick: false,
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = window.location.origin;
-                        }
-                    });
-                },
-                error: function (errorThrown) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: errorThrown.responseJSON.title,
-                        text: errorThrown.responseJSON.message,
-                        confirmButtonColor: '#1e88e5',
-                    });
-                }
-            });
-        });
-    });
-</script>

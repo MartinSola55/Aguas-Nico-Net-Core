@@ -4,16 +4,12 @@
     ViewData["Title"] = "Clientes";
 }
 
-<!-- Data table -->
 <link href="~/lib/datatables/media/css/dataTables.bootstrap4.css" rel="stylesheet">
 
-<!-- This is data table -->
 <script src="~/lib/datatables/datatables.min.js"></script>
+<script src="~/js/custom/clients/index.js"></script>
 
 <div class="container-fluid">
-    <!-- ============================================================== -->
-    <!-- Bread crumb and right sidebar toggle -->
-    <!-- ============================================================== -->
     <div class="row page-titles">
         <div class="col-md-5 col-8 align-self-center">
             <h3 class="text-themecolor m-b-0 m-t-0">Clientes</h3>
@@ -63,25 +59,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    $('#DataTable').DataTable({
-        "order": false,
-        "language": {
-            "sInfo": "Mostrando _START_ a _END_ de _TOTAL_ clientes",
-            "sInfoEmpty": "Mostrando 0 a 0 de 0 clientes",
-            "sInfoFiltered": "(filtrado de _MAX_ clientes en total)",
-            "emptyTable": 'No hay clientes que coincidan con la búsqueda',
-            "sLengthMenu": "Mostrar _MENU_ clientes",
-            "sSearch": "Buscar:",
-            "oPaginate": {
-                "sFirst": "Primero",
-                "sLast": "Último",
-                "sNext": "Siguiente",
-                "sPrevious": "Anterior",
-            },
-        },
-    });
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
