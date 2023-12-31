@@ -10,6 +10,8 @@
 
 <script src="~/lib/datatables/datatables.min.js"></script>
 <script src="~/js/custom/routes/filters.js"></script>
+<script src="~/js/custom/routes/dealer/details/clientHistory.js"></script>
+
 
 <div class="container-fluid">
     <div class="row page-titles">
@@ -285,7 +287,7 @@
                                         {
                                             <h4 class="timeline-title name-element col-8" style="color: #6c757d">@Html.DisplayFor(x => cart.Client.Name)</h4>
                                         }
-                                        <button class="btn btn-info rounded-circle mr-2" onclick="getHistory(@cart.ClientID,'@cart.Client.Name')"><i class="bi bi-clipboard"></i></button>
+                                        <button class="btn btn-info rounded-circle mr-2" onclick="getClientHistory(@cart.ClientID,'@cart.Client.Name')"><i class="bi bi-clipboard"></i></button>
                                     </div>
                                     <p class="m-0"><small class="text-muted">Cliente #@cart.ClientID</small></p>
 
@@ -310,7 +312,7 @@
                                     }
                                     else
                                     {
-                                        <p class="m-0"><small class="text-success">A favor: $@Html.DisplayFor(x => cart.Client.Debt * -1)</small></p>
+                                        <p class="m-0"><small class="text-success">A favor: $@((cart.Client.Debt * -1).ToString("#,##"))</small></p>
                                     }
 
                                     <!-- Deuda del mes actual -->
@@ -373,7 +375,7 @@
                                                             {
                                                                 <tr>
                                                                     <td>@Html.DisplayFor(x => product.Quantity)</td>
-                                                                    <td class="product-element">@Html.DisplayFor(x => product.Product.Name)</td>
+                                                                    <td class="product-element">@product.Product.Type.GetDisplayName()</td>
                                                                 </tr>
                                                             }
                                                             </tbody>
@@ -422,8 +424,13 @@
         <input type="hidden" name="id" value="">
         <input type="hidden" name="state" value="0">
     </form>
+
     <form id="form-deleteCart" method="post" asp-area="" asp-controller="Cart" asp-action="SoftDelete">
         @Html.AntiForgeryToken()
         <input type="hidden" name="id">
+    </form>
+
+    <form id="form-searchClientHistory" method="get" asp-area="" asp-controller="Clients" asp-action="GetProductsHistory">
+        @Html.Hidden("id", "")
     </form>
 </div>

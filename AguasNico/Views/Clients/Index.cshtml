@@ -51,7 +51,7 @@
                                         <td><a asp-area="" asp-controller="Clients" asp-action="Details" asp-route-id="@client.ID">@Html.DisplayFor(c => client.Name)</a></td>
                                         <td>@Html.DisplayFor(c => client.Address)</td>
                                         <td>@Html.DisplayFor(c => client.Phone)</td>
-                                        <td>$@(client.Debt >= 0 ? Html.DisplayFor(c => client.Debt) : Html.DisplayFor(c => client.Debt * -1) + " a favor")</td>
+                                        <td>$@(client.Debt >= 0 ? Html.DisplayFor(c => client.Debt) : (client.Debt * -1).ToString("#,##") + " a favor")</td>
                                         <td>@Html.DisplayFor(c => client.Dealer.UserName) - @Html.DisplayFor(c => client.DeliveryDay)</td>
                                     </tr>
                                 }

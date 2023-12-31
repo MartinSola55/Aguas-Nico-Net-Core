@@ -14,5 +14,7 @@ namespace AguasNico.Data.Repository.IRepository
         void SoftDelete(long id);
         IEnumerable<Cart> GetLastTen(long clientID);
         void Confirm(Cart cart);
+        List<ReturnedProduct> GetReturnedProducts(long cartID);
+        void ReturnProducts(long cartID, List<ReturnedProduct> products);
     }
 }

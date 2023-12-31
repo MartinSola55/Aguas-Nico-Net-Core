@@ -13,6 +13,7 @@
 <script src="~/js/custom/routes/dealer/details/confirmCart.js"></script>
 <script src="~/js/custom/routes/dealer/details/cartStates.js"></script>
 <script src="~/js/custom/routes/dealer/details/clientHistory.js"></script>
+<script src="~/js/custom/routes/dealer/details/returnProducts.js"></script>
 
 <div class="container-fluid">
     <div class="row page-titles">
@@ -70,6 +71,36 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cerrar</button>
                     <button type="button" onclick="confirmCart()" class="btn btn-success waves-effect waves-light">Confirmar bajada</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE DEVOLUCION -->
+    <div id="modalReturned" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 id="returnModalTitle" class="modal-title"></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-12 table-responsive">
+                        <table class="table" id="returnedProductsTable">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th class="col-2">Cantidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cerrar</button>
+                    <button type="button" onclick="confirmReturned()" class="btn btn-success waves-effect waves-light">Confirmar devolución</button>
                 </div>
             </div>
         </div>
@@ -210,9 +241,9 @@
                                     {
                                         <div class="row">
                                             <div class="col-lg-12">
-                                                <hr>
                                                 @if (cart.Products.Any())
                                                 {
+                                                    <hr>
                                                     <h3 class="text-center type-element text-muted mb-0">Bajada</h3>
                                                     <div class="table-responsive">
                                                         <table class="table">
@@ -257,7 +288,7 @@
                                                             {
                                                                 <tr>
                                                                     <td>@Html.DisplayFor(x => product.Quantity)</td>
-                                                                    <td class="product-element">@Html.DisplayFor(x => product.Product.Name)</td>
+                                                                    <td class="product-element">@product.Product.Type.GetDisplayName()</td>
                                                                 </tr>
                                                             }
                                                             </tbody>
@@ -324,6 +355,17 @@
         @Html.AntiForgeryToken()
         @Html.Hidden("cartID", "")
         @Html.Hidden("state", "")
+    </form>
+
+    <form id="form-returnProducts" method="post" asp-area="" asp-controller="Carts" asp-action="ReturnProducts">
+        @Html.AntiForgeryToken()
+        @Html.Hidden("cartID", "")
+    </form>
+    
+    <form id="form-getReturnedProducts" method="get" asp-area="" asp-controller="Carts" asp-action="GetReturnedProducts">
+        @Html.AntiForgeryToken()
+        @Html.Hidden("cartID", "")
+        @Html.Hidden("clientID", "")
     </form>
     
     <form id="form-searchClientProducts" method="get" asp-area="" asp-controller="Clients" asp-action="GetProducts">
