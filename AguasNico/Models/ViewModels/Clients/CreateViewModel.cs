@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace AguasNico.Models.ViewModels.Clients
 {
     public class CreateViewModel
     {
+        public string Role { get; set; } = null!;
         public Client Client { get; set; } = new();
         public IEnumerable<SelectListItem> Days { get; set; } = new List<SelectListItem> 
         {

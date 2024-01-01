@@ -2,6 +2,7 @@ using AguasNico.Data.Repository.IRepository;
 using AguasNico.Models;
 using AguasNico.Models.ViewModels.Clients;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Linq.Expressions;
@@ -9,9 +10,10 @@ using System.Linq.Expressions;
 namespace AguasNico.Controllers
 {
     [Authorize]
-    public class ClientsController(IWorkContainer workContainer) : Controller
+    public class ClientsController(IWorkContainer workContainer, SignInManager<ApplicationUser> signInManager) : Controller
     {
         private readonly IWorkContainer _workContainer = workContainer;
+        private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
         private BadRequestObjectResult CustomBadRequest(string title, string message, string? error = null)
         {
             return BadRequest(new
@@ -49,8 +51,11 @@ namespace AguasNico.Controllers
         {
             try
             {
+                ApplicationUser user = _workContainer.ApplicationUser.GetFirstOrDefault(u => u.UserName.Equals(User.Identity.Name));
+                string role = _signInManager.UserManager.GetRolesAsync(user).Result.First();
                 CreateViewModel viewModel = new()
                 {
+                    Role = role,
                     Products = _workContainer.Product.GetAll().OrderBy(x => x.Name).ThenByDescending(x => x.Price),
                     Dealers = _workContainer.ApplicationUser.GetDealersDropDownList(),
                 };
@@ -329,7 +334,6 @@ namespace AguasNico.Controllers
 
         [HttpGet]
         [ActionName("GetProductsHistory")]
-        [Authorize(Roles = Constants.Admin)]
         public IActionResult GetProductsHistory(long id)
         {
             try

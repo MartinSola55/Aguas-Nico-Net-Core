@@ -33,7 +33,7 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("DisallowRegistration", policy =>
     {
-        policy.RequireAuthenticatedUser(); // Requiere que el usuario este autenticado
+        policy.RequireAssertion(context => false); // Requiere que la expresión siempre sea falsa
     });
 });
 
