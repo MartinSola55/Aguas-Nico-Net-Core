@@ -12,11 +12,12 @@
 
 <div class="container-fluid">
     <div class="row page-titles">
-        <div class="col-md-5 col-8 align-self-center">
+        <div class="col-12 align-self-center">
             <h3 class="text-themecolor m-b-0 m-t-0">Planillas</h3>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">Inicio</a></li>
                 <li class="breadcrumb-item"><a asp-area="" asp-controller="Routes" asp-action="Index">Planillas</a></li>
+                <li class="breadcrumb-item"><a asp-area="" asp-controller="Routes" asp-action="Details" asp-route-id="@Model.Route.ID">Planilla @Model.Route.DayOfWeek - @Model.Route.User.UserName</a></li>
                 <li class="breadcrumb-item active">Fuera de reparto</li>
             </ol>
         </div>

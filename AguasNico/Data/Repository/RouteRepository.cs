@@ -183,9 +183,10 @@ namespace AguasNico.Data.Repository
 
         public List<Client> ClientsNotInRoute(long routeID)
         {
+            Models.Route route = _db.Routes.First(x => x.ID == routeID) ?? throw new Exception("No se ha encontrado la planilla");
             return
             [
-                .. _db.Clients.Where(x => !x.Carts.Any(x => x.RouteID == routeID && x.IsStatic)),
+                .. _db.Clients.Where(x => !x.Carts.Any(x => x.Route.DayOfWeek == route.DayOfWeek && x.IsStatic)),
             ];
         }
 

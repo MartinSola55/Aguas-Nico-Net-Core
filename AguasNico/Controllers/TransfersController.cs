@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 
 namespace AguasNico.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = Constants.Admin)]
     public class TransfersController(IWorkContainer workContainer) : Controller
     {
         private readonly IWorkContainer _workContainer = workContainer;

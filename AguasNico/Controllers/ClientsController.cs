@@ -25,6 +25,7 @@ namespace AguasNico.Controllers
 
         [HttpGet]
         [ActionName("Index")]
+        [Authorize(Roles = Constants.Admin)]
         public IActionResult Index()
         {
             try
@@ -64,6 +65,7 @@ namespace AguasNico.Controllers
         
         [HttpGet]
         [ActionName("Details")]
+        [Authorize(Roles = Constants.Admin)]
         public IActionResult Details(long id)
         {
             try
@@ -148,6 +150,7 @@ namespace AguasNico.Controllers
         [HttpPost]
         [ActionName("Edit")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Constants.Admin)]
         public IActionResult Edit(Client client)
         {
             ModelState.Remove("Client.Carts");
@@ -180,6 +183,7 @@ namespace AguasNico.Controllers
         [HttpPost]
         [ActionName("UpdateInvoiceData")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Constants.Admin)]
         public IActionResult UpdateInvoiceData(Client client)
         {
             ModelState.Remove("Client.Carts");
@@ -216,6 +220,7 @@ namespace AguasNico.Controllers
         [HttpPost]
         [ActionName("UpdateProducts")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Constants.Admin)]
         public IActionResult UpdateProducts(Client client, List<ClientProduct> products)
         {
             try
@@ -238,6 +243,7 @@ namespace AguasNico.Controllers
         [HttpPost]
         [ActionName("SoftDelete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Constants.Admin)]
         public IActionResult SoftDelete(long id)
         {
             try
@@ -323,6 +329,7 @@ namespace AguasNico.Controllers
 
         [HttpGet]
         [ActionName("GetProductsHistory")]
+        [Authorize(Roles = Constants.Admin)]
         public IActionResult GetProductsHistory(long id)
         {
             try

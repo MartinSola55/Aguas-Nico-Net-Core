@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Identity;
 using AguasNico.Models.ViewModels.Clients;
 using AguasNico.Models.ViewModels.Carts;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AguasNico.Controllers
 {
+    [Authorize]
     public class CartsController(IWorkContainer workContainer, SignInManager<ApplicationUser> signInManager) : Controller
     {
         private readonly IWorkContainer _workContainer = workContainer;
@@ -97,6 +99,7 @@ namespace AguasNico.Controllers
         [HttpPost]
         [ActionName("Confirm")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Constants.Dealer)]
         public IActionResult Confirm(Cart cart)
         {
             try
@@ -145,6 +148,7 @@ namespace AguasNico.Controllers
         [HttpPost]
         [ActionName("SetState")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Constants.Dealer)]
         public IActionResult SetState(long cartID, State state)
         {
             try
@@ -169,6 +173,7 @@ namespace AguasNico.Controllers
         [HttpPost]
         [ActionName("ResetState")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Constants.Dealer)]
         public IActionResult ResetState(long cartID)
         {
             try
@@ -218,6 +223,7 @@ namespace AguasNico.Controllers
         [HttpPost]
         [ActionName("ReturnProducts")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Constants.Dealer)]
         public IActionResult ReturnProducts(long cartID, List<ReturnedProduct> products)
         {
             try
@@ -239,6 +245,7 @@ namespace AguasNico.Controllers
         [HttpPost]
         [ActionName("SoftDelete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Constants.Admin)]
         public IActionResult SoftDelete(long cartID)
         {
             try

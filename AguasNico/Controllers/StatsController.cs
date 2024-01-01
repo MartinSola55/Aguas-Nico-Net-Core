@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 
 namespace AguasNico.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = Constants.Admin)]
     public class StatsController(IWorkContainer workContainer, SignInManager<ApplicationUser> signInManager) : Controller
     {
         private readonly IWorkContainer _workContainer = workContainer;

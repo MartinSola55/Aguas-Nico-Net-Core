@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace AguasNico.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = Constants.Admin)]
     public class ProductsController(IWorkContainer workContainer) : Controller
     {
         private readonly IWorkContainer _workContainer = workContainer;

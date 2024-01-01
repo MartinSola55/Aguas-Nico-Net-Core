@@ -59,6 +59,7 @@ namespace AguasNico.Controllers
 
         [HttpGet]
         [ActionName("Create")]
+        [Authorize(Roles = Constants.Admin)]
         public IActionResult Create()
         {
             try
@@ -79,6 +80,7 @@ namespace AguasNico.Controllers
         [HttpPost]
         [ActionName("Create")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Constants.Admin)]
         public IActionResult Create(Models.Route route)
         {
             ModelState.Remove("route.Carts");
@@ -113,6 +115,7 @@ namespace AguasNico.Controllers
         [HttpPost]
         [ActionName("CreateByDealer")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Constants.Dealer)]
         public IActionResult CreateByDealer(long routeID)
         {
             try
@@ -185,6 +188,7 @@ namespace AguasNico.Controllers
 
         [HttpGet]
         [ActionName("Edit")]
+        [Authorize(Roles = Constants.Admin)]
         public IActionResult Edit(long id)
         {
             try
@@ -213,6 +217,11 @@ namespace AguasNico.Controllers
             try
             {
                 Models.Route route = _workContainer.Route.GetFirstOrDefault(x => x.ID == id, includeProperties: "User, Carts") ?? throw new Exception("La planilla no existe");
+                ApplicationUser user = _workContainer.ApplicationUser.GetFirstOrDefault(u => u.UserName.Equals(User.Identity.Name));
+                string role = _signInManager.UserManager.GetRolesAsync(user).Result.First();
+
+                if (route.IsStatic) return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nLa planilla no existe", ErrorCode = 404 });
+                if (route.UserID != user.Id && role != Constants.Admin) return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nNo tienes permisos para ver esta planilla", ErrorCode = 403 });
 
                 ManualCartViewModel viewModel = new()
                 {
@@ -231,6 +240,7 @@ namespace AguasNico.Controllers
         [HttpPost]
         [ActionName("UpdateClients")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Constants.Admin)]
         public IActionResult UpdateClients(Models.Route route, List<Client> clients)
         {
             try
@@ -253,6 +263,7 @@ namespace AguasNico.Controllers
         [HttpPost]
         [ActionName("SoftDelete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Constants.Admin)]
         public IActionResult SoftDelete(Models.Route route)
         {
             try
@@ -271,8 +282,10 @@ namespace AguasNico.Controllers
         }
 
         #region Pegadas AJAX
+
         [HttpGet]
         [ActionName("SearchByDate")]
+        [Authorize(Roles = Constants.Admin)]
         public IActionResult SearchByDate(string dateString)
         {
             try
@@ -301,6 +314,7 @@ namespace AguasNico.Controllers
 
         [HttpGet]
         [ActionName("SearchSoldProducts")]
+        [Authorize(Roles = Constants.Admin)]
         public IActionResult SearchSoldProducts(string dateString, long? routeID = null)
         {
             try
@@ -375,46 +389,9 @@ namespace AguasNico.Controllers
 
         #region Details actions
 
-        [HttpPost]
-        [ActionName("AddClient")] // For dealer
-        public IActionResult AddClient(long routeID, long clientID)
-        {
-            try
-            {
-                Models.Route route = _workContainer.Route.GetOne(routeID);
-                if (route is null)
-                {
-                    return CustomBadRequest(title: "Error al obtener la planilla", message: "La planilla no existe");
-                }
-                Client client = _workContainer.Client.GetOne(clientID);
-                if (client is null)
-                {
-                    return CustomBadRequest(title: "Error al obtener el cliente", message: "El cliente no existe");
-                }
-                Cart cart = new()
-                {
-                    ClientID = clientID,
-                    RouteID = routeID,
-                    CreatedAt = DateTime.UtcNow.AddHours(-3),
-                    IsStatic = false,
-                    Priority = route.Carts.Max(x => x.Priority) + 1,
-                };
-                _workContainer.Cart.Add(cart);
-                _workContainer.Save();
-                return Json(new
-                {
-                    success = true,
-                    message = "El cliente se agregó a la planilla correctamente",
-                });
-            }
-            catch (Exception e)
-            {
-                return CustomBadRequest(title: "Error al agregar el cliente", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
-            }
-        }
-
         [HttpGet]
         [ActionName("GetDispatched")]
+        [Authorize(Roles = Constants.Admin)]
         public IActionResult GetDispatched(long routeID)
         {
             try
@@ -445,6 +422,8 @@ namespace AguasNico.Controllers
 
         [HttpPost]
         [ActionName("UpdateDispatched")]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = Constants.Admin)]
         public IActionResult UpdateDispatched(long routeID, List<DispatchedProduct> products)
         {
             try

@@ -24,6 +24,7 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
+        [ActionName("Index")]
         public IActionResult Index()
         {
             try
@@ -76,6 +77,7 @@ namespace AguasNico.Controllers
         [HttpPost]
         [ActionName("Edit")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Constants.Admin)]
         public IActionResult Edit(IndexViewModel viewModel)
         {
             ModelState.Remove("CreateViewModel.User");
@@ -106,6 +108,7 @@ namespace AguasNico.Controllers
         [HttpPost]
         [ActionName("SoftDelete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Constants.Admin)]
         public IActionResult SoftDelete(long id)
         {
             try
@@ -129,6 +132,7 @@ namespace AguasNico.Controllers
 
         [HttpGet]
         [ActionName("SearchBetweenDates")]
+        [Authorize(Roles = Constants.Admin)]
         public IActionResult SearchBetweenDates(string dateFrom, string dateTo)
         {
             try
@@ -151,6 +155,7 @@ namespace AguasNico.Controllers
 
         [HttpGet]
         [ActionName("SearchByDate")]
+        [Authorize(Roles = Constants.Admin)]
         public IActionResult SearchByDate(string dateString)
         {
             try
