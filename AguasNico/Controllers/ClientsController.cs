@@ -240,7 +240,6 @@ namespace AguasNico.Controllers
             }
             catch (Exception e)
             {
-                _workContainer.Rollback();
                 return CustomBadRequest(title: "Error al actualizar los productos", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
             }
         }

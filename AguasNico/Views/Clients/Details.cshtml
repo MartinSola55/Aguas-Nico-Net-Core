@@ -137,7 +137,7 @@
                                 <tbody>
                                     @foreach (ClientProduct product in Model.Products)
                                     {
-                                        <tr data-id="@product.ProductID">
+                                        <tr data-id="@product.ProductID" data-type="@((int)product.Product.Type)">
                                             <td>@Html.DisplayFor(x => product.Product.Name)</td>
                                             <td>@Html.DisplayFor(x => product.Product.Price)</td>
                                             <td>

@@ -30,7 +30,10 @@ $(document).ready(function () {
                 products.push({
                     Stock: stock,
                     ProductID: parseInt(row.dataset.id),
-                    ClientID: parseInt($('#Client_ID').val())
+                    ClientID: parseInt($('#Client_ID').val()),
+                    Product: {
+                        Type: parseInt(row.dataset.type)
+                    }
                 });
 
             }
@@ -45,24 +48,22 @@ $(document).ready(function () {
             method: $(form).attr('method'),
             data: $(form).serialize() + "&" + $.param(productsData),
             success: function (response) {
+                $('#divSaveProducts').hide();
+                $('#TableProducts input[type="number"]').prop('disabled', true);
                 Swal.fire({
                     title: response.message,
                     icon: 'success',
                     showCancelButton: false,
                     confirmButtonColor: '#1e88e5',
                     confirmButtonText: 'OK',
-                    allowOutsideClick: false,
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.reload();
-                    }
+                    allowOutsideClick: true,
                 });
             },
             error: function (errorThrown) {
                 Swal.fire({
                     icon: 'error',
                     title: errorThrown.responseJSON.title,
-                    text: errorThrown.responseJSON.message,
+                    html: errorThrown.responseJSON.message + "<br/>" + errorThrown.responseJSON.error != null ? errorThrown.responseJSON.error : "",
                     confirmButtonColor: '#1e88e5',
                 });
             }

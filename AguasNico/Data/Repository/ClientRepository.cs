@@ -17,17 +17,50 @@ namespace AguasNico.Data.Repository
 
         public void Update(Client client)
         {
-            var dbObject = _db.Clients.First(x => x.ID == client.ID) ?? throw new Exception("No se ha encontrado el cliente");
-            dbObject.Name = client.Name;
-            dbObject.Address = client.Address;
-            dbObject.Phone = client.Phone;
-            dbObject.Observations = client.Observations;
-            dbObject.Debt = client.Debt;
-            dbObject.HasInvoice = client.HasInvoice;
-            dbObject.DealerID = client.DealerID;
-            dbObject.DeliveryDay = client.DeliveryDay;
-            dbObject.UpdatedAt = DateTime.UtcNow.AddHours(-3);
-            _db.SaveChanges();
+            try
+            {
+                _db.Database.BeginTransaction();
+
+                var dbObject = _db.Clients.First(x => x.ID == client.ID) ?? throw new Exception("No se ha encontrado el cliente");
+                dbObject.Name = client.Name;
+                dbObject.Address = client.Address;
+                dbObject.Phone = client.Phone;
+                dbObject.Observations = client.Observations;
+                dbObject.Debt = client.Debt;
+                dbObject.HasInvoice = client.HasInvoice;
+                dbObject.UpdatedAt = DateTime.UtcNow.AddHours(-3);
+
+                if (dbObject.DealerID != client.DealerID || dbObject.DeliveryDay != client.DeliveryDay)
+                {
+                    Cart? cart = _db.Carts.Where(x => x.ClientID == client.ID && x.IsStatic == true).FirstOrDefault();
+                    if (cart is not null)
+                    {
+                        cart.DeletedAt = DateTime.UtcNow.AddHours(-3);
+                    }
+                    Models.Route? route = _db.Routes.Where(x => x.UserID == client.DealerID && x.DayOfWeek == client.DeliveryDay && x.IsStatic).Include(x => x.Carts).FirstOrDefault();
+                    if (route is not null)
+                    {
+                        _db.Carts.Add(new()
+                        {
+                            RouteID = route.ID,
+                            ClientID = client.ID,
+                            IsStatic = true,
+                            State = State.Pending,
+                            Priority = route.Carts.Any() ? route.Carts.Max(x => x.Priority) + 1 : 1,
+                        });
+                    }
+                    dbObject.DealerID = client.DealerID;
+                    dbObject.DeliveryDay = client.DeliveryDay;
+                }
+
+                _db.SaveChanges();
+                _db.Database.CommitTransaction();
+            }
+            catch (Exception)
+            {
+                _db.Database.RollbackTransaction();
+                throw;
+            }
         }
 
         public IEnumerable<ClientProduct> GetProducts(long clientID)
@@ -87,9 +120,15 @@ namespace AguasNico.Data.Repository
             try
             {
                 _db.Database.BeginTransaction();
+
                 IEnumerable<ClientProduct> clientProducts = _db.ClientProducts.IgnoreQueryFilters().Where(x => x.ClientID == clientID);
                 foreach (ClientProduct product in products)
                 {
+                    if (products.Any(x => x.Product.Type == product.Product.Type && x.ProductID != product.ProductID))
+                    {
+                        throw new Exception("No se pueden agregar dos productos del mismo tipo");
+                    }
+
                     if (clientProducts.Any(x => x.ProductID == product.ProductID))
                     {
                         ClientProduct clientProduct = clientProducts.First(x => x.ProductID == product.ProductID);
@@ -100,7 +139,12 @@ namespace AguasNico.Data.Repository
                     }
                     else
                     {
-                        _db.ClientProducts.Add(product);
+                        _db.ClientProducts.Add(new()
+                        {
+                            ClientID = clientID,
+                            ProductID = product.ProductID,
+                            Stock = product.Stock,
+                        });
                     }
                 }
 
