@@ -1,17 +1,3 @@
-function fillTable(item) {
-    let content = `
-            <tr data-id='${item.id}'>
-                <td>${item.name}</td>
-                <td>$${item.price.toLocaleString("de-DE")}</td>
-                <td class='d-flex flex-row justify-content-center'>
-                    <button type='button' class='btn btn-outline-info btn-rounded btn-sm mr-2' onclick='edit(${JSON.stringify(item)})' data-toggle="modal" data-target="#modal"><i class="bi bi-pencil"></i></button>
-                    <a class="btn btn-outline-info btn-rounded btn-sm" href="/Abonos/Edit/${item.id}"><i class="bi bi-box-seam"></i></a>
-                    <button type='button' class='btn btn-danger btn-rounded btn-sm ml-2' onclick='deleteObj(${item.id})'><i class='bi bi-trash3'></i></button>
-                </td>
-            </tr>`;
-    $('#DataTable').DataTable().row.add($(content)).draw();
-}
-
 function removeFromTable(id) {
     $('#DataTable').DataTable().row(`[data-id="${id}"]`).remove().draw();
 }
@@ -49,17 +35,29 @@ function sendForm(action) {
             data: $(form).serialize(),
             success: function (response) {
                 $("#btnCloseModal").click();
-                Swal.fire({
-                    icon: 'success',
-                    title: response.message,
-                    confirmButtonColor: '#1e88e5',
-                });
-                if (action === 'edit') {
-                    removeFromTable(response.data.id);
-                    fillTable(response.data);
-                } else {
+                
+                if (action === 'delete') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: response.message,
+                        confirmButtonColor: '#1e88e5',
+                    });
                     removeFromTable(response.data);
+                    return;
                 }
+
+                Swal.fire({
+                    title: response.message,
+                    icon: 'success',
+                    showCancelButton: false,
+                    confirmButtonColor: '#1e88e5',
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.reload();
+                    }
+                });
             },
             error: function (errorThrown) {
                 Swal.fire({
