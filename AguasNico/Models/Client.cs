@@ -62,12 +62,17 @@ namespace AguasNico.Models
 
         public DateTime? DeletedAt { get; set; }
 
+        public bool IsActive { get; set; } = true;
+
         public virtual ApplicationUser Dealer { get; set; } = null!;
 
         public virtual ICollection<ClientProduct> Products { get; set; } = null!;
 
         [JsonIgnore]
         public virtual ICollection<Cart> Carts { get; set; } = null!;
+        
+        [JsonIgnore]
+        public virtual ICollection<ClientAbono> Abonos { get; set; } = null!;
 
         public virtual ICollection<Transfer> Transfers { get; set; } = null!;
 

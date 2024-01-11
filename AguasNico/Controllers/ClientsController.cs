@@ -34,7 +34,7 @@ namespace AguasNico.Controllers
             {
                 IndexViewModel viewModel = new()
                 {
-                    Clients = _workContainer.Client.GetAll(includeProperties: "Dealer").OrderBy(x => x.Name),
+                    Clients = _workContainer.Client.GetAll(x => x.IsActive, includeProperties: "Dealer").OrderBy(x => x.Name),
                 };
 
                 return View(viewModel);
@@ -103,6 +103,7 @@ namespace AguasNico.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(CreateViewModel viewModel)
         {
+            ModelState.Remove("Role");
             ModelState.Remove("Client.Carts");
             ModelState.Remove("Client.Dealer");
             ModelState.Remove("Client.Transfers");

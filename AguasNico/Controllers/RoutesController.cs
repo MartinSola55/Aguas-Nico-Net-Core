@@ -5,6 +5,7 @@ using AguasNico.Models.ViewModels.Routes.Details;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using NuGet.Common;
 using System.Globalization;
 using System.Linq.Expressions;
@@ -300,9 +301,10 @@ namespace AguasNico.Controllers
                         id = x.ID,
                         dealer = x.User.UserName,
                         totalCarts = x.Carts.Count(),
-                        completedCarts = x.Carts.Count(y => y.State == State.Confirmed),
+                        completedCarts = x.Carts.Count(y => y.State != State.Pending),
                         state = x.Carts.Count(y => y.State != State.Pending) == x.Carts.Count() ? "Completado" : "Pendiente",
-                        collected = x.Carts.Sum(y => y.PaymentMethods.Where(z => z.CreatedAt.Date == date.Date).Sum(z => z.Amount)).ToString("#,##"),
+                        collected = x.Carts.Sum(y => y.PaymentMethods.Where(z => z.CreatedAt.Date == date.Date).Sum(z => z.Amount)) != 0 ? x.Carts.Sum(y => y.PaymentMethods.Where(z => z.CreatedAt.Date == date.Date).Sum(z => z.Amount)).ToString("#,##") : "0",
+
                     })
                 });
             }

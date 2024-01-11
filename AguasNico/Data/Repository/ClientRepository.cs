@@ -95,9 +95,33 @@ namespace AguasNico.Data.Repository
 
         public void SoftDelete(long id)
         {
-            var dbObject = _db.Clients.First(x => x.ID == id) ?? throw new Exception("No se ha encontrado el cliente");
-            dbObject.DeletedAt = DateTime.UtcNow.AddHours(-3);
-            _db.SaveChanges();
+            try
+            {
+                _db.Database.BeginTransaction();
+                var dbObject = _db.Clients.Include(x => x.Carts).Include(x => x.Products).Include(x => x.Abonos).First(x => x.ID == id) ?? throw new Exception("No se ha encontrado el cliente");
+                dbObject.IsActive = false;
+                foreach (Cart cart in dbObject.Carts.Where(x => x.IsStatic))
+                {
+                    cart.DeletedAt = DateTime.UtcNow.AddHours(-3);
+                }
+
+                foreach (ClientProduct clientProduct in dbObject.Products)
+                {
+                    clientProduct.DeletedAt = DateTime.UtcNow.AddHours(-3);
+                }
+
+                foreach (ClientAbono abono in dbObject.Abonos)
+                {
+                    abono.DeletedAt = DateTime.UtcNow.AddHours(-3);
+                }
+                _db.SaveChanges();
+                _db.Database.CommitTransaction();
+            }
+            catch (Exception)
+            {
+                _db.Database.RollbackTransaction();
+                throw;
+            }
         }
 
         public void AddProducInTransaction(ClientProduct clientProduct)
