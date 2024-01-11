@@ -46,7 +46,7 @@ $(document).ready(function () {
     $("#btnDeleteProduct").click(function () {
         Swal.fire({
             title: '¿Está seguro que desea eliminar el producto?',
-            text: "Esta acción no se puede revertir",
+            html: "Esta acción no se puede revertir.<br/>Esto eliminará el stock de este producto en todos los clientes.",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#1e88e5',

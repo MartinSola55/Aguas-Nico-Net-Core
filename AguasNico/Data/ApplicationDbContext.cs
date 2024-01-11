@@ -34,11 +34,7 @@ namespace AguasNico.Data
                 .HasQueryFilter(entity => entity.DeletedAt == null);
             modelBuilder.Entity<CartPaymentMethod>()
                 .HasQueryFilter(entity => entity.DeletedAt == null);
-            modelBuilder.Entity<Client>()
-                .HasQueryFilter(entity => entity.DeletedAt == null);
             modelBuilder.Entity<Expense>()
-                .HasQueryFilter(entity => entity.DeletedAt == null);
-            modelBuilder.Entity<Product>()
                 .HasQueryFilter(entity => entity.DeletedAt == null);
             modelBuilder.Entity<CartProduct>()
                 .HasQueryFilter(entity => entity.DeletedAt == null);

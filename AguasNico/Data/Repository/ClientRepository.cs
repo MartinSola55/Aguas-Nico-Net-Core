@@ -70,7 +70,7 @@ namespace AguasNico.Data.Repository
 
         public IEnumerable<ClientProduct> GetAllProducts(long clientID)
         {
-            IEnumerable<Product> products = _db.Products.OrderBy(x => x.Name).ThenBy(x => x.Price);
+            IEnumerable<Product> products = _db.Products.OrderBy(x => x.Name).ThenBy(x => x.Price).Where(x => x.IsActive);
             List<ClientProduct> clientProducts = [.. _db.ClientProducts.Where(x => x.ClientID == clientID)];
             foreach (Product product in products)
             {

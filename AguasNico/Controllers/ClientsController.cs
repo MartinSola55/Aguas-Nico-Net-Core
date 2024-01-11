@@ -79,6 +79,9 @@ namespace AguasNico.Controllers
                 if (client is null)
                 {
                     return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "El cliente no existe", ErrorCode = 404 });
+                } else if (!client.IsActive)
+                {
+                    return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "El cliente ha sido eliminado", ErrorCode = 404 });
                 }
                 
 
@@ -108,6 +111,7 @@ namespace AguasNico.Controllers
             ModelState.Remove("Client.Dealer");
             ModelState.Remove("Client.Transfers");
             ModelState.RemoveAll<CreateViewModel>(x => x.Client.Products);
+            ModelState.RemoveAll<CreateViewModel>(x => x.Client.Abonos);
             if (ModelState.IsValid)
             {
                 try

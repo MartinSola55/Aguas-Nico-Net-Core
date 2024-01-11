@@ -28,7 +28,7 @@ namespace AguasNico.Controllers
             {
                 IndexViewModel viewModel = new()
                 {
-                    Products = _workContainer.Product.GetAll().OrderBy(x => x.Name).ThenBy(x => x.Price),
+                    Products = _workContainer.Product.GetAll(x => x.IsActive).OrderBy(x => x.Name).ThenBy(x => x.Price),
                     Product = new Product(),
                     ProductTypes = _workContainer.Product.GetTypes()
                 };

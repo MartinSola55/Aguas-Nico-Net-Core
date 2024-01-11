@@ -29,6 +29,7 @@ namespace AguasNico.Models
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow.AddHours(-3);
 
-        public DateTime? DeletedAt { get; set; }
+        [DefaultValue(true)]
+        public bool IsActive { get; set; } = true;
     }
 }
