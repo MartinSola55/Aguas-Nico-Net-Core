@@ -16,7 +16,7 @@ namespace AguasNico.Models
 
         public DateTime? DeletedAt { get; set; }
 
-        public virtual Product Product { get; set; } = null!;
+        public virtual Client Client { get; set; } = null!;
 
         public virtual Abono Abono { get; set; } = null!;
     }
