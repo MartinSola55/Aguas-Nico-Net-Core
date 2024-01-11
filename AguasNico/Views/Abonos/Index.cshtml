@@ -1,0 +1,112 @@
+﻿@model AguasNico.Models.ViewModels.Abonos.IndexViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Abonos";
+}
+
+<link href="~/lib/datatables/media/css/dataTables.bootstrap4.css" rel="stylesheet">
+
+<script src="~/lib/datatables/datatables.min.js"></script>
+<script src="~/js/custom/abonos/index.js"></script>
+
+
+<div class="container-fluid">
+    <div class="row page-titles">
+        <div class="col-md-5 col-8 align-self-center">
+            <h3 class="text-themecolor m-b-0 m-t-0">Abonos</h3>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">Inicio</a></li>
+                <li class="breadcrumb-item active">Abonos</li>
+            </ol>
+        </div>
+    </div>
+
+
+    <!-- Modal -->
+    <div id="modal" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+        aria-hidden="true" style="display: none;">
+        <div id="formContainer" class="modal-dialog">
+            <form id="form-edit" method="post" asp-area="" asp-controller="Abonos" asp-action="Edit">
+                <input type="hidden" name="EditedAbono.ID" value="" />
+                @Html.AntiForgeryToken()
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 id="modalTitle" class="modal-title">Editar abono</h4>
+                        <button type="button" class="close" id="btnCloseModal" data-dismiss="modal" aria-hidden="true">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-column">
+                                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                    <div class="col-12 mb-3">
+                                        <label asp-for="EditedAbono.Name" class="mb-0"></label>
+                                        <input asp-for="EditedAbono.Name" class="form-control" required />
+                                        <span asp-validation-for="EditedAbono.Name" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <label asp-for="EditedAbono.Price" class="mb-0"></label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">$</span>
+                                            </div>
+                                            <input asp-for="EditedAbono.Price" class="form-control" required type="number" data-val-number="Debes ingresar un número" />
+                                        </div>
+                                        <span asp-validation-for="EditedAbono.Price" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-success waves-effect waves-light" onclick="sendForm('edit')">Actualizar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- End Modal -->
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex flex-row justify-content-between">
+                        <h2 class="card-title">Listado de abonos</h2>
+                        <a asp-area="" asp-controller="Abonos" asp-action="Create" class="btn btn-info btn-rounded waves-effect waves-light m-t-10 float-right">Agregar abono</a>
+                    </div>
+                    <div class="table-responsive m-t-10">
+                        <table id="DataTable" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Precio</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table_body">
+                                @foreach (Abono item in Model.Abonos)
+                                {
+                                    <tr data-id="@item.ID">
+                                        <td>@Html.DisplayFor(c => item.Name)</td>
+                                        <td>$@Html.DisplayFor(c => item.Price)</td>
+                                        <td class='d-flex flex-row justify-content-center'>
+                                            <button type='button' class='btn btn-outline-info btn-rounded btn-sm mr-2' onclick='edit(@Json.Serialize(item))' data-toggle="modal" data-target="#modal"><i class="bi bi-pencil"></i></button>
+                                            <a asp-area="" asp-controller="Abonos" asp-action="Edit" asp-route-id="@item.ID" class='btn btn-outline-info btn-rounded btn-sm'><i class="bi bi-box-seam"></i></a>
+                                            <button type='button' class='btn btn-danger btn-rounded btn-sm ml-2' onclick='deleteObj(@item.ID)'><i class='bi bi-trash3'></i></button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <form id="form-delete" method="post" asp-area="" asp-controller="Abonos" asp-action="SoftDelete">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

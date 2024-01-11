@@ -19,6 +19,7 @@ namespace AguasNico.Data.Repository.IRepository
         ICartRepository Cart { get; }
         ITablesRepository Tables { get; }
         IDealerRepository Dealer { get; }
+        IAbonoRepository Abono { get; }
 
         void BeginTransaction();
         void Commit();

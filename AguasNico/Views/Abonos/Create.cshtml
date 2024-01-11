@@ -1,0 +1,83 @@
+﻿@model AguasNico.Models.ViewModels.Abonos.CreateViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Nuevo abono";
+}
+
+<link href="~/lib/datatables/media/css/dataTables.bootstrap4.css" rel="stylesheet">
+
+<script src="~/lib/datatables/datatables.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/js/custom/abonos/create.js"></script>
+
+<div class="container-fluid">
+    <div class="row page-titles">
+        <div class="col-md-5 col-8 align-self-center">
+            <h3 class="text-themecolor m-b-0 m-t-0">Abonos</h3>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">Inicio</a></li>
+                <li class="breadcrumb-item"><a asp-area="" asp-controller="Abonos" asp-action="Index">Abonos</a></li>
+                <li class="breadcrumb-item active">Nuevo</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-md-6">
+            <form id="form-submit" method="post" asp-area="" asp-controller="Abonos" asp-action="Create">
+                @Html.AntiForgeryToken()
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h2 class="card-title">Datos del abono</h2>
+                        <div class="form-column">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <div class="col-12 mb-3">
+                                <label asp-for="Abono.Name" class="mb-0"></label>
+                                <input asp-for="Abono.Name" class="form-control" required>
+                                <span asp-validation-for="Abono.Name" class="text-danger"></span>
+                            </div><div class="col-12 mb-3">
+                                <label asp-for="Abono.Price" class="mb-0"></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">$</span>
+                                    </div>
+                                    <input asp-for="Abono.Price" class="form-control" required type="number" data-val-number="Debes ingresar un número" />
+                                </div>
+                                <span asp-validation-for="Abono.Price" class="text-danger"></span>
+                            </div>
+                            <div class="col-12 mb-3 d-flex justify-content-end">
+                                <button id="btnSubmit" type="submit" class="btn btn-success">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title">Asociar productos</h2>
+                    <div class="table-responsive m-t-10">
+                        <table id="DataTable" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table_body">
+                                @foreach (ProductType product in Model.Products)
+                                {
+                                    <tr data-id="@((int)product)">
+                                        <td>@product.GetDisplayName()</td>
+                                        <td><input type="number" name="quantity" class="form-control" min="1" /></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
