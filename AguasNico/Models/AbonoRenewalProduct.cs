@@ -6,6 +6,9 @@ namespace AguasNico.Models
 {
     public class AbonoRenewalProduct
     {
+        [Key]
+        public long ID { get; set; }
+
         [Required]
         public long AbonoRenewalID { get; set; }
 

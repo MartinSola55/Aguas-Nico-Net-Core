@@ -10,9 +10,9 @@ namespace AguasNico.Models
         public long CartID { get; set; }
 
         [Required]
-        public AbonoRenewalProduct Product { get; set; } = new();
+        public long AbonoRenewalProductID { get; set; }
 
-        [Required(ErrorMessage = "Debes ingresdar una cantidad")]
+        [Required(ErrorMessage = "Debes ingresar una cantidad")]
         [Display(Name = "Cantidad")]
         [Range(1, 100, ErrorMessage = "La cantidad debe estar entre 1 y 100")]
         public int Quantity { get; set; }

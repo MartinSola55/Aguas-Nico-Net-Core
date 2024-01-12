@@ -31,6 +31,7 @@ namespace AguasNico.Models
 
         public virtual Client Client { get; set; } = null!;
         public virtual IEnumerable<CartProduct> Products { get; set; } = null!;
+        public virtual IEnumerable<CartAbonoProduct> AbonoProducts { get; set; } = null!;
         public virtual IEnumerable<ReturnedProduct> ReturnedProducts { get; set; } = null!;
         public virtual IEnumerable<CartPaymentMethod> PaymentMethods { get; set; } = null!;
 

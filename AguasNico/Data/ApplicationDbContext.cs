@@ -29,8 +29,8 @@ namespace AguasNico.Data
                 .HasKey(entity => new { entity.AbonoID, entity.Type });
             modelBuilder.Entity<ClientAbono>()
                 .HasKey(entity => new { entity.ClientID, entity.AbonoID });
-            modelBuilder.Entity<AbonoRenewalProduct>()
-                .HasKey(entity => new { entity.AbonoRenewalID, entity.Type });
+            modelBuilder.Entity<CartAbonoProduct>()
+                .HasKey(entity => new { entity.CartID, entity.AbonoRenewalProductID });
 
             modelBuilder.Entity<Cart>()
                 .HasQueryFilter(entity => entity.DeletedAt == null);
@@ -60,6 +60,8 @@ namespace AguasNico.Data
                 .HasQueryFilter(entity => entity.DeletedAt == null);
             modelBuilder.Entity<AbonoRenewalProduct>()
                 .HasQueryFilter(entity => entity.DeletedAt == null);
+            modelBuilder.Entity<CartAbonoProduct>()
+                .HasQueryFilter(entity => entity.DeletedAt == null);
         }
 
         public DbSet<ApplicationUser> User { get; set; }
@@ -69,6 +71,7 @@ namespace AguasNico.Data
         public DbSet<AbonoRenewalProduct> AbonoRenewalProducts { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<CartPaymentMethod> CartPaymentMethods { get; set; }
+        public DbSet<CartAbonoProduct> CartAbonoProducts { get; set; }
         public DbSet<CartProduct> CartProducts { get; set; }
         public DbSet<Client> Clients { get; set; }
         public DbSet<ClientAbono> ClientAbonos { get; set; }
