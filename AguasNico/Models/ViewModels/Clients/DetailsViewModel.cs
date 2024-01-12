@@ -8,6 +8,7 @@ namespace AguasNico.Models.ViewModels.Clients
     {
         [Display(Name = "Baja")] Baja,
         [Display(Name = "Devuelve")] Devuelve,
+        [Display(Name = "Baja (abono)")] Abono,
     }
     public class ProductHistory
     {

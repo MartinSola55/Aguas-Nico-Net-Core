@@ -247,6 +247,11 @@ namespace AguasNico.Data.Repository
                 .Where(x => x.Cart.ClientID == clientID && (x.Type != ProductType.Máquina))
                 .OrderByDescending(x => x.CreatedAt)
                 .Take(10);
+            IEnumerable<CartAbonoProduct> abonoProducts = _db.CartAbonoProducts
+                .Include(x => x.Cart)
+                .Where(x => x.Cart.ClientID == clientID && (x.Type != ProductType.Máquina))
+                .OrderByDescending(x => x.CreatedAt)
+                .Take(10);
             IEnumerable<ReturnedProduct> returnedProducts = _db.ReturnedProducts
                 .Include(x => x.Cart)
                 .Where(x => x.Cart.ClientID == clientID && (x.Type != ProductType.Máquina))
@@ -262,6 +267,18 @@ namespace AguasNico.Data.Repository
                     ActionType = ActionType.Baja,
                     Quantity = soldProduct.Quantity,
                     Date = soldProduct.CreatedAt,
+                };
+                productsHistory.Add(product);
+            }
+            List<ProductHistory> abonoProductsHistory = [];
+            foreach (CartAbonoProduct abonoProduct in abonoProducts)
+            {
+                ProductHistory product = new()
+                {
+                    ProductType = abonoProduct.Type,
+                    ActionType = ActionType.Abono,
+                    Quantity = abonoProduct.Quantity,
+                    Date = abonoProduct.CreatedAt,
                 };
                 productsHistory.Add(product);
             }
@@ -299,6 +316,8 @@ namespace AguasNico.Data.Repository
             IEnumerable<Transfer> transfers = transferRepository.GetLastTen(clientID);
             CartRepository cartRepository = new(_db);
             IEnumerable<Cart> carts = cartRepository.GetLastTen(clientID);
+            AbonoRepository abonoRepository = new(_db);
+            IEnumerable<Abono> abonos = abonoRepository.GetLastTen(clientID);
             
             List<CartsTransfersHistoryTable> cartsTransfersHistory = [];
 
@@ -309,6 +328,17 @@ namespace AguasNico.Data.Repository
                     Date = transfer.Date,
                     Type = CartsTransfersType.Transfer,
                     TransferAmount = transfer.Amount,
+                });
+            }
+
+            foreach (Abono abono in abonos)
+            {
+                cartsTransfersHistory.Add(new()
+                {
+                    Date = abono.CreatedAt,
+                    Type = CartsTransfersType.Abono,
+                    AbonoName = abono.Name,
+                    AbonoPrice = abono.Price,
                 });
             }
 

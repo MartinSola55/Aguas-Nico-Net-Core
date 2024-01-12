@@ -147,5 +147,10 @@ namespace AguasNico.Data.Repository
                 throw;
             }
         }
+
+        public IEnumerable<Abono> GetLastTen(long clientID)
+        {
+            return _db.AbonoRenewals.Where(x => x.ClientID == clientID).OrderByDescending(x => x.CreatedAt).Take(10).Select(x => x.Abono);
+        }
     }
 }

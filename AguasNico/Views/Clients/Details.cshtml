@@ -54,7 +54,12 @@
                                                 <td>@item.Type.GetDisplayName()</td>
                                                 <td>$@Html.DisplayFor(x => item.TransferAmount)</td>
                                             }
-                                            else
+                                            else if (item.Type == CartsTransfersType.Abono)
+                                            {
+                                                <td>@Html.DisplayFor(x => item.AbonoName)</td>
+                                                <td>$@Html.DisplayFor(x => item.AbonoPrice)</td>
+                                            }
+                                            else if (item.Type == CartsTransfersType.Cart)
                                             {
                                                 <td>
                                                     <ul class="pl-3 mb-0">
