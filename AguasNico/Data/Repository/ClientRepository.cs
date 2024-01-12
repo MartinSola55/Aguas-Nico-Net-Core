@@ -193,6 +193,53 @@ namespace AguasNico.Data.Repository
             }
         }
 
+        public void UpdateAbonos(long clientID, List<ClientAbono> abonos)
+        {
+            try
+            {
+                _db.Database.BeginTransaction();
+
+                IEnumerable<ClientAbono> clientAbonos = _db.ClientAbonos.IgnoreQueryFilters().Where(x => x.ClientID == clientID);
+                foreach (ClientAbono abono in abonos)
+                {
+                    if (clientAbonos.Any(x => x.AbonoID == abono.AbonoID))
+                    {
+                        ClientAbono clientAbono = clientAbonos.First(x => x.AbonoID == abono.AbonoID);
+                        clientAbono.UpdatedAt = DateTime.UtcNow.AddHours(-3);
+                        clientAbono.DeletedAt = null;
+                        _db.ClientAbonos.Update(clientAbono);
+                    }
+                    else
+                    {
+                        _db.ClientAbonos.Add(new()
+                        {
+                            ClientID = clientID,
+                            AbonoID = abono.AbonoID
+                        });
+                    }
+                }
+
+                // Actualizar DeletedAt para los productos que no se encuentran en la lista de productos nuevos
+                IEnumerable<ClientAbono> existingAbonos = clientAbonos.Where(x => !abonos.Any(y => y.AbonoID == x.AbonoID));
+
+                if (existingAbonos.Any())
+                {
+                    foreach (ClientAbono existingAbono in existingAbonos)
+                    {
+                        existingAbono.DeletedAt = DateTime.UtcNow.AddHours(-3);
+                    }
+                    _db.ClientAbonos.UpdateRange(existingAbonos);
+                }
+                _db.SaveChanges();
+                _db.Database.CommitTransaction();
+            }
+            catch (Exception)
+            {
+                _db.Database.RollbackTransaction();
+                throw;
+            }
+        }
+
         public IEnumerable<ProductHistory> GetProductsHistory(long clientID)
         {
             IEnumerable<CartProduct> soldProducts = _db.CartProducts
@@ -279,6 +326,11 @@ namespace AguasNico.Data.Repository
                 });
             }
             return [.. cartsTransfersHistory.OrderByDescending(x => x.Date)];
+        }
+
+        public List<ClientAbono> GetAbonos(long clientID)
+        {
+            return [.. _db.ClientAbonos.Where(x => x.ClientID == clientID)];
         }
     }
 }

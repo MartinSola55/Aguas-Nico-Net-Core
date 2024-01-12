@@ -21,6 +21,7 @@ namespace AguasNico.Models.ViewModels.Clients
         public Client Client { get; set; } = new();
         public List<CartsTransfersHistoryTable> CartsTransfersHistory { get; set; } = [];
         public IEnumerable<ClientProduct> Products { get; set; } = new List<ClientProduct>();
+        public IEnumerable<ClientAbono> Abonos { get; set; } = new List<ClientAbono>();
         public IEnumerable<SelectListItem> Dealers { get; set; } = [];
         public IEnumerable<SelectListItem> InvoiceTyes { get; set; } = new List<SelectListItem>
         {

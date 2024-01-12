@@ -83,13 +83,28 @@ namespace AguasNico.Controllers
                 {
                     return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "El cliente ha sido eliminado", ErrorCode = 404 });
                 }
-                
+
+                List<Abono> abonos = _workContainer.Abono.GetAll().ToList();
+                List<ClientAbono> clientAbonos = _workContainer.Client.GetAbonos(id);
+
+                foreach (Abono abono in abonos)
+                {
+                    if (!clientAbonos.Any(x => x.AbonoID == abono.ID))
+                    {
+                        clientAbonos.Add(new ClientAbono
+                        {
+                            Abono = abono,
+                            AbonoID = abono.ID,
+                        });
+                    }
+                }
 
                 DetailsViewModel viewModel = new()
                 {
                     Client = client,
                     Dealers = _workContainer.ApplicationUser.GetDealersDropDownList(),
                     Products = _workContainer.Client.GetAllProducts(id),
+                    Abonos = clientAbonos,
                     CartsTransfersHistory = _workContainer.Client.GetCartsTransfersHistoryTable(id),
                     ProductsHistory = _workContainer.Client.GetProductsHistory(id),
                 };
@@ -170,6 +185,7 @@ namespace AguasNico.Controllers
             ModelState.Remove("Client.TaxCondition");
             ModelState.Remove("Client.CUIT");
             ModelState.Remove("Client.Products");
+            ModelState.Remove("Client.Abonos");
             if (ModelState.IsValid)
             {
                 try
@@ -248,7 +264,29 @@ namespace AguasNico.Controllers
                 return CustomBadRequest(title: "Error al actualizar los productos", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
             }
         }
-    
+
+        [HttpPost]
+        [ActionName("UpdateAbonos")]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = Constants.Admin)]
+        public IActionResult UpdateAbonos(Client client, List<ClientAbono> abonos)
+        {
+            try
+            {
+                _workContainer.Client.UpdateAbonos(client.ID, abonos);
+                return Json(new
+                {
+                    success = true,
+                    data = 1,
+                    message = "Los abonos se actualizaron correctamente",
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al actualizar los abonos", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
+        }
+
         [HttpPost]
         [ActionName("SoftDelete")]
         [ValidateAntiForgeryToken]

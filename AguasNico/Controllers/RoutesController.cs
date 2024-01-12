@@ -86,6 +86,7 @@ namespace AguasNico.Controllers
         {
             ModelState.Remove("route.Carts");
             ModelState.Remove("route.User");
+            ModelState.Remove("route.DispatchedProducts");
             if (ModelState.IsValid)
             {
                 try
