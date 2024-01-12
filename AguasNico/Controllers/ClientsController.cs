@@ -186,6 +186,7 @@ namespace AguasNico.Controllers
             ModelState.Remove("Client.CUIT");
             ModelState.Remove("Client.Products");
             ModelState.Remove("Client.Abonos");
+            ModelState.Remove("Client.AbonosRenewed");
             if (ModelState.IsValid)
             {
                 try

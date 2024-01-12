@@ -36,7 +36,7 @@ namespace AguasNico.Data.Repository
             {
                 _db.Database.BeginTransaction();
 
-                Abono abono = _db.Abonos.Find(id) ?? throw new Exception("No se encontró el abono");
+                Abono abono = _db.Abonos.Find(id) ?? throw new Exception("No se encontrï¿½ el abono");
                 abono.DeletedAt = DateTime.UtcNow.AddHours(-3);
 
                 foreach (ClientAbono clientAbono in _db.ClientAbonos.Where(x => x.AbonoID == id))
@@ -86,7 +86,6 @@ namespace AguasNico.Data.Repository
                         {
                             AbonoRenewalID = abonoRenewal.ID,
                             Type = abonoRenewalProduct.Type,
-                            Quantity = abonoRenewalProduct.Quantity,
                             Available = abonoRenewalProduct.Quantity
                         });
                     }
@@ -132,7 +131,6 @@ namespace AguasNico.Data.Repository
                         {
                             AbonoRenewalID = abonoRenewal.ID,
                             Type = abonoRenewalProduct.Type,
-                            Quantity = abonoRenewalProduct.Quantity,
                             Available = abonoRenewalProduct.Quantity
                         });
                     }

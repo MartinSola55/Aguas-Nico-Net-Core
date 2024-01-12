@@ -75,6 +75,7 @@ namespace AguasNico.Controllers
         public IActionResult Create(CreateViewModel viewModel)
         {
             ModelState.RemoveAll<CreateViewModel>(x => x.Abono.Products);
+            ModelState.RemoveAll<CreateViewModel>(x => x.Abono.Renewals);
             if (ModelState.IsValid)
             {
                 try
@@ -106,6 +107,7 @@ namespace AguasNico.Controllers
         public IActionResult Edit(IndexViewModel viewModel)
         {
             ModelState.Remove("EditedAbono.Products");
+            ModelState.Remove("EditedAbono.Renewals");
             if (ModelState.IsValid)
             {
                 try

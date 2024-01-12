@@ -12,8 +12,6 @@ namespace AguasNico.Models
         [Required]
         public ProductType Type { get; set; }
 
-        public int Quantity { get; set; }
-
         public int Available { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow.AddHours(-3);

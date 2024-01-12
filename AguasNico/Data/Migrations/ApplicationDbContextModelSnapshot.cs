@@ -48,7 +48,7 @@ namespace AguasNico.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Abonos");
+                    b.ToTable("Abonos", (string)null);
                 });
 
             modelBuilder.Entity("AguasNico.Models.AbonoProduct", b =>
@@ -73,7 +73,7 @@ namespace AguasNico.Migrations
 
                     b.HasKey("AbonoID", "Type");
 
-                    b.ToTable("AbonoProducts");
+                    b.ToTable("AbonoProducts", (string)null);
                 });
 
             modelBuilder.Entity("AguasNico.Models.AbonoRenewal", b =>
@@ -108,7 +108,7 @@ namespace AguasNico.Migrations
 
                     b.HasIndex("ClientID");
 
-                    b.ToTable("AbonoRenewals");
+                    b.ToTable("AbonoRenewals", (string)null);
                 });
 
             modelBuilder.Entity("AguasNico.Models.AbonoRenewalProduct", b =>
@@ -136,7 +136,7 @@ namespace AguasNico.Migrations
 
                     b.HasKey("AbonoRenewalID", "Type");
 
-                    b.ToTable("AbonoRenewalProducts");
+                    b.ToTable("AbonoRenewalProducts", (string)null);
                 });
 
             modelBuilder.Entity("AguasNico.Models.Cart", b =>
@@ -177,7 +177,7 @@ namespace AguasNico.Migrations
 
                     b.HasIndex("RouteID");
 
-                    b.ToTable("Carts");
+                    b.ToTable("Carts", (string)null);
                 });
 
             modelBuilder.Entity("AguasNico.Models.CartPaymentMethod", b =>
@@ -204,7 +204,7 @@ namespace AguasNico.Migrations
 
                     b.HasIndex("PaymentMethodID");
 
-                    b.ToTable("CartPaymentMethods");
+                    b.ToTable("CartPaymentMethods", (string)null);
                 });
 
             modelBuilder.Entity("AguasNico.Models.CartProduct", b =>
@@ -234,7 +234,7 @@ namespace AguasNico.Migrations
 
                     b.HasIndex("CartID");
 
-                    b.ToTable("CartProducts");
+                    b.ToTable("CartProducts", (string)null);
                 });
 
             modelBuilder.Entity("AguasNico.Models.Client", b =>
@@ -299,7 +299,7 @@ namespace AguasNico.Migrations
 
                     b.HasIndex("DealerID");
 
-                    b.ToTable("Clients");
+                    b.ToTable("Clients", (string)null);
 
                     b.HasData(
                         new
@@ -353,7 +353,7 @@ namespace AguasNico.Migrations
 
                     b.HasIndex("AbonoID");
 
-                    b.ToTable("ClientAbonos");
+                    b.ToTable("ClientAbonos", (string)null);
                 });
 
             modelBuilder.Entity("AguasNico.Models.ClientProduct", b =>
@@ -380,7 +380,7 @@ namespace AguasNico.Migrations
 
                     b.HasIndex("ClientID");
 
-                    b.ToTable("ClientProducts");
+                    b.ToTable("ClientProducts", (string)null);
                 });
 
             modelBuilder.Entity("AguasNico.Models.DispatchedProduct", b =>
@@ -405,7 +405,7 @@ namespace AguasNico.Migrations
 
                     b.HasKey("RouteID", "Type");
 
-                    b.ToTable("DispatchedProducts");
+                    b.ToTable("DispatchedProducts", (string)null);
                 });
 
             modelBuilder.Entity("AguasNico.Models.Expense", b =>
@@ -441,7 +441,7 @@ namespace AguasNico.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("Expenses");
+                    b.ToTable("Expenses", (string)null);
                 });
 
             modelBuilder.Entity("AguasNico.Models.PaymentMethod", b =>
@@ -458,7 +458,7 @@ namespace AguasNico.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("PaymentMethods");
+                    b.ToTable("PaymentMethods", (string)null);
 
                     b.HasData(
                         new
@@ -508,7 +508,7 @@ namespace AguasNico.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
 
                     b.HasData(
                         new
@@ -647,7 +647,7 @@ namespace AguasNico.Migrations
 
                     b.HasIndex("CartID");
 
-                    b.ToTable("ReturnedProducts");
+                    b.ToTable("ReturnedProducts", (string)null);
                 });
 
             modelBuilder.Entity("AguasNico.Models.Route", b =>
@@ -681,7 +681,7 @@ namespace AguasNico.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("Routes");
+                    b.ToTable("Routes", (string)null);
                 });
 
             modelBuilder.Entity("AguasNico.Models.Transfer", b =>
@@ -720,7 +720,7 @@ namespace AguasNico.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("Transfers");
+                    b.ToTable("Transfers", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
