@@ -30,7 +30,7 @@ namespace AguasNico.Data
             modelBuilder.Entity<ClientAbono>()
                 .HasKey(entity => new { entity.ClientID, entity.AbonoID });
             modelBuilder.Entity<CartAbonoProduct>()
-                .HasKey(entity => new { entity.CartID, entity.AbonoRenewalProductID });
+                .HasKey(entity => new { entity.CartID, entity.Type });
 
             modelBuilder.Entity<Cart>()
                 .HasQueryFilter(entity => entity.DeletedAt == null);

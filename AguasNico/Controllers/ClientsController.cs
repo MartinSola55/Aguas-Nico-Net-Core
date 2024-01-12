@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Linq.Expressions;
 
 namespace AguasNico.Controllers
@@ -345,15 +346,23 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        [ActionName("GetProducts")]
-        public IActionResult GetProducts(long id)
+        [ActionName("GetProductsAndAbono")]
+        public IActionResult GetProductsAndAbono(long id)
         {
             try
             {
                 Client client = _workContainer.Client.GetFirstOrDefault(x => x.ID == id, includeProperties: "Products, Products.Product");
                 if (client is null) return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "El cliente no existe", ErrorCode = 404 });
-
+                List<AbonoRenewalProduct> abonoProductsList = _workContainer.Client.GetAbonosRenewedAvailables(id);
+                
                 List<object> products = [];
+                List<object> abonoProducts = abonoProductsList.GroupBy(x => x.Type).Select(x => new
+                {
+                    type = x.Key,
+                    name = x.Key.GetDisplayName(),
+                    available = x.Sum(y => y.Available),
+                }).Cast<object>().ToList();
+
                 foreach (ClientProduct clientProduct in client.Products)
                 {
                     products.Add(new
@@ -363,10 +372,12 @@ namespace AguasNico.Controllers
                         price = clientProduct.Product.Price,
                     });
                 }
+
                 return Json(new
                 {
                     success = true,
-                    data = products,
+                    products,
+                    abonoProducts,
                 });
             }
             catch (Exception e)

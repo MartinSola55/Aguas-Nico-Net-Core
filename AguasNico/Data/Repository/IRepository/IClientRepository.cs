@@ -40,6 +40,7 @@ namespace AguasNico.Data.Repository.IRepository
         void UpdateProducts(long clientID, List<ClientProduct> clientProduct);
         void UpdateAbonos(long clientID, List<ClientAbono> abonos);
         List<ClientAbono> GetAbonos(long clientID);
+        List<AbonoRenewalProduct> GetAbonosRenewedAvailables(long clientID);
         IEnumerable<ProductHistory> GetProductsHistory(long clientID);
         IEnumerable<Client> GetNotVisited(DateTime dateFrom, DateTime dateTo, string dealerID);
         List<CartsTransfersHistoryTable> GetCartsTransfersHistoryTable(long clientID);

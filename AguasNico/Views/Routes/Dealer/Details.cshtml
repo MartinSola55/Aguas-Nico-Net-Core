@@ -37,6 +37,21 @@
                 </div>
                 <div class="modal-body">
                     <div class="col-12 table-responsive">
+                        <div class="divClientAbonos">
+                            <h3 class="text-center">Abonos (sin cargo)</h3>
+                            <table class="table" id="clientAbonoProductsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Disponible</th>
+                                        <th class="col-2">Cantidad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                            <hr>
+                        </div>
                         <table class="table" id="clientProductsTable">
                             <thead>
                                 <tr>
@@ -239,11 +254,11 @@
                                 <div class="timeline-body">
                                     @if (cart.State == State.Confirmed)
                                     {
-                                        <div class="row">
-                                            <div class="col-lg-12">
-                                                @if (cart.Products.Any())
-                                                {
-                                                    <hr>
+                                        @if (cart.Products.Any())
+                                        {
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <hr />
                                                     <h3 class="text-center type-element text-muted mb-0">Bajada</h3>
                                                     <div class="table-responsive">
                                                         <table class="table">
@@ -266,14 +281,42 @@
                                                             </tbody>
                                                         </table>
                                                     </div>
-                                                }
+                                                </div>
                                             </div>
-                                        </div>
+                                        }
+                                        @if (cart.AbonoProducts.Any())
+                                        {
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <hr />
+                                                    <h3 class="text-center type-element text-muted mb-0">Abonos</h3>
+                                                    <div class="table-responsive">
+                                                        <table class="table">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Cantidad</th>
+                                                                    <th>Producto</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            @foreach (CartAbonoProduct product in cart.AbonoProducts)
+                                                            {
+                                                                <tr>
+                                                                    <td>@Html.DisplayFor(x => product.Quantity)</td>
+                                                                    <td class="product-element">@product.Type.GetDisplayName()</td>
+                                                                </tr>
+                                                            }
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
                                         @if (cart.ReturnedProducts.Any())
                                         {
                                             <div class="row">
                                                 <div class="col-lg-12">
-                                                    <hr>
+                                                    <hr />
                                                     <h3 class="text-center type-element text-muted mb-0">Devoluciones</h3>
                                                     <div class="table-responsive">
                                                         <table class="table">
@@ -368,7 +411,7 @@
         @Html.Hidden("clientID", "")
     </form>
     
-    <form id="form-searchClientProducts" method="get" asp-area="" asp-controller="Clients" asp-action="GetProducts">
+    <form id="form-searchClientProducts" method="get" asp-area="" asp-controller="Clients" asp-action="GetProductsAndAbono">
         @Html.Hidden("id", "")
     </form>
 

@@ -12,7 +12,7 @@ namespace AguasNico.Models
         [Required]
         public ProductType Type { get; set; }
 
-        [Required(ErrorMessage = "Debes ingresdar una cantidad")]
+        [Required(ErrorMessage = "Debes ingresar una cantidad")]
         [Display(Name = "Cantidad")]
         [Range(1, 100, ErrorMessage = "La cantidad debe estar entre 1 y 100")]
         public int Quantity { get; set; }

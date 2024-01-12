@@ -332,5 +332,11 @@ namespace AguasNico.Data.Repository
         {
             return [.. _db.ClientAbonos.Where(x => x.ClientID == clientID)];
         }
+
+        public List<AbonoRenewalProduct> GetAbonosRenewedAvailables(long clientID)
+        {
+            DateTime today = DateTime.UtcNow.AddHours(-3);
+            return [.. _db.AbonoRenewalProducts.Where(x => x.AbonoRenewal.ClientID == clientID && x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year)];
+        }
     }
 }

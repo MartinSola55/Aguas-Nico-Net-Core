@@ -31,5 +31,7 @@ namespace AguasNico.Models
         
         [JsonIgnore]
         public virtual Client Client { get; set; } = null!;
+
+        public virtual IEnumerable<AbonoRenewalProduct> ProductsAvailables { get; set; } = null!;
     }
 }

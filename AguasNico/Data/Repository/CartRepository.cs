@@ -132,6 +132,7 @@ namespace AguasNico.Data.Repository
                     .Where(x => x.ID == id)
                     .Include(x => x.Client)
                     .Include(x => x.Products)
+                    .Include(x => x.AbonoProducts)
                     .Include(x => x.ReturnedProducts)
                     .Include(x => x.PaymentMethods)
                     .FirstOrDefault() ?? throw new Exception("No se ha encontrado la bajada");
@@ -144,6 +145,25 @@ namespace AguasNico.Data.Repository
                         clientProduct.Stock -= product.Quantity;
                         cart.Client.Debt -= product.Quantity * product.SettedPrice;
                         product.DeletedAt = DateTime.UtcNow.AddHours(-3);
+                        _db.SaveChanges();
+                    }
+                }
+
+                if (cart.AbonoProducts is not null)
+                {
+                    foreach (CartAbonoProduct abonoProductInCart in cart.AbonoProducts)
+                    {
+                        AbonoRenewalProduct abonoProduct = _db.AbonoRenewalProducts.Where(x =>
+                            x.AbonoRenewal.ClientID == cart.ClientID &&
+                            x.CreatedAt.Month == cart.CreatedAt.Month &&
+                            x.CreatedAt.Year == cart.CreatedAt.Year &&
+                            x.Type == abonoProductInCart.Type).FirstOrDefault() ?? throw new Exception("No se ha encontrado un producto del abono del cliente");
+
+                        abonoProduct.Available += abonoProductInCart.Quantity;
+
+                        ClientProduct clientProduct = _db.ClientProducts.Where(x => x.ClientID == cart.ClientID && x.Product.Type == abonoProductInCart.Type).FirstOrDefault() ?? throw new Exception("No se ha encontrado un producto del cliente");
+                        clientProduct.Stock -= abonoProductInCart.Quantity;
+                        abonoProductInCart.DeletedAt = DateTime.UtcNow.AddHours(-3);
                         _db.SaveChanges();
                     }
                 }
@@ -197,6 +217,7 @@ namespace AguasNico.Data.Repository
             try
             {
                 _db.Database.BeginTransaction();
+                DateTime today = DateTime.UtcNow.AddHours(-3);
                 Client client = _db.Clients.Find(cart.ClientID) ?? throw new Exception("No se ha encontrado el cliente");
 
                 decimal total = 0;
@@ -213,6 +234,47 @@ namespace AguasNico.Data.Repository
                         _db.CartProducts.Add(product);
                     }
                     client.Debt += total;
+                }
+
+                if (cart.AbonoProducts is not null)
+                {
+                    foreach (CartAbonoProduct abonoProduct in cart.AbonoProducts)
+                    {
+                        if (abonoProduct.Quantity <= 0) continue;
+
+                        List<AbonoRenewalProduct> abonoProductsList =
+                        [
+                            .. _db.AbonoRenewalProducts.Where(x => 
+                            x.AbonoRenewal.ClientID == cart.ClientID &&
+                            x.CreatedAt.Month == today.Month &&
+                            x.CreatedAt.Year == today.Year &&
+                            x.Type == abonoProduct.Type)
+                        ];
+
+                        if (abonoProductsList.Count == 0) throw new Exception("No se ha encontrado un producto del abono del cliente");
+                        if (abonoProductsList.Sum(x => x.Available) < abonoProduct.Quantity) throw new Exception("El cliente no posee stock suficiente de: " + abonoProduct.Type.GetDisplayName());
+                        
+                        int quantity = abonoProduct.Quantity;
+                        foreach (AbonoRenewalProduct abonoProductList in abonoProductsList)
+                        {
+                            if (abonoProductList.Available >= quantity)
+                            {
+                                abonoProductList.Available -= quantity;
+                                break;
+                            }
+                            else
+                            {
+                                quantity -= abonoProductList.Available;
+                                abonoProductList.Available = 0;
+                            }
+                        }
+
+                        ClientProduct clientProduct = _db.ClientProducts.Where(x => x.ClientID == cart.ClientID && x.Product.Type == abonoProduct.Type).Include(x => x.Product).FirstOrDefault() ?? throw new Exception("No se ha encontrado un producto del cliente");
+                        clientProduct.Stock += abonoProduct.Quantity;
+
+                        abonoProduct.CartID = cart.ID;
+                        _db.CartAbonoProducts.Add(abonoProduct);
+                    }
                 }
 
                 total = 0;

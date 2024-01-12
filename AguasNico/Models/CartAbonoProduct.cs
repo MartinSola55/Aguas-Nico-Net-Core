@@ -10,7 +10,7 @@ namespace AguasNico.Models
         public long CartID { get; set; }
 
         [Required]
-        public long AbonoRenewalProductID { get; set; }
+        public ProductType Type { get; set; }
 
         [Required(ErrorMessage = "Debes ingresar una cantidad")]
         [Display(Name = "Cantidad")]
@@ -25,7 +25,5 @@ namespace AguasNico.Models
 
         [JsonIgnore]
         public virtual Cart Cart { get; set; } = null!;
-
-        public virtual AbonoRenewalProduct AbonoRenewalProduct { get; set; } = null!;
     }
 }
