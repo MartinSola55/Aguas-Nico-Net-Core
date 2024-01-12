@@ -171,6 +171,7 @@ $(document).ready(function () {
                 <td></td>
                 <td></td>
                 <td></td>
+                <td></td>
             </tr>`;
         $('#tableClients tbody').append($(loadingRow));
 
@@ -198,6 +199,7 @@ $(document).ready(function () {
                             <td>${client.name}</td>
                             <td>${client.address}</td>
                             <td>${client.dealer}</td>
+                            <td>$${client.debt}</td>
                             <td><button type='button' class='btn btn-info btn-rounded btn-sm' onclick='selectClient(${JSON.stringify(client)})'>Seleccionar</button></td>
                         </tr>`;
                     $('#tableClients tbody').append($(row));

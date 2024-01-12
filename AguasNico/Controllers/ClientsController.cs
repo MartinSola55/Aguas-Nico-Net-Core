@@ -321,7 +321,7 @@ namespace AguasNico.Controllers
         {
             try
             {
-                IEnumerable<Client> clients = _workContainer.Client.GetAll(x => x.Name.Contains(name), includeProperties: "Dealer");
+                IEnumerable<Client> clients = _workContainer.Client.GetAll(x => x.Name.Contains(name) && x.IsActive, includeProperties: "Dealer");
                 List<object> clientsList = [];
                 foreach (Client client in clients)
                 {
@@ -331,6 +331,7 @@ namespace AguasNico.Controllers
                         name = client.Name,
                         address = client.Address,
                         dealer = client.Dealer is not null ? client.Dealer.UserName : "",
+                        debt = client.Debt.ToString("#,##"),
                     });
                 }
                 return Json(new

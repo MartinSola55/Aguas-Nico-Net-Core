@@ -40,7 +40,7 @@
                     </div>
                     <span class="text-dark">@(Model.CompletedCarts * 100 / (Model.TotalCarts > 0 ? Model.TotalCarts : 1))%</span>
                     <div class="progress">
-                        <div class="progress-bar bg-success wow animated progress-animated" role="progressbar" style="width: {{ $repartos['completados'] * 100 / ($repartos['totales'] !== 0 ? $repartos['totales'] : 1) }}%; height: 6px;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar bg-success wow animated progress-animated" role="progressbar" style="width: @(Model.CompletedCarts * 100 / (Model.TotalCarts > 0 ? Model.TotalCarts : 1))%; height: 6px;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </div>
             </div>
@@ -54,7 +54,7 @@
                     </div>
                     <span class="text-dark">@(Model.PendingCarts * 100 / (Model.TotalCarts > 0 ? Model.TotalCarts : 1))%</span>
                     <div class="progress">
-                        <div class="progress-bar bg-danger wow animated progress-animated" role="progressbar" style="width: {{ $repartos['pendientes'] * 100 / ($repartos['totales'] !== 0 ? $repartos['totales'] : 1) }}%; height: 6px;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar bg-danger wow animated progress-animated" role="progressbar" style="width: @(Model.PendingCarts * 100 / (Model.TotalCarts > 0 ? Model.TotalCarts : 1))%; height: 6px;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </div>
             </div>
