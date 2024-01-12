@@ -14,6 +14,7 @@
 <script src="~/js/custom/routes/admin/details/dispatchedProducts.js"></script>
 <script src="~/js/custom/routes/admin/deleteCart.js"></script>
 <script src="~/js/custom/routes/admin/deleteRoute.js"></script>
+<script src="~/js/custom/routes/admin/details/renewAbonos.js"></script>
 
 
 <div class="container-fluid">
@@ -26,16 +27,6 @@
                 <li class="breadcrumb-item active">Detalles</li>
             </ol>
         </div>
-        @if(!Model.Route.IsStatic)
-        {
-            <div class="col-md-7 col-4 align-self-center">
-                <div class="d-flex m-t-10 justify-content-end">
-                    <div class="d-flex m-r-20 m-l-10">
-                        <button type="button" class="btn btn-info" onclick="getDispatchedProducts(@Model.Route.ID)">Productos cargados</button>
-                    </div>
-                </div>
-            </div>
-        }
     </div>
 
     <!-- MODAL DE DESPACHADOS -->
@@ -104,10 +95,34 @@
         </div>
     </div>
 
+    @if (Model.Route.IsStatic)
+    {
+        <div class="row">
+            <div class="col-12 col-lg-6">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <div class="d-flex flex-column flex-md-row justify-content-start">
+                            <button type="button" class="btn btn-info waves-effect waves-light" onclick="renewByRoute()">Renovar abonos de esta planilla</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
     @if(!Model.Route.IsStatic)
     {
         <!-- Datos del admin -->
         <div class="row">
+            <div class="col-12 col-lg-6">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <div class="d-flex flex-column flex-md-row justify-content-start">
+                            <button type="button" class="btn btn-info" onclick="getDispatchedProducts(@Model.Route.ID)">Productos cargados</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="col-xlg-6 col-lg-12">
                 <div class="card shadow">
                     <div class="card-body">
@@ -522,5 +537,8 @@
     
     <form id="form-dispatchedProducts" method="get" asp-area="" asp-controller="Routes" asp-action="GetDispatched">
         @Html.Hidden("routeID", "")
+    </form>
+    <form id="form-renewByRoute" method="post" asp-area="" asp-controller="Abonos" asp-action="RenewByRoute" asp-route-routeID="@Model.Route.ID">
+        @Html.AntiForgeryToken()
     </form>
 </div>

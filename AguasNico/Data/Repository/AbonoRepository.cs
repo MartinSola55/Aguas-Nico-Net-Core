@@ -111,7 +111,7 @@ namespace AguasNico.Data.Repository
 
                 DateTime today = DateTime.UtcNow.AddHours(-3);
                 List<Client> clients = [.. _db.Routes.Where(x => x.ID == routeID).SelectMany(x => x.Carts).Select(x => x.Client)];
-                foreach (ClientAbono clientAbono in _db.ClientAbonos.Where(x => clients.Contains(x.Client)))
+                foreach (ClientAbono clientAbono in _db.ClientAbonos.Where(x => clients.Contains(x.Client)).Include(x => x.Abono).ThenInclude(x => x.Products).Include(x => x.Client))
                 {
                     if (_db.AbonoRenewals.Any(x => x.AbonoID == clientAbono.AbonoID && x.ClientID == clientAbono.ClientID && x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year)) continue;
 
