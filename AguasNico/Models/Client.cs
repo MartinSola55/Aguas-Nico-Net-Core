@@ -70,8 +70,9 @@ namespace AguasNico.Models
         [JsonIgnore]
         public virtual ICollection<Cart> Carts { get; set; } = null!;
         
-        [JsonIgnore]
         public virtual ICollection<ClientAbono> Abonos { get; set; } = null!;
+
+        public virtual ICollection<AbonoRenewal> AbonosRenewed { get; set; } = null!;
 
         public virtual ICollection<Transfer> Transfers { get; set; } = null!;
 

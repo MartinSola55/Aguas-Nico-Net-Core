@@ -283,7 +283,7 @@ namespace AguasNico.Data.Repository
         {
             return _db.Clients
                 .Include(x => x.Carts)
-                .Where(x => x.DealerID == dealerID && x.Carts.Any(y => !y.IsStatic && y.CreatedAt.DayOfYear >= dateFrom.DayOfYear && y.CreatedAt.DayOfYear <= dateTo.DayOfYear && y.State != State.Confirmed))
+                .Where(x => x.IsActive && x.DealerID == dealerID && x.Carts.Any(y => !y.IsStatic && y.CreatedAt.DayOfYear >= dateFrom.DayOfYear && y.CreatedAt.DayOfYear <= dateTo.DayOfYear && y.State != State.Confirmed))
                 .OrderBy(x => x.Name)
                 .Select(x => new Client
                 {

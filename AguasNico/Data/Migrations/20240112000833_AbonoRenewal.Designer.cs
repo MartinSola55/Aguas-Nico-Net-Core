@@ -4,6 +4,7 @@ using AguasNico.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AguasNico.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240112000833_AbonoRenewal")]
+    partial class AbonoRenewal
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -109,34 +112,6 @@ namespace AguasNico.Migrations
                     b.HasIndex("ClientID");
 
                     b.ToTable("AbonoRenewals");
-                });
-
-            modelBuilder.Entity("AguasNico.Models.AbonoRenewalProduct", b =>
-                {
-                    b.Property<long>("AbonoRenewalID")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Available")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("AbonoRenewalID", "Type");
-
-                    b.ToTable("AbonoRenewalProducts");
                 });
 
             modelBuilder.Entity("AguasNico.Models.Cart", b =>
@@ -307,7 +282,7 @@ namespace AguasNico.Migrations
                             ID = 1L,
                             Address = "Rivadavia 1097",
                             CUIT = "20123123127",
-                            CreatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(9100),
+                            CreatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7636),
                             Debt = 1500m,
                             HasInvoice = true,
                             InvoiceType = 2,
@@ -316,19 +291,19 @@ namespace AguasNico.Migrations
                             Observations = "Cuidado con el perro",
                             Phone = "3404123123",
                             TaxCondition = 2,
-                            UpdatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(9101)
+                            UpdatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7637)
                         },
                         new
                         {
                             ID = 2L,
                             Address = "A la vuelta de la cristalería",
-                            CreatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(9107),
+                            CreatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7643),
                             Debt = 0m,
                             HasInvoice = false,
                             IsActive = true,
                             Name = "Agustín Bettig",
                             Phone = "3404123123",
-                            UpdatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(9107)
+                            UpdatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7644)
                         });
                 });
 
@@ -514,112 +489,112 @@ namespace AguasNico.Migrations
                         new
                         {
                             ID = 1L,
-                            CreatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(8988),
+                            CreatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7524),
                             IsActive = true,
                             Name = "Máquina frío/calor",
                             Price = 7800m,
                             Type = 4,
-                            UpdatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(8991)
+                            UpdatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7529)
                         },
                         new
                         {
                             ID = 2L,
-                            CreatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(8996),
+                            CreatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7533),
                             IsActive = true,
                             Name = "B12L",
                             Price = 1800m,
                             Type = 2,
-                            UpdatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(8996)
+                            UpdatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7534)
                         },
                         new
                         {
                             ID = 3L,
-                            CreatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(8997),
+                            CreatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7535),
                             IsActive = true,
                             Name = "B20L",
                             Price = 2400m,
                             Type = 1,
-                            UpdatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(8997)
+                            UpdatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7535)
                         },
                         new
                         {
                             ID = 4L,
-                            CreatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(8998),
+                            CreatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7536),
                             IsActive = true,
                             Name = "Soda 1/2",
                             Price = 600m,
                             Type = 3,
-                            UpdatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(8999)
+                            UpdatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7536)
                         },
                         new
                         {
                             ID = 5L,
-                            CreatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(8999),
+                            CreatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7537),
                             IsActive = true,
                             Name = "B20L BAJADO",
                             Price = 2800m,
                             Type = 1,
-                            UpdatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(9000)
+                            UpdatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7538)
                         },
                         new
                         {
                             ID = 6L,
-                            CreatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(9000),
+                            CreatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7539),
                             IsActive = true,
                             Name = "B20L",
                             Price = 1331m,
                             Type = 1,
-                            UpdatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(9001)
+                            UpdatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7539)
                         },
                         new
                         {
                             ID = 7L,
-                            CreatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(9002),
+                            CreatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7540),
                             IsActive = true,
                             Name = "Dispenser",
                             Price = 3500m,
                             Type = 4,
-                            UpdatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(9002)
+                            UpdatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7540)
                         },
                         new
                         {
                             ID = 8L,
-                            CreatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(9003),
+                            CreatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7541),
                             IsActive = true,
                             Name = "MAQUINA SIN CARGO",
                             Price = 0m,
                             Type = 4,
-                            UpdatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(9003)
+                            UpdatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7541)
                         },
                         new
                         {
                             ID = 9L,
-                            CreatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(9004),
+                            CreatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7542),
                             IsActive = true,
                             Name = "B20L SIN CARGO",
                             Price = 0m,
                             Type = 1,
-                            UpdatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(9004)
+                            UpdatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7542)
                         },
                         new
                         {
                             ID = 10L,
-                            CreatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(9004),
+                            CreatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7543),
                             IsActive = true,
                             Name = "B20L",
                             Price = 2000m,
                             Type = 1,
-                            UpdatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(9005)
+                            UpdatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7543)
                         },
                         new
                         {
                             ID = 11L,
-                            CreatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(9005),
+                            CreatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7544),
                             IsActive = true,
                             Name = "B20L",
                             Price = 1800m,
                             Type = 1,
-                            UpdatedAt = new DateTime(2024, 1, 11, 22, 3, 7, 606, DateTimeKind.Utc).AddTicks(9006)
+                            UpdatedAt = new DateTime(2024, 1, 11, 21, 8, 32, 897, DateTimeKind.Utc).AddTicks(7544)
                         });
                 });
 
@@ -968,17 +943,6 @@ namespace AguasNico.Migrations
                     b.Navigation("Abono");
 
                     b.Navigation("Client");
-                });
-
-            modelBuilder.Entity("AguasNico.Models.AbonoRenewalProduct", b =>
-                {
-                    b.HasOne("AguasNico.Models.AbonoRenewal", "AbonoRenewal")
-                        .WithMany()
-                        .HasForeignKey("AbonoRenewalID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AbonoRenewal");
                 });
 
             modelBuilder.Entity("AguasNico.Models.Cart", b =>

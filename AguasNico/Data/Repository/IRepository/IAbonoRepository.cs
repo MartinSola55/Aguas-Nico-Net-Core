@@ -11,5 +11,7 @@ namespace AguasNico.Data.Repository.IRepository
     {
         void Update(Abono abono);
         void SoftDelete(long id);
+        void RenewAll();
+        void RenewByRoute(long routeID);
     }
 }

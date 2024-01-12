@@ -71,12 +71,6 @@ namespace AguasNico.Data.Repository
                 throw;
             }
         }
-
-        public ApplicationDbContext Get_db()
-        {
-            return _db;
-        }
-
         public decimal GetTotalSold(DateTime date)
         {
             return _db.CartPaymentMethods
@@ -186,7 +180,7 @@ namespace AguasNico.Data.Repository
             Models.Route route = _db.Routes.First(x => x.ID == routeID) ?? throw new Exception("No se ha encontrado la planilla");
             return
             [
-                .. _db.Clients.Where(x => !x.Carts.Any(x => x.Route.DayOfWeek == route.DayOfWeek && x.IsStatic)),
+                .. _db.Clients.Where(x => x.IsActive && !x.Carts.Any(x => x.Route.DayOfWeek == route.DayOfWeek && x.IsStatic)),
             ];
         }
 

@@ -154,5 +154,48 @@ namespace AguasNico.Controllers
             }
         }
 
+        [HttpPost]
+        [ActionName("RenewAll")]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = Constants.Admin)]
+        public IActionResult RenewAll()
+        {
+            try
+            {
+                _workContainer.Abono.RenewAll();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Todos los abonos se renovaron correctamente",
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al renovar los abonos", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
+        }
+
+        [HttpPost]
+        [ActionName("RenewByRoute")]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = Constants.Admin)]
+        public IActionResult RenewByRoute(long routeID)
+        {
+            try
+            {
+                _workContainer.Abono.RenewByRoute(routeID);
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Los abonos se renovaron correctamente",
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al renovar los abonos", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
+        }
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using AguasNico.Data.Repository.IRepository;
 using AguasNico.Models;
 using System.Security.Cryptography.Xml;
+using Microsoft.EntityFrameworkCore;
 
 namespace AguasNico.Data.Repository
 {
@@ -46,6 +47,97 @@ namespace AguasNico.Data.Repository
                 foreach (AbonoProduct abonoProduct in _db.AbonoProducts.Where(x => x.AbonoID == id))
                 {
                     abonoProduct.DeletedAt = DateTime.UtcNow.AddHours(-3);
+                }
+
+                _db.SaveChanges();
+                _db.Database.CommitTransaction();
+            }
+            catch (Exception)
+            {
+                _db.Database.RollbackTransaction();
+                throw;
+            }
+        }
+
+        public void RenewAll()
+        {
+            try
+            {
+                _db.Database.BeginTransaction();
+
+                DateTime today = DateTime.UtcNow.AddHours(-3);
+                foreach (ClientAbono clientAbono in _db.ClientAbonos.Include(x => x.Abono).ThenInclude(x => x.Products).Include(x => x.Client))
+                {
+                    if (_db.AbonoRenewals.Any(x => x.AbonoID == clientAbono.AbonoID && x.ClientID == clientAbono.ClientID && x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year)) continue;
+
+                    AbonoRenewal abonoRenewal = new()
+                    {
+                        AbonoID = clientAbono.AbonoID,
+                        ClientID = clientAbono.ClientID,
+                        SettedPrice = clientAbono.Abono.Price
+                    };
+
+                    _db.AbonoRenewals.Add(abonoRenewal);
+                    _db.SaveChanges();
+
+                    foreach (AbonoProduct abonoRenewalProduct in clientAbono.Abono.Products)
+                    {
+                        _db.AbonoRenewalProducts.Add(new()
+                        {
+                            AbonoRenewalID = abonoRenewal.ID,
+                            Type = abonoRenewalProduct.Type,
+                            Quantity = abonoRenewalProduct.Quantity,
+                            Available = abonoRenewalProduct.Quantity
+                        });
+                    }
+
+                    clientAbono.Client.Debt += clientAbono.Abono.Price;
+                }
+
+                _db.SaveChanges();
+                _db.Database.CommitTransaction();
+            }
+            catch (Exception)
+            {
+                _db.Database.RollbackTransaction();
+                throw;
+            }
+        }
+
+        public void RenewByRoute(long routeID)
+        {
+            try
+            {
+                _db.Database.BeginTransaction();
+
+                DateTime today = DateTime.UtcNow.AddHours(-3);
+                List<Client> clients = [.. _db.Routes.Where(x => x.ID == routeID).SelectMany(x => x.Carts).Select(x => x.Client)];
+                foreach (ClientAbono clientAbono in _db.ClientAbonos.Where(x => clients.Contains(x.Client)))
+                {
+                    if (_db.AbonoRenewals.Any(x => x.AbonoID == clientAbono.AbonoID && x.ClientID == clientAbono.ClientID && x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year)) continue;
+
+                    AbonoRenewal abonoRenewal = new()
+                    {
+                        AbonoID = clientAbono.AbonoID,
+                        ClientID = clientAbono.ClientID,
+                        SettedPrice = clientAbono.Abono.Price
+                    };
+
+                    _db.AbonoRenewals.Add(abonoRenewal);
+                    _db.SaveChanges();
+
+                    foreach (AbonoProduct abonoRenewalProduct in clientAbono.Abono.Products)
+                    {
+                        _db.AbonoRenewalProducts.Add(new()
+                        {
+                            AbonoRenewalID = abonoRenewal.ID,
+                            Type = abonoRenewalProduct.Type,
+                            Quantity = abonoRenewalProduct.Quantity,
+                            Available = abonoRenewalProduct.Quantity
+                        });
+                    }
+
+                    clientAbono.Client.Debt += clientAbono.Abono.Price;
                 }
 
                 _db.SaveChanges();

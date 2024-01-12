@@ -27,5 +27,6 @@ namespace AguasNico.Models
         public DateTime? DeletedAt { get; set; }
 
         public virtual IEnumerable<AbonoProduct> Products { get; set; } = null!;
+        public virtual IEnumerable<AbonoRenewal> Renewals { get; set; } = null!;
     }
 }
