@@ -25,6 +25,35 @@
     <h3 class="text-center">Bajada #@Model.Cart.ID - @Model.Cart.Client.Name</h3>
     <hr>
     <div class="row">
+        @if (Model.AbonoProducts.Any())
+        {
+            <div class="col-12 col-lg-4">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h2 class="card-title">Productos del abono</h2>
+                        <div class="table-responsive m-t-10">
+                            <table id="ProductosAbono" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Cantidad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (CartAbonoProduct product in Model.AbonoProducts)
+                                    {
+                                        <tr data-type="@((int)product.Type)">
+                                            <td>@product.Type.GetDisplayName()</td>
+                                            <td><input type="number" name="quantity" class="form-control" value="@(product.Quantity > 0 ? product.Quantity : "")" /></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
         <div class="col-12 col-lg-4">
             <div class="card shadow">
                 <div class="card-body">

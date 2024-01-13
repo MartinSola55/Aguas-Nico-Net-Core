@@ -32,10 +32,11 @@ namespace AguasNico.Controllers
         {
             try
             {
-                Cart cart = _workContainer.Cart.GetFirstOrDefault(x => x.ID == id, includeProperties: "Route.User, Products, Client, Client.Products.Product, ReturnedProducts, PaymentMethods") ?? throw new Exception("No se ha encontrado la bajada solicitada");
+                Cart cart = _workContainer.Cart.GetFirstOrDefault(x => x.ID == id, includeProperties: "Route.User, Products, AbonoProducts, Client, Client.Abonos, Client.Abonos.Abono.Products, Client.Products.Product, ReturnedProducts, PaymentMethods") ?? throw new Exception("No se ha encontrado la bajada solicitada");
                 if (cart.State != State.Confirmed) throw new Exception("No se puede editar una bajada que no esté confirmada");
 
                 List<CartProduct> cartProducts = [];
+                List<CartAbonoProduct> abonoProducts = [];
                 List<ReturnedProduct> returnedProducts = [];
                 foreach (ClientProduct clientProduct in cart.Client.Products)
                 {
@@ -52,6 +53,16 @@ namespace AguasNico.Controllers
                     });
                 }
 
+                foreach (AbonoProduct product in cart.Client.Abonos.SelectMany(x => x.Abono.Products).Distinct())
+                {
+                    if (abonoProducts.Any(x => x.Type == product.Type)) continue;
+                    abonoProducts.Add(new()
+                    {
+                        Type = product.Type,
+                        Quantity = cart.AbonoProducts.FirstOrDefault(x => x.Type == product.Type)?.Quantity ?? 0,
+                    });
+                }
+
                 IEnumerable<SelectListItem> methods = _workContainer.PaymentMethod.GetAll().OrderBy(x => x.ID).Select(i => new SelectListItem()
                 {
                     Text = i.Name,
@@ -63,6 +74,7 @@ namespace AguasNico.Controllers
                 {
                     Cart = cart,
                     Products = cartProducts,
+                    AbonoProducts = abonoProducts,
                     ReturnedProducts = returnedProducts,
                     PaymentMethodsDropDown = methods,
                 };

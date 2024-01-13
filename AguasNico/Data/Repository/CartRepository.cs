@@ -28,7 +28,6 @@ namespace AguasNico.Data.Repository
                     {
                         if (product.Quantity <= 0) continue;
                         ClientProduct clientProduct = client.Products.First(x => x.Product.Type == product.Type);
-                        if (clientProduct.Stock < product.Quantity) throw new Exception("El cliente no posee stock suficiente de: " + product.Type.GetDisplayName());
                         clientProduct.Stock += product.Quantity;
                         client.Debt += product.Quantity * clientProduct.Product.Price;
 
@@ -55,11 +54,67 @@ namespace AguasNico.Data.Repository
                     }
                 }
 
+                if (cart.AbonoProducts is not null)
+                {
+                    foreach (CartAbonoProduct product in cart.AbonoProducts)
+                    {
+                        if (product.Quantity <= 0) continue;
+                        ClientProduct clientProduct = client.Products.First(x => x.Product.Type == product.Type);
+                        clientProduct.Stock += product.Quantity;
+
+                        List<AbonoRenewalProduct> abonoProducts =
+                        [
+                            .. _db.AbonoRenewalProducts.Where(x =>
+                                x.AbonoRenewal.ClientID == cart.ClientID &&
+                                x.CreatedAt.Month == cart.CreatedAt.Month &&
+                                x.CreatedAt.Year == cart.CreatedAt.Year &&
+                                x.Type == product.Type),
+                        ];
+
+                        if (abonoProducts.Sum(x => x.Available) < product.Quantity) throw new Exception("El cliente no posee suficientes " + product.Type.GetDisplayName() + " disponibles en sus abonos");
+
+                        int quantity = product.Quantity;
+                        foreach (AbonoRenewalProduct abonoProduct in abonoProducts)
+                        {
+                            if (abonoProduct.Available >= quantity)
+                            {
+                                abonoProduct.Available -= quantity;
+                                break;
+                            }
+                            else
+                            {
+                                quantity -= abonoProduct.Available;
+                                abonoProduct.Available = 0;
+                            }
+                        }
+
+                        //Ignorar los filtros globales
+                        CartAbonoProduct? existingProduct = _db.CartAbonoProducts.IgnoreQueryFilters().Where(x => x.CartID == cart.ID && x.Type == product.Type).FirstOrDefault();
+                        if (existingProduct is not null)
+                        {
+                            existingProduct.Quantity = product.Quantity;
+                            existingProduct.UpdatedAt = DateTime.UtcNow.AddHours(-3);
+                            existingProduct.DeletedAt = null;
+                            _db.SaveChanges();
+                        }
+                        else
+                        {
+                            _db.CartAbonoProducts.Add(new()
+                            {
+                                CartID = cart.ID,
+                                Type = product.Type,
+                                Quantity = product.Quantity,
+                            });
+                        }
+                    }
+                }
+
                 if (cart.ReturnedProducts is not null)
                 {
                     foreach (ReturnedProduct product in cart.ReturnedProducts)
                     {
                         ClientProduct clientProduct = client.Products.First(x => x.Product.Type == product.Type);
+                        if (clientProduct.Stock < product.Quantity) throw new Exception("El cliente no posee stock suficiente de: " + product.Type.GetDisplayName());
                         clientProduct.Stock -= product.Quantity;
 
                         //Ignorar los filtros globales

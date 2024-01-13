@@ -1,6 +1,19 @@
 function confirm() {
+    let productosAbono = [];
+    let rows = $('#ProductosAbono tbody tr');
+    for (let i = 0; i < rows.length; i++) {
+        let row = rows[i];
+        let quantity = parseInt(row.cells[1].children[0].value);
+        if (quantity > 0) {
+            productosAbono.push({
+                Quantity: quantity,
+                Type: parseInt(row.dataset.type)
+            });
+        }
+    }
+
     let productosBajados = [];
-    let rows = $('#ProductosBajados tbody tr');
+    rows = $('#ProductosBajados tbody tr');
     for (let i = 0; i < rows.length; i++) {
         let row = rows[i];
         let quantity = parseInt(row.cells[1].children[0].value);
@@ -34,11 +47,12 @@ function confirm() {
     let productsData = {
         Cart: {
             Products: productosBajados,
+            AbonoProducts: productosAbono,
             PaymentMethods: methods,
             ReturnedProducts: productosDevueltos
         }
     };
-    if (productosBajados.length <= 0 && methods[0].Amount <= 0) {
+    if (productosBajados.length <= 0 && productosAbono.length <= 0 && methods[0].Amount <= 0) {
         Swal.fire({
             icon: 'warning',
             title: "Error",
