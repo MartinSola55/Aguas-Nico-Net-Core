@@ -152,5 +152,10 @@ namespace AguasNico.Data.Repository
         {
             return _db.AbonoRenewals.Where(x => x.ClientID == clientID).OrderByDescending(x => x.CreatedAt).Take(10).Select(x => x.Abono);
         }
+
+        public IEnumerable<Client> GetClients(long abonoID)
+        {
+            return _db.ClientAbonos.Where(x => x.AbonoID == abonoID && x.Client.IsActive).Include(x => x.Client).ThenInclude(x => x.Dealer).Select(x => x.Client);
+        }
     }
 }

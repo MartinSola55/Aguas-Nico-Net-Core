@@ -14,5 +14,6 @@ namespace AguasNico.Data.Repository.IRepository
         void RenewAll();
         void RenewByRoute(long routeID);
         IEnumerable<Abono> GetLastTen(long clientID);
+        IEnumerable<Client> GetClients(long abonoID);
     }
 }

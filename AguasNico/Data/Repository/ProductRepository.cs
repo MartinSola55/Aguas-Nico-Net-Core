@@ -58,7 +58,7 @@ namespace AguasNico.Data.Repository
 
         public IEnumerable<Client> GetClients(long productID)
         {
-            return _db.ClientProducts.Where(x => x.ProductID == productID).Include(x => x.Client).ThenInclude(x => x.Dealer).Select(x => x.Client);
+            return _db.ClientProducts.Where(x => x.ProductID == productID && x.Client.IsActive).Include(x => x.Client).ThenInclude(x => x.Dealer).Select(x => x.Client);
         }
 
         public List<SelectListItem> GetTypes()
@@ -96,7 +96,7 @@ namespace AguasNico.Data.Repository
 
         public int GetClientStock(long productID)
         {
-            return _db.ClientProducts.Where(x => x.ProductID == productID).Sum(x => x.Stock);
+            return _db.ClientProducts.Where(x => x.ProductID == productID && x.Client.IsActive).Sum(x => x.Stock);
         }
 
         public decimal GetTotalSold(ProductType productType, DateTime year)

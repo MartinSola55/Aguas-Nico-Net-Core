@@ -199,5 +199,23 @@ namespace AguasNico.Controllers
                 return CustomBadRequest(title: "Error al renovar los abonos", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
             }
         }
+
+        [HttpGet]
+        [ActionName("GetClients")]
+        public IActionResult GetClients(long abonoID)
+        {
+            try
+            {
+                return Json(new
+                {
+                    success = true,
+                    data = _workContainer.Abono.GetClients(abonoID).ToList(),
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al obtener los clientes", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
+        }
     }
 }

@@ -109,12 +109,48 @@
                             </tbody>
                         </table>
                     </div>
-                    <form id="form-delete" method="post" asp-area="" asp-controller="Abonos" asp-action="SoftDelete">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="">
-                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title">Abonos asociados a clientes</h2>
+                    <div class="row">
+                        <div class="form-group m-0 col-12 col-lg-6">
+                            <select id="selectAbono" class="form-control" style="max-width: fit-content;">
+                                <option value="" selected disabled>Seleccione un abono</option>
+                                @foreach (Abono abono in Model.Abonos)
+                                {
+                                    <option value="@abono.ID">@Html.DisplayFor(x => abono.Name) - $@Html.DisplayFor(x => abono.Price)</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-12 mt-3">
+                            <table id="clientsTable" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th>Dirección</th>
+                                        <th>Reparto</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <form id="form-delete" method="post" asp-area="" asp-controller="Abonos" asp-action="SoftDelete">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="">
+    </form>
+    <form id="form-searchClients" method="get" asp-area="" asp-controller="Abonos" asp-action="GetClients">
+        @Html.Hidden("abonoID", "")
+    </form>
 </div>
