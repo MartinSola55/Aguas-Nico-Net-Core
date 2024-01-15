@@ -223,7 +223,9 @@ namespace AguasNico.Controllers
             ModelState.Remove("Client.DeliveryDay");
             ModelState.Remove("Client.HasInvoice");
             ModelState.Remove("Client.DealerID");
-            ModelState.Remove("Client.ClientProducts");
+            ModelState.Remove("Client.Products");
+            ModelState.Remove("Client.Abonos");
+            ModelState.Remove("Client.AbonosRenewed");
             if (ModelState.IsValid)
             {
                 try
