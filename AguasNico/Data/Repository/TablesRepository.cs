@@ -66,26 +66,35 @@ namespace AguasNico.Data.Repository
 
         public List<SoldProductsTable> GetSoldProductsByRoute(long routeID)
         {
-            List<CartProduct> cartProducts = [.. _db.CartProducts.Where(x => x.Cart.RouteID == routeID)];
-            List<DispatchedProduct> dispatchedProducts = [.. _db.DispatchedProducts.Where(x => x.RouteID == routeID)];
-            List<ReturnedProduct> returnedProducts = [.. _db.ReturnedProducts.Where(x => x.Cart.RouteID == routeID)];
-            List<SoldProductsTable> soldProducts = [];
-
-            foreach (ProductType type in Enum.GetValues(typeof(ProductType)))
+            try
             {
-                List<CartProduct> cartProductsByType = cartProducts.Where(x => x.Type == type).ToList();
-                List<DispatchedProduct> dispatchedProductsByType = dispatchedProducts.Where(x => x.Type == type).ToList();
-                List<ReturnedProduct> returnedProductsByType = returnedProducts.Where(x => x.Type == type).ToList();
-                soldProducts.Add(new SoldProductsTable
-                {
-                    Name = type.GetDisplayName(),
-                    Sold = cartProductsByType != null ? cartProductsByType.Sum(x => x.Quantity) : 0,
-                    Dispatched = dispatchedProductsByType != null ? dispatchedProductsByType.Sum(x => x.Quantity) : 0,
-                    Returned = returnedProductsByType != null ? returnedProductsByType.Sum(x => x.Quantity) : 0,
-                });
-            }
+                List<CartProduct> cartProducts = [.. _db.CartProducts.Where(x => x.Cart.RouteID == routeID)];
+                List<DispatchedProduct> dispatchedProducts = [.. _db.DispatchedProducts.Where(x => x.RouteID == routeID)];
+                List<ReturnedProduct> returnedProducts = [.. _db.ReturnedProducts.Where(x => x.Cart.RouteID == routeID)];
+                List<ClientProduct> clientStock = [.. _db.Carts.Where(x => x.RouteID == routeID).Select(x => x.Client).SelectMany(x => x.Products).Include(x => x.Product)];
+                List<SoldProductsTable> soldProducts = [];
 
-            return soldProducts;
+                foreach (ProductType type in Enum.GetValues(typeof(ProductType)))
+                {
+                    List<CartProduct> cartProductsByType = cartProducts.Where(x => x.Type == type).ToList();
+                    List<DispatchedProduct> dispatchedProductsByType = dispatchedProducts.Where(x => x.Type == type).ToList();
+                    List<ReturnedProduct> returnedProductsByType = returnedProducts.Where(x => x.Type == type).ToList();
+                    List<ClientProduct> clientStockByType = clientStock.Where(x => x.Product.Type == type).ToList();
+                    soldProducts.Add(new SoldProductsTable
+                    {
+                        Name = type.GetDisplayName(),
+                        Sold = cartProductsByType != null ? cartProductsByType.Sum(x => x.Quantity) : 0,
+                        Dispatched = dispatchedProductsByType != null ? dispatchedProductsByType.Sum(x => x.Quantity) : 0,
+                        Returned = returnedProductsByType != null ? returnedProductsByType.Sum(x => x.Quantity) : 0,
+                        ClientStock = clientStockByType != null ? clientStockByType.Sum(x => x.Stock) : 0,
+                    });
+                }
+                return soldProducts;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

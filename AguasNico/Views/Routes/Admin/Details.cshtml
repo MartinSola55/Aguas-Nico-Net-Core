@@ -123,6 +123,14 @@
                     </div>
                 </div>
             </div>
+            <div class="col-12 col-lg-6">
+                <div class="card shadow">
+                    <div class="card-body">
+                            <h4 class="card-title">Total de repartos: @Model.Route.Carts.Count()</h4>
+                            <h4 class="card-title mb-0">Deuda total: $@Model.Route.Carts.Select(x => x.Client).Sum(x => x.Debt).ToString("#,##")</h4>
+                    </div>
+                </div>
+            </div>
             <div class="col-xlg-6 col-lg-12">
                 <div class="card shadow">
                     <div class="card-body">
@@ -139,6 +147,7 @@
                                         <th>Cargados</th>
                                         <th>Vendidos</th>
                                         <th>Devueltos</th>
+                                        <th>Stock de clientes</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -150,6 +159,7 @@
                                             <td><h6>@Html.DisplayFor(x =>  product.Dispatched)</h6></td>
                                             <td><h5>@Html.DisplayFor(x =>  product.Sold)</h5></td>
                                             <td><h5>@Html.DisplayFor(x =>  product.Returned)</h5></td>
+                                            <td><h5>@Html.DisplayFor(x =>  product.ClientStock)</h5></td>
                                         </tr>
                                     }
                                 </tbody>
