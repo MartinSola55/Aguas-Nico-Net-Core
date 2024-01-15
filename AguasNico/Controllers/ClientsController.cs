@@ -57,7 +57,7 @@ namespace AguasNico.Controllers
                 CreateViewModel viewModel = new()
                 {
                     Role = role,
-                    Products = _workContainer.Product.GetAll().OrderBy(x => x.Name).ThenByDescending(x => x.Price),
+                    Products = _workContainer.Product.GetAll(x => x.IsActive).OrderBy(x => x.Name).ThenByDescending(x => x.Price),
                     Dealers = _workContainer.ApplicationUser.GetDealersDropDownList(),
                 };
 
