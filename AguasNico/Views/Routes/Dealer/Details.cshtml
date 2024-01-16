@@ -68,12 +68,12 @@
                             <p id="totalCart" class="col-12 align-items-center justify-content-end mb-0">Total: $0</p>
                         </div>
                     </div>
-                    <div class="col-12">
+                    <div class="row col-12">
                         <hr />
-                        <div class="col-6 col-md-12">
+                        <div class="col-12 col-md-6">
                             @Html.DropDownList("cartPaymentMethod", Model.PaymentMethods, new { @class = "form-control mb-2", @id = "cartPaymentMethod" })
                         </div>
-                        <div class="col-6 col-md-12" id="cartPaymentAmountContainer">
+                        <div class="col-12 col-md-6" id="cartPaymentAmountContainer">
                             <div class="input-group mb-2">
                                 <div class="input-group-prepend">
                                     <div class="input-group-text">$</div>
