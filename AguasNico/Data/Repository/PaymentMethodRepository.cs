@@ -25,5 +25,17 @@ namespace AguasNico.Data.Repository
                 Value = i.ID.ToString(),
             }));
         }
+        public IEnumerable<SelectListItem> GetFilterDropDownList()
+        {
+            IEnumerable<SelectListItem> methods = new List<SelectListItem>
+            {
+                new() { Value = "", Text = "Por método de pago", Selected = true }
+            };
+            return methods.Concat(_db.PaymentMethods.OrderBy(x => x.ID).Select(i => new SelectListItem()
+            {
+                Text = i.Name,
+                Value = i.ID.ToString(),
+            }));
+        }
     }
 }

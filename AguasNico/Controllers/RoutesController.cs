@@ -163,6 +163,7 @@ namespace AguasNico.Controllers
                             SoldProducts = _workContainer.Tables.GetSoldProductsByRoute(id),
                             Payments = _workContainer.Route.GetTotalCollected(route.ID),
                             Transfers = _workContainer.Transfer.GetAll(x => x.UserID == route.UserID && x.Date.Date == route.CreatedAt.Date),
+                            PaymentTypes = _workContainer.PaymentMethod.GetFilterDropDownList()
                         };
                         return View("~/Views/Routes/Admin/Details.cshtml", adminViewModel);
                     case Constants.Dealer:
