@@ -3,6 +3,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AguasNico.Models.ViewModels.Tables
 {
+    public class InvoiceTable
+    {
+        public Client Client { get; set; } = null!;
+        public List<CartProduct> Products { get; set; } = [];
+    }
     public class SoldProductsTable
     {
         public string Name { get; set; } = null!;
