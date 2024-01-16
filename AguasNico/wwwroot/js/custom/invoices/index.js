@@ -4,7 +4,14 @@ $(document).ready(function () {
     $('#dateRange').daterangepicker({
         opens: 'left',
         locale: {
-            format: 'DD/MM/YYYY' 
+            format: 'DD/MM/YYYY',
+            separator: ' - ',
+            applyLabel: 'Aplicar',
+            cancelLabel: 'Cancelar',
+            fromLabel: 'Desde',
+            toLabel: 'Hasta',
+            customRangeLabel: 'Rango personalizado',
+            weekLabel: 'S',
         }
     });
 
