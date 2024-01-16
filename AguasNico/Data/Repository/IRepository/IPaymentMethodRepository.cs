@@ -10,5 +10,6 @@ namespace AguasNico.Data.Repository.IRepository
     public interface IPaymentMethodRepository : IRepository<PaymentMethod>
     {
         IEnumerable<SelectListItem> GetDropDownList();
+        IEnumerable<SelectListItem> GetFilterDropDownList();
     }
 }

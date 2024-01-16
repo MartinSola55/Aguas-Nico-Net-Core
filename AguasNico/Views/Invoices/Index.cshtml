@@ -1,0 +1,115 @@
+﻿@model AguasNico.Models.ViewModels.Invoices.IndexViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Abonos";
+}
+
+<link href="~/lib/datatables/media/css/dataTables.bootstrap4.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.css" />
+
+
+<script src="~/lib/datatables/datatables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script src="~/js/custom/invoices/index.js"></script>
+<script src="~/js/jquery.PrintArea.js"></script>
+
+<div class="container-fluid">
+    <div class="row page-titles">
+        <div class="col-md-5 col-8 align-self-center">
+            <h3 class="text-themecolor m-b-0 m-t-0">Abonos</h3>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">Inicio</a></li>
+                <li class="breadcrumb-item active">Abonos</li>
+            </ol>
+        </div>
+    </div>
+
+
+    <!-- Modal -->
+    
+    <!-- End Modal -->
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="row justify-content-start align-items-center">
+                        <h2 class="card-title col-12">Facturación</h2>
+                        <div class="col-lg-5 col-md-5 col-12 d-flex align-items-center justify-content-center">
+                            <div class="row d-flex justify-content-between py-4">
+                                <p class="d-block px-3">Seleccione los datos de busqueda</p>
+                                <div class="col-12 mb-2">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control rounded border border-primary text-center" id="dateRange" placeholder="Seleccionar un rango de fechas" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-12 mb-2">
+                                    @Html.DropDownList("InvoiceDay", Model.Days, new { @class = "form-control form-select", @id = "InvoiceDay", @style = "max-width: fit-content;" })
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-12 mb-2">
+                                    @Html.DropDownList("InvoiceDealer", Model.Dealers, new { @class = "form-control form-select", @id = "InvoiceDealer", @style = "max-width: fit-content;" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-12 d-flex align-items-center justiofy-content-center">
+                            <button id="btnSearchInvoices" class="btn-lg btn-info btn-rounded waves-effect waves-light float-right">
+                                <i class="bi bi-search"></i> Buscar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="card card-body printableArea shadow">
+                <div class="d-flex flex-row justify-content-between">
+                    <h3><b name="invoiceType">FACTURA</b></h3>
+                    <h3 class="pull-right m-0"><b>ORIGINAL</b></h3>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="pull-left">
+                            <address>
+                                <h3> &nbsp;<b class="text-danger">Sodería La Nueva S.A.</b></h3>
+                                <div class="d-flex flex-row justify-content-between">
+                                    <p class="text-muted m-l-5">
+                                        <b>Razón Social:</b> Sodería La Nueva S.A.<br/>
+                                        <b>Domicilio Comercial:</b> Lorenza Aguilera 415 - Neuquén, Neuquén<br/>
+                                        <b>Condición frente al IVA:</b> IVA Responsable Inscripto<br/>
+                                        <b id="invoiceDealerSelected"></b> día <b id="invoiceDaySelected"></b><br/>
+                                        <i class="fa fa-calendar"></i> <span id="dateRangeSelected"></span><br/>
+                                    </p>
+                                    <p class="text-muted m-l-5 text-right">
+                                        <b>Fecha de Emisión: </b>@DateTime.UtcNow.AddHours(-3).ToString("dd/MM/yyyy")<br/>
+                                        <b>CUIT: </b>30707808698<br/>
+                                        <b>Ingresos Brutos: </b>915-720884-0<br/>
+                                        <b>Fecha de Inicio de Actividades: </b>01/11/2001<br/>
+                                    </p>
+                                </div>
+                            </address>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <hr class="my-0">
+                        <div id="tables_container" class="table-responsive m-t-40" style="clear: both;">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="pull-right m-t-30 text-right">
+                            <p id="IVAAmount">IVA (21%) : $</p>
+                            <hr>
+                            <h3 id="totalAmount"><b>Total: </b>$</h3>
+                        </div>
+                        <div class="clearfix"></div>
+                        <hr>
+                        <div class="text-right">
+                            <button id="print" class="btn btn-default btn-outline" type="button"> <span><i class="fa fa-print"></i> Imprimir</span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

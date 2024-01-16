@@ -332,6 +332,9 @@
                                                             <option value="Bajada">Bajada</option>
                                                         </select>
                                                     </div>
+                                                    <div class="form-group mb-2 px-3">
+                                                        @Html.DropDownList("paymentMethodSelect", Model.PaymentTypes , new { @class = "form-control form-select", @id = "paymentMethodSelect" })
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
