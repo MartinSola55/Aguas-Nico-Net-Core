@@ -128,6 +128,7 @@ namespace AguasNico.Controllers
             ModelState.Remove("Client.Transfers");
             ModelState.RemoveAll<CreateViewModel>(x => x.Client.Products);
             ModelState.RemoveAll<CreateViewModel>(x => x.Client.Abonos);
+            ModelState.RemoveAll<CreateViewModel>(x => x.Client.AbonosRenewed);
             if (ModelState.IsValid)
             {
                 try
