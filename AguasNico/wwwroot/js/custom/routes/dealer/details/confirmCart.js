@@ -104,10 +104,12 @@ function confirmCart() {
     }
 
     let methods = [];
-    methods.push({
-        PaymentMethodID: $("#cartPaymentMethod").val(),
-        Amount: $("#cartPaymentAmount").val()
-    });
+    if ($("#cartPaymentMethod").val() != "" && $("#cartPaymentAmount").val() != "") {
+        methods.push({
+            PaymentMethodID: $("#cartPaymentMethod").val(),
+            Amount: $("#cartPaymentAmount").val()
+        });
+    }
 
     let productsData = {
         Cart: {
