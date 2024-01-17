@@ -274,6 +274,16 @@ namespace AguasNico.Data.Repository
                 _db.Database.BeginTransaction();
                 DateTime today = DateTime.UtcNow.AddHours(-3);
                 Client client = _db.Clients.Find(cart.ClientID) ?? throw new Exception("No se ha encontrado el cliente");
+                List<ReturnedProduct> returnedProducts = [];
+                foreach (ProductType type in Enum.GetValues(typeof(ProductType)))
+                {
+                    returnedProducts.Add(new()
+                    {
+                        CartID = cart.ID,
+                        Type = type,
+                        Quantity = 0,
+                    });
+                }
 
                 decimal total = 0;
                 if (cart.Products is not null)
@@ -287,6 +297,11 @@ namespace AguasNico.Data.Repository
                         product.CartID = cart.ID;
                         total += product.Quantity * product.SettedPrice;
                         _db.CartProducts.Add(product);
+                        if (returnedProducts.Any(x => x.Type == product.Type))
+                        {
+                            ReturnedProduct returnedProduct = returnedProducts.First(x => x.Type == product.Type);
+                            returnedProduct.Quantity += product.Quantity;
+                        }
                     }
                     client.Debt += total;
                 }
@@ -329,6 +344,12 @@ namespace AguasNico.Data.Repository
 
                         abonoProduct.CartID = cart.ID;
                         _db.CartAbonoProducts.Add(abonoProduct);
+
+                        if (returnedProducts.Any(x => x.Type == abonoProduct.Type))
+                        {
+                            ReturnedProduct returnedProduct = returnedProducts.First(x => x.Type == abonoProduct.Type);
+                            returnedProduct.Quantity += abonoProduct.Quantity;
+                        }
                     }
                 }
 
@@ -342,6 +363,14 @@ namespace AguasNico.Data.Repository
                         _db.CartPaymentMethods.Add(paymentMethod);
                     }
                     client.Debt -= total;
+                }
+
+                foreach (ReturnedProduct product in returnedProducts)
+                {
+                    if (product.Quantity <= 0) continue;
+                    ClientProduct clientProduct = _db.ClientProducts.Where(x => x.ClientID == cart.ClientID && x.Product.Type == product.Type).FirstOrDefault() ?? throw new Exception("No se ha encontrado un producto del cliente");
+                    clientProduct.Stock -= product.Quantity;
+                    _db.ReturnedProducts.Add(product);
                 }
 
                 Cart updatedCart = _db.Carts.Find(cart.ID) ?? throw new Exception("No se ha encontrado la bajada");

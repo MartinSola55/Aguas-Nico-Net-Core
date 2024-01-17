@@ -71,6 +71,15 @@ function confirmCart() {
     for (let i = 0; i < rows.length; i++) {
         let row = rows[i];
         let quantity = parseInt(row.cells[2].children[0].value);
+        if (quantity <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: "Error",
+                text: "La cantidad debe ser mayor a cero",
+                confirmButtonColor: '#1e88e5',
+            });
+            return false;
+        }
         if (quantity > parseInt(parseInt(row.cells[1].textContent.trim()))) {
             Swal.fire({
                 icon: 'warning',
@@ -94,6 +103,15 @@ function confirmCart() {
     for (let i = 0; i < rows.length; i++) {
         let row = rows[i];
         let quantity = parseInt(row.cells[2].children[0].value);
+        if (quantity <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: "Error",
+                text: "La cantidad debe ser mayor a cero",
+                confirmButtonColor: '#1e88e5',
+            });
+            return false;
+        }
         if (quantity > 0) {
             products.push({
                 Quantity: quantity,
