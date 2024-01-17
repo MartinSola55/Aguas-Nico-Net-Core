@@ -5,7 +5,7 @@ namespace AguasNico.Models.ViewModels.Tables
 {
     public class InvoiceProduct
     {
-        public string Type { get; set; }
+        public string Type { get; set; } = "";
         public int Quantity { get; set; }
         [DisplayFormat(DataFormatString = "{0:#,##0}")]
         public decimal Total { get; set; }

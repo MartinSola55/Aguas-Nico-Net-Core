@@ -5,6 +5,7 @@ function openModal(cartID, clientID) {
     $("#form-confirmCart input:not([type='hidden']").val("");
     $("#cartPaymentMethod").val("");
     $("#cartPaymentAmountContainer").hide();
+    $("#divClientAbonos").hide();
 
     let form = $("#form-searchClientProducts");
     $.ajax({
@@ -14,7 +15,6 @@ function openModal(cartID, clientID) {
         success: function (response) {
             $("#clientProductsTable tbody").empty();
             $("#clientAbonoProductsTable tbody").empty();
-            $("#divClientAbonos").hide();
 
             response.products.forEach(product => {
                 $("#clientProductsTable tbody").append(`
