@@ -3,10 +3,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AguasNico.Models.ViewModels.Tables
 {
+    public class InvoiceProduct
+    {
+        public string Type { get; set; }
+        public int Quantity { get; set; }
+        [DisplayFormat(DataFormatString = "{0:#,##0}")]
+        public decimal Total { get; set; }
+    }
     public class InvoiceTable
     {
         public Client Client { get; set; } = null!;
-        public List<CartProduct> Products { get; set; } = [];
+        public List<InvoiceProduct> Products { get; set; } = [];
     }
     public class SoldProductsTable
     {

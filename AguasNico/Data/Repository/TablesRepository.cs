@@ -20,17 +20,23 @@ namespace AguasNico.Data.Repository
         {
             List<Client> clients = [.. _db.Clients.Where(x => x.DealerID == invoiceDealer && x.DeliveryDay == invoiceDay)];
             List<long> clientIDs = clients.Select(x => x.ID).ToList();
-            List<CartProduct> cartProducts = [.. _db.CartProducts.Where(x => clientIDs.Contains(x.Cart.ClientID) && x.CreatedAt.Date >= startDate.Date && x.CreatedAt.Date <= endDate.Date)];
+            List<CartProduct> cartProducts = [.. _db.CartProducts.Include(x => x.Cart).Where(x => clientIDs.Contains(x.Cart.ClientID) && x.CreatedAt.Date >= startDate.Date && x.CreatedAt.Date <= endDate.Date)];
 
             List<InvoiceTable> invoices = [];
             foreach (Client client in clients)
             {
-                List<CartProduct> cartProductsByClient = cartProducts.Where(x => x.Cart.ClientID == client.ID).ToList();
-                invoices.Add(new()
-                {
-                    Client = client,
-                    Products = cartProductsByClient,
-                });
+                var cartProductsByClient = cartProducts.Where(x => x.Cart.ClientID == client.ID).ToList();
+                if (cartProductsByClient.Count > 0)
+                    invoices.Add(new()
+                    {
+                        Client = client,
+                        Products = cartProductsByClient.GroupBy(x => x.Type).Select(Type => new InvoiceProduct
+                        {
+                            Type = Type.Key.GetDisplayName(),
+                            Quantity = Type.Sum(x => x.Quantity),
+                            Total = Type.Sum(x => x.SettedPrice * x.Quantity),
+                        }).ToList(),
+                    });
             }
 
             return invoices;
