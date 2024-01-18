@@ -85,6 +85,7 @@ namespace AguasNico.Data.Repository
         public List<SoldProductsTable> GetSoldProductsByDate(DateTime date)
         {
             List<CartProduct> cartProducts = [.. _db.CartProducts.Where(x => x.CreatedAt.Date == date.Date)];
+            List<CartAbonoProduct> cartAbonoProducts = [.. _db.CartAbonoProducts.Where(x => x.CreatedAt.Date == date.Date)];
             List<DispatchedProduct> dispatchedProducts = [.. _db.DispatchedProducts.Where(x => x.CreatedAt.Date == date.Date)];
             List<ReturnedProduct> returnedProducts = [.. _db.ReturnedProducts.Where(x => x.CreatedAt.Date == date.Date)];
             List<SoldProductsTable> soldProducts = [];
@@ -92,15 +93,20 @@ namespace AguasNico.Data.Repository
             foreach (ProductType type in Enum.GetValues(typeof(ProductType)))
             {
                 List<CartProduct> cartProductsByType = cartProducts.Where(x => x.Type == type).ToList();
+                List<CartAbonoProduct> cartAbonoProductsByType = cartAbonoProducts.Where(x => x.Type == type).ToList();
                 List<DispatchedProduct> dispatchedProductsByType = dispatchedProducts.Where(x => x.Type == type).ToList();
                 List<ReturnedProduct> returnedProductsByType = returnedProducts.Where(x => x.Type == type).ToList();
-                soldProducts.Add(new SoldProductsTable
+
+                SoldProductsTable soldProduct = new()
                 {
                     Name = type.GetDisplayName(),
                     Sold = cartProductsByType != null ? cartProductsByType.Sum(x => x.Quantity) : 0,
                     Dispatched = dispatchedProductsByType != null ? dispatchedProductsByType.Sum(x => x.Quantity) : 0,
                     Returned = returnedProductsByType != null ? returnedProductsByType.Sum(x => x.Quantity) : 0,
-                });
+                };
+                soldProduct.Sold += cartAbonoProductsByType != null ? cartAbonoProductsByType.Sum(x => x.Quantity) : 0;
+
+                soldProducts.Add(soldProduct);
             }
 
             return soldProducts;
@@ -109,6 +115,7 @@ namespace AguasNico.Data.Repository
         public List<SoldProductsTable> GetSoldProductsByDateAndRoute(DateTime date, long routeID)
         {
             List<CartProduct> cartProducts = [.. _db.CartProducts.Where(x => x.CreatedAt.Date == date.Date && x.Cart.RouteID == routeID)];
+            List<CartAbonoProduct> cartAbonoProducts = [.. _db.CartAbonoProducts.Where(x => x.CreatedAt.Date == date.Date && x.Cart.RouteID == routeID)];
             List<DispatchedProduct> dispatchedProducts = [.. _db.DispatchedProducts.Where(x => x.CreatedAt.Date == date.Date && x.RouteID == routeID)];
             List<ReturnedProduct> returnedProducts = [.. _db.ReturnedProducts.Where(x => x.CreatedAt.Date == date.Date && x.Cart.RouteID == routeID)];
             List<SoldProductsTable> soldProducts = [];
@@ -116,15 +123,20 @@ namespace AguasNico.Data.Repository
             foreach (ProductType type in Enum.GetValues(typeof(ProductType)))
             {
                 List<CartProduct> cartProductsByType = cartProducts.Where(x => x.Type == type).ToList();
+                List<CartAbonoProduct> cartAbonoProductsByType = cartAbonoProducts.Where(x => x.Type == type).ToList();
                 List<DispatchedProduct> dispatchedProductsByType = dispatchedProducts.Where(x => x.Type == type).ToList();
                 List<ReturnedProduct> returnedProductsByType = returnedProducts.Where(x => x.Type == type).ToList();
-                soldProducts.Add(new SoldProductsTable
+
+                SoldProductsTable soldProduct = new()
                 {
                     Name = type.GetDisplayName(),
                     Sold = cartProductsByType != null ? cartProductsByType.Sum(x => x.Quantity) : 0,
                     Dispatched = dispatchedProductsByType != null ? dispatchedProductsByType.Sum(x => x.Quantity) : 0,
                     Returned = returnedProductsByType != null ? returnedProductsByType.Sum(x => x.Quantity) : 0,
-                });
+                };
+                soldProduct.Sold += cartAbonoProductsByType != null ? cartAbonoProductsByType.Sum(x => x.Quantity) : 0;
+
+                soldProducts.Add(soldProduct);
             }
 
             return soldProducts;
@@ -135,6 +147,7 @@ namespace AguasNico.Data.Repository
             try
             {
                 List<CartProduct> cartProducts = [.. _db.CartProducts.Where(x => x.Cart.RouteID == routeID)];
+                List<CartAbonoProduct> cartAbonoProducts = [.. _db.CartAbonoProducts.Where(x => x.Cart.RouteID == routeID)];
                 List<DispatchedProduct> dispatchedProducts = [.. _db.DispatchedProducts.Where(x => x.RouteID == routeID)];
                 List<ReturnedProduct> returnedProducts = [.. _db.ReturnedProducts.Where(x => x.Cart.RouteID == routeID)];
                 List<ClientProduct> clientStock = [.. _db.Carts.Where(x => x.RouteID == routeID).Select(x => x.Client).SelectMany(x => x.Products).Include(x => x.Product)];
@@ -143,17 +156,23 @@ namespace AguasNico.Data.Repository
                 foreach (ProductType type in Enum.GetValues(typeof(ProductType)))
                 {
                     List<CartProduct> cartProductsByType = cartProducts.Where(x => x.Type == type).ToList();
+                    List<CartAbonoProduct> cartAbonoProductsByType = cartAbonoProducts.Where(x => x.Type == type).ToList();
                     List<DispatchedProduct> dispatchedProductsByType = dispatchedProducts.Where(x => x.Type == type).ToList();
                     List<ReturnedProduct> returnedProductsByType = returnedProducts.Where(x => x.Type == type).ToList();
                     List<ClientProduct> clientStockByType = clientStock.Where(x => x.Product.Type == type).ToList();
-                    soldProducts.Add(new SoldProductsTable
+
+                    SoldProductsTable soldProduct = new()
                     {
                         Name = type.GetDisplayName(),
                         Sold = cartProductsByType != null ? cartProductsByType.Sum(x => x.Quantity) : 0,
                         Dispatched = dispatchedProductsByType != null ? dispatchedProductsByType.Sum(x => x.Quantity) : 0,
                         Returned = returnedProductsByType != null ? returnedProductsByType.Sum(x => x.Quantity) : 0,
                         ClientStock = clientStockByType != null ? clientStockByType.Sum(x => x.Stock) : 0,
-                    });
+                    };
+
+                    soldProduct.Sold += cartAbonoProductsByType != null ? cartAbonoProductsByType.Sum(x => x.Quantity) : 0;
+
+                    soldProducts.Add(soldProduct);
                 }
                 return soldProducts;
             }
