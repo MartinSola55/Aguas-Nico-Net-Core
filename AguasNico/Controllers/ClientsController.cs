@@ -369,6 +369,7 @@ namespace AguasNico.Controllers
 
                 foreach (ClientProduct clientProduct in client.Products)
                 {
+                    if (clientProduct.Product.Type == ProductType.Máquina) continue;
                     products.Add(new
                     {
                         type = clientProduct.Product.Type,

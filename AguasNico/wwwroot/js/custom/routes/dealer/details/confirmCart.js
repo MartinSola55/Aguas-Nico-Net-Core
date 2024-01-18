@@ -150,7 +150,7 @@ function confirmCart() {
     $.ajax({
         url: $(form).attr('action'),
         method: $(form).attr('method'),
-        data: $(form).serialize() + "&" + $.param(productsData) + "&" + $.param(abonoProducts),
+        data: $(form).serialize() + "&" + $.param(productsData),
         success: function (response) {
             Swal.fire({
                 title: response.message,

@@ -7,7 +7,7 @@
 <link href="~/lib/datatables/media/css/dataTables.bootstrap4.css" rel="stylesheet">
 
 <script src="~/lib/datatables/datatables.min.js"></script>
-<script src="~/js/custom/routes/manualcart.js"></script>
+<script src="~/js/custom/routes/manualCart.js"></script>
 
 
 <div class="container-fluid">
@@ -33,6 +33,21 @@
                 </div>
                 <div class="modal-body">
                     <div class="col-12 table-responsive">
+                        <div id="divClientAbonos">
+                            <h3 class="text-center">Abonos (sin cargo)</h3>
+                            <table class="table" id="clientAbonoProductsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Disponible</th>
+                                        <th class="col-2">Cantidad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                            <hr>
+                        </div>
                         <table class="table" id="clientProductsTable">
                             <thead>
                                 <tr>
@@ -111,7 +126,7 @@
         </div>
     </div>
 
-    <form id="form-searchClientProducts" method="get" asp-area="" asp-controller="Clients" asp-action="GetProducts">
+    <form id="form-searchClientProducts" method="get" asp-area="" asp-controller="Clients" asp-action="GetProductsAndAbono">
         @Html.Hidden("id", "")
     </form>
 

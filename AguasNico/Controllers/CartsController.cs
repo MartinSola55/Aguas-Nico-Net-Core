@@ -40,6 +40,7 @@ namespace AguasNico.Controllers
                 List<ReturnedProduct> returnedProducts = [];
                 foreach (ClientProduct clientProduct in cart.Client.Products)
                 {
+                    if (clientProduct.Product.Type == ProductType.Máquina) continue;
                     cartProducts.Add(new()
                     {
                         Type = clientProduct.Product.Type,
@@ -55,6 +56,7 @@ namespace AguasNico.Controllers
 
                 foreach (AbonoProduct product in cart.Client.Abonos.SelectMany(x => x.Abono.Products).Distinct())
                 {
+                    if (product.Type == ProductType.Máquina) continue;
                     if (abonoProducts.Any(x => x.Type == product.Type)) continue;
                     abonoProducts.Add(new()
                     {
