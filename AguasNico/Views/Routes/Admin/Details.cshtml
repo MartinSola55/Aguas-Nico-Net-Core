@@ -522,7 +522,7 @@
                                             <ul>
                                                 @foreach (CartPaymentMethod paymentMethod in cart.PaymentMethods)
                                                 {
-                                                    <li>@Html.DisplayFor(x => paymentMethod.PaymentMethod.Name): $@Html.DisplayFor(x => paymentMethod.Amount)</li>
+                                                    <li class="paymentMethod-element">@Html.DisplayFor(x => paymentMethod.PaymentMethod.Name): $@Html.DisplayFor(x => paymentMethod.Amount)</li>
                                                 }
                                             </ul>
                                         </div>

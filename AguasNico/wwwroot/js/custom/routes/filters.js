@@ -30,13 +30,16 @@ $(document).ready(function () {
     function applyFilters() {
         let productText = $("#productSelect").val().toLowerCase();
         let typeText = $("#typeSelect").val().toLowerCase();
+        let paymentMethod = $("#paymentMethodSelect").val().toLowerCase();
 
         $(".timeline > li").each(function () {
             let productElement = $(this).find(".product-element");
             let typeElement = $(this).find(".type-element");
+            let paymentMethodElement = $(this).find(".paymentMethod-element");
 
             let productMatch = productText === "" || productElement.text().toLowerCase().includes(productText);
             let typeMatch = typeText === "" || typeElement.text().toLowerCase().includes(typeText);
+            let paymentMethodMatch = paymentMethod === "" || typeElement.text().toLowerCase().includes(paymentMethod);
 
             if (productMatch && typeMatch) {
                 $(this).show();
@@ -47,12 +50,12 @@ $(document).ready(function () {
     }
 
     function resetProductAndTypeSelect() {
-        if ($("#productSelect").val() === "" && $("#typeSelect").val() === "") {
-            return; // No restablecer si los selectores de producto y tipo ya están vacíos
+        if ($("#productSelect").val() === "" && $("#typeSelect").val() === "" && $("#paymentMethodSelect").val() === "") {
+            return; // No restablecer si los selectores de producto y tipo ya estï¿½n vacï¿½os
         }
 
-        $("#productSelect, #typeSelect").val(""); // Establece el valor de los selectores en blanco
-        applyFilters(); // Aplica los filtros después de restablecer los selectores
+        $("#productSelect, #typeSelect, #paymentMethodSelect").val(""); // Establece el valor de los selectores en blanco
+        applyFilters(); // Aplica los filtros despuï¿½s de restablecer los selectores
     }
 
     $("#estadoSelect, #searchInput").on("input", function () {
@@ -64,7 +67,7 @@ $(document).ready(function () {
         resetProductAndTypeSelect(); // Restablece los selectores de producto y tipo
     });
 
-    $("#productSelect, #typeSelect").on("change", applyFilters);
+    $("#productSelect, #typeSelect, #paymentMethodSelect").on("change", applyFilters);
 
     applyFilters();
 });
