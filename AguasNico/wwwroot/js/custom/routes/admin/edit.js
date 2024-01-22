@@ -107,6 +107,9 @@ $(document).ready(function () {
         },
     });
     $('#clientsInRouteTable').DataTable({
+        "language": {
+            "sSearch": "Buscar:"
+        },
         rowReorder: {
             selector: 'td:first-child',
             update: true
@@ -118,6 +121,5 @@ $(document).ready(function () {
         scrollCollapse: true,
         paging: false,
         info: false,
-        searching: false,
     });
 });

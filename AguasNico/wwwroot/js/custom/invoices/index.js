@@ -1,7 +1,6 @@
 $(document).ready(function () {
     moment.locale('es');
     $('#dateRange').daterangepicker({
-        opens: 'left',
         locale: {
             format: 'DD/MM/YYYY',
             separator: ' - ',
@@ -11,7 +10,12 @@ $(document).ready(function () {
             toLabel: 'Hasta',
             customRangeLabel: 'Rango personalizado',
             weekLabel: 'S',
-        }
+        },
+        ranges: {
+            'Este mes': [moment().startOf('month'), moment().endOf('month')],
+            'Mes anterior': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+        },
+        applyClass: "btn-info",
     });
 
     $("#print").click(function() {
