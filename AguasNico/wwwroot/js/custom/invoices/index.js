@@ -1,4 +1,3 @@
-
 $(document).ready(function () {
     moment.locale('es');
     $('#dateRange').daterangepicker({
@@ -44,6 +43,10 @@ $(document).ready(function () {
         let invoiceDay = $("#InvoiceDay").val();
         let invoiceDealer = $("#InvoiceDealer").val();
 
+        $("#invoiceDealerSelected").text($("#InvoiceDealer option:selected").text());
+        $("#invoiceDaySelected").text($("#InvoiceDay option:selected").text());
+        $("#dateRangeSelected").text(dateRange);
+
         let data = {
             dateRange: dateRange,
             invoiceDay: invoiceDay,
@@ -54,13 +57,10 @@ $(document).ready(function () {
             url: "/Invoices/Show",
             type: "GET",
             data: data,
-            success: function (result) {
-                //$("#invoiceDaySelected").text(result.data.invoiceDay);
-                //$("#invoiceDealerSelected").text(result.data.invoiceDealer);
-                //$("#dateRangeSelected").text(result.data.dateRange);
-                
+            success: function (response) {             
                 let content = "";
-                response.data.clients.forEach((client) => {
+                let total = 0;
+                response.data.forEach(({ client, products }) => {
                     content +=
                     `<h3 class='text-start my-0'>${client.name} / Tipo de factura: ${client.invoice_type ?? "Sin cargar"} - CUIT: ${client.cuit ?? "Sin cargar"}</h3>
                     <table class="table table-hover mb-1" style="font-size: 0.75rem !important" >
@@ -68,50 +68,46 @@ $(document).ready(function () {
                             <tr>
                                 <th class="p-1">Descripción</th>
                                 <th class="p-1 text-right">Cantidad</th>
-                                <th class="p-1 text-right">Precio Unitario</th>
-                                <th class="p-1 text-right">Fecha</th>
                                 <th class="p-1 text-right">Subtotal</th>
                             </tr>
                         </thead>
                         <tbody>`;
                     let sum = 0;
-                    client.abonos.forEach((item) => {
-                        sum += 1 * item.price;
+                    //item.abonos.forEach((item) => {
+                    //    sum += 1 * item.price;
+                    //    content +=
+                    //    `<tr>
+                    //        <td class='p-0'>${item.name}</td>
+                    //        <td class='p-0 text-right'>1</td>
+                    //        <td class='p-0 text-right'>$${formattedNumber(parseInt(item.price))}</td>
+                    //        <td class='p-0 text-right'>${item.date}</td>
+                    //        <td class='p-0 text-right productTotal'>$${formattedNumber(parseInt(item.price))}</td>
+                    //    </tr>`;
+                    //});
+                    products.forEach((product) => {
+                        sum += product.total;
                         content +=
                         `<tr>
-                            <td class='p-0'>${item.name}</td>
-                            <td class='p-0 text-right'>1</td>
-                            <td class='p-0 text-right'>$${formattedNumber(parseInt(item.price))}</td>
-                            <td class='p-0 text-right'>${item.date}</td>
-                            <td class='p-0 text-right productTotal'>$${formattedNumber(parseInt(item.price))}</td>
-                        </tr>`;
-                    });
-                    client.products.forEach((item) => {
-                        sum += item.quantity * item.price;
-                        content +=
-                        `<tr>
-                            <td class='p-0'>${item.name}</td>
-                            <td class='p-0 text-right'>${item.quantity}</td>
-                            <td class='p-0 text-right'>$${formattedNumber(parseInt(item.price))}</td>
-                            <td class='p-0 text-right'>-</td>
-                            <td class='p-0 text-right productTotal'>$${formattedNumber(item.quantity * item.price)}</td>
+                            <td class='p-0'>${product.type}</td>
+                            <td class='p-0 text-right'>${product.quantity}</td>
+                            <td class='p-0 text-right productTotal'>$${formatNumber(product.total)}</td>
                         </tr>`;
                     });
                     content +=
                     `<tr>
                         <td class="p-0"></td>
                         <td class="p-0"></td>
-                        <td class="p-0"></td>
-                        <td class="p-0"></td>
-                        <td class='p-0 text-right'><b style='font-weight: bold'>Total: $${formattedNumber(sum)}</b></td>
+                        <td class='p-0 text-right'><b style='font-weight: bold'>Total: $${formatNumber(sum)}</b></td>
                     </tr>
                     </tbody>
                     </table>
                     <hr class='mb-2'>`;
+                    total += sum;
                 });
                 $("#tables_container").html(content);
-                calculateTotal();
-                console.log(result.message);
+
+                $("#IVAAmount").text(`IVA (21%): $${formatNumber(total * 0.21)}`);
+                $("#totalAmount").text(`Total: $${formatNumber(total)}`);
             },
             error: function(errorThrown) {
                 $("#tables_container").html("");
@@ -129,3 +125,10 @@ $(document).ready(function () {
         });
     });
 });
+
+function formatNumber(number) {
+    if (isNaN(number)) {
+        return "Número inválido";
+    }
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}

@@ -3,10 +3,21 @@ function openModal(cartID, clientID) {
     $("#form-confirmCart input[name='Cart.ID']").val(cartID);
     $("#form-confirmCart input[name='Cart.ClientID']").val(clientID);
     $("#form-confirmCart input:not([type='hidden']").val("");
-    $("#cartPaymentMethod").val("");
-    $("#cartPaymentAmountContainer").hide();
+    $("#divClientAbonos").hide();
 
     let form = $("#form-searchClientProducts");
+
+    $('input[name="cartPaymentMethodOption"]').change(function () {
+        cartPaymentMethod = $(this).val();
+        if (cartPaymentMethod === "1") {
+            $("#cartPaymentAmountContainer").show();
+            $("#cartPaymentAmount").val("");
+        } else {
+            $("#cartPaymentAmountContainer").hide();
+            $("#cartPaymentAmount").val("0");
+        }
+    });
+
     $.ajax({
         url: $(form).attr('action'),
         method: $(form).attr('method'),
@@ -14,7 +25,6 @@ function openModal(cartID, clientID) {
         success: function (response) {
             $("#clientProductsTable tbody").empty();
             $("#clientAbonoProductsTable tbody").empty();
-            $("#divClientAbonos").hide();
 
             response.products.forEach(product => {
                 $("#clientProductsTable tbody").append(`
@@ -71,11 +81,20 @@ function confirmCart() {
     for (let i = 0; i < rows.length; i++) {
         let row = rows[i];
         let quantity = parseInt(row.cells[2].children[0].value);
+        if (quantity <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: "Error",
+                text: "La cantidad debe ser mayor a cero",
+                confirmButtonColor: '#1e88e5',
+            });
+            return false;
+        }
         if (quantity > parseInt(parseInt(row.cells[1].textContent.trim()))) {
             Swal.fire({
                 icon: 'warning',
                 title: "Error",
-                text: "No se puede bajar más productos del abono de los que dispone",
+                text: "No se puede bajar mï¿½s productos del abono de los que dispone",
                 confirmButtonColor: '#1e88e5',
             });
             return false;
@@ -94,6 +113,15 @@ function confirmCart() {
     for (let i = 0; i < rows.length; i++) {
         let row = rows[i];
         let quantity = parseInt(row.cells[2].children[0].value);
+        if (quantity <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: "Error",
+                text: "La cantidad debe ser mayor a cero",
+                confirmButtonColor: '#1e88e5',
+            });
+            return false;
+        }
         if (quantity > 0) {
             products.push({
                 Quantity: quantity,
@@ -104,10 +132,12 @@ function confirmCart() {
     }
 
     let methods = [];
-    methods.push({
-        PaymentMethodID: $("#cartPaymentMethod").val(),
-        Amount: $("#cartPaymentAmount").val()
-    });
+    if ($("#cartPaymentMethod").val() != "" && $("#cartPaymentAmount").val() != "") {
+        methods.push({
+            PaymentMethodID: $('input[name="cartPaymentMethodOption"]:checked').val(),
+            Amount: $("#cartPaymentAmount").val()
+        });
+    }
 
     let productsData = {
         Cart: {
@@ -130,7 +160,7 @@ function confirmCart() {
     $.ajax({
         url: $(form).attr('action'),
         method: $(form).attr('method'),
-        data: $(form).serialize() + "&" + $.param(productsData) + "&" + $.param(abonoProducts),
+        data: $(form).serialize() + "&" + $.param(productsData),
         success: function (response) {
             Swal.fire({
                 title: response.message,

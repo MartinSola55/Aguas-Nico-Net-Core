@@ -4,6 +4,7 @@ using AguasNico.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using AguasNico.Models.ViewModels.Tables;
 
 namespace AguasNico.Controllers
 {
@@ -50,19 +51,20 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        public IActionResult Show(string dateRange, string invoiceDay, string invoiceDealer)
+        public IActionResult Show(string dateRange, Day invoiceDay, string invoiceDealer)
         {
             try
             {
-                string message = $"Datos recibidos: DateRange={dateRange}, InvoiceDay={invoiceDay}, InvoiceDealer={invoiceDealer}";
+                DateTime startDate = DateTime.Parse(dateRange.Split('-')[0].Trim());
+                DateTime endDate = DateTime.Parse(dateRange.Split('-')[1].Trim());
 
-                var response = new
+                List<InvoiceTable> clients = _workContainer.Tables.GetInvoicesByDates(startDate, endDate, invoiceDay, invoiceDealer);
+
+                return Json(new
                 {
                     success = true,
-                    message = message
-                };
-
-                return Json(response);
+                    data = clients
+                });
             }
             catch (Exception)
             {

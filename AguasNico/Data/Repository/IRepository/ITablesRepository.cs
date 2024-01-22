@@ -13,5 +13,6 @@ namespace AguasNico.Data.Repository.IRepository
         List<SoldProductsTable> GetSoldProductsByDate(DateTime date);
         List<SoldProductsTable> GetSoldProductsByRoute(long routeID);
         List<SoldProductsTable> GetSoldProductsByDateAndRoute(DateTime date, long routeID);
+        List<InvoiceTable> GetInvoicesByDates(DateTime startDate, DateTime endDate, Day invoiceDay, string invoiceDealer);
     }
 }

@@ -36,10 +36,10 @@ namespace AguasNico.Models.ViewModels.Routes.Details
         public IEnumerable<SelectListItem> ProductTypes { get; set; } = new List<SelectListItem>
         {
             new() { Text = "Por producto", Value = "", Selected = true },
-            new() { Text = ProductType.B12L.GetDisplayName(), Value = ProductType.B12L.ToString() },
-            new() { Text = ProductType.B20L.GetDisplayName(), Value = ProductType.B20L.ToString() },
-            new() { Text = ProductType.Máquina.GetDisplayName(), Value = ProductType.Máquina.ToString() },
-            new() { Text = ProductType.Soda.GetDisplayName(), Value = ProductType.Soda.ToString() }
+            new() { Text = ProductType.B12L.GetDisplayName(), Value = ProductType.B12L.GetDisplayName()}, //ProductType.B12L.ToString()
+            new() { Text = ProductType.B20L.GetDisplayName(), Value = ProductType.B20L.GetDisplayName() },//ProductType.B20L.ToString()
+            new() { Text = ProductType.Máquina.GetDisplayName(), Value = ProductType.Máquina.GetDisplayName() },//ProductType.Máquina.ToString()
+            new() { Text = ProductType.Soda.GetDisplayName(), Value = ProductType.Soda.GetDisplayName() }//ProductType.Soda.ToString()
         };
     }
 }

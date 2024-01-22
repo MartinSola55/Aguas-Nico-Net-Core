@@ -274,6 +274,16 @@ namespace AguasNico.Data.Repository
                 _db.Database.BeginTransaction();
                 DateTime today = DateTime.UtcNow.AddHours(-3);
                 Client client = _db.Clients.Find(cart.ClientID) ?? throw new Exception("No se ha encontrado el cliente");
+                List<ReturnedProduct> returnedProducts = [];
+                foreach (ProductType type in Enum.GetValues(typeof(ProductType)))
+                {
+                    returnedProducts.Add(new()
+                    {
+                        CartID = cart.ID,
+                        Type = type,
+                        Quantity = 0,
+                    });
+                }
 
                 decimal total = 0;
                 if (cart.Products is not null)
@@ -287,6 +297,11 @@ namespace AguasNico.Data.Repository
                         product.CartID = cart.ID;
                         total += product.Quantity * product.SettedPrice;
                         _db.CartProducts.Add(product);
+                        if (returnedProducts.Any(x => x.Type == product.Type))
+                        {
+                            ReturnedProduct returnedProduct = returnedProducts.First(x => x.Type == product.Type);
+                            returnedProduct.Quantity += product.Quantity;
+                        }
                     }
                     client.Debt += total;
                 }
@@ -329,6 +344,12 @@ namespace AguasNico.Data.Repository
 
                         abonoProduct.CartID = cart.ID;
                         _db.CartAbonoProducts.Add(abonoProduct);
+
+                        if (returnedProducts.Any(x => x.Type == abonoProduct.Type))
+                        {
+                            ReturnedProduct returnedProduct = returnedProducts.First(x => x.Type == abonoProduct.Type);
+                            returnedProduct.Quantity += abonoProduct.Quantity;
+                        }
                     }
                 }
 
@@ -342,6 +363,14 @@ namespace AguasNico.Data.Repository
                         _db.CartPaymentMethods.Add(paymentMethod);
                     }
                     client.Debt -= total;
+                }
+
+                foreach (ReturnedProduct product in returnedProducts)
+                {
+                    if (product.Quantity <= 0) continue;
+                    ClientProduct clientProduct = _db.ClientProducts.Where(x => x.ClientID == cart.ClientID && x.Product.Type == product.Type).FirstOrDefault() ?? throw new Exception("No se ha encontrado un producto del cliente");
+                    clientProduct.Stock -= product.Quantity;
+                    _db.ReturnedProducts.Add(product);
                 }
 
                 Cart updatedCart = _db.Carts.Find(cart.ID) ?? throw new Exception("No se ha encontrado la bajada");
@@ -366,7 +395,19 @@ namespace AguasNico.Data.Repository
                 _db.Carts.Add(cart);
                 _db.SaveChanges();
 
+                DateTime today = DateTime.UtcNow.AddHours(-3);
                 Client client = _db.Clients.Find(cart.ClientID) ?? throw new Exception("No se ha encontrado el cliente");
+
+                List<ReturnedProduct> returnedProducts = [];
+                foreach (ProductType type in Enum.GetValues(typeof(ProductType)))
+                {
+                    returnedProducts.Add(new()
+                    {
+                        CartID = cart.ID,
+                        Type = type,
+                        Quantity = 0,
+                    });
+                }
 
                 decimal total = 0;
                 if (cart.Products is not null)
@@ -377,10 +418,58 @@ namespace AguasNico.Data.Repository
                         ClientProduct clientProduct = _db.ClientProducts.Where(x => x.ClientID == cart.ClientID && x.Product.Type == product.Type).Include(x => x.Product).FirstOrDefault() ?? throw new Exception("No se ha encontrado un producto del cliente");
                         clientProduct.Stock += product.Quantity;
                         product.SettedPrice = clientProduct.Product.Price;
-                        product.CartID = cart.ID;
                         total += product.Quantity * product.SettedPrice;
+                        if (returnedProducts.Any(x => x.Type == product.Type))
+                        {
+                            ReturnedProduct returnedProduct = returnedProducts.First(x => x.Type == product.Type);
+                            returnedProduct.Quantity += product.Quantity;
+                        }
                     }
                     client.Debt += total;
+                }
+
+                if (cart.AbonoProducts is not null)
+                {
+                    foreach (CartAbonoProduct abonoProduct in cart.AbonoProducts)
+                    {
+                        if (abonoProduct.Quantity <= 0) continue;
+
+                        List<AbonoRenewalProduct> abonoProductsList =
+                        [
+                            .. _db.AbonoRenewalProducts.Where(x =>
+                            x.AbonoRenewal.ClientID == cart.ClientID &&
+                            x.CreatedAt.Month == today.Month &&
+                            x.CreatedAt.Year == today.Year &&
+                            x.Type == abonoProduct.Type)
+                        ];
+
+                        if (abonoProductsList.Count == 0) throw new Exception("No se ha encontrado un producto del abono del cliente");
+                        if (abonoProductsList.Sum(x => x.Available) < abonoProduct.Quantity) throw new Exception("El cliente no posee stock suficiente de: " + abonoProduct.Type.GetDisplayName());
+
+                        int quantity = abonoProduct.Quantity;
+                        foreach (AbonoRenewalProduct abonoProductList in abonoProductsList)
+                        {
+                            if (abonoProductList.Available >= quantity)
+                            {
+                                abonoProductList.Available -= quantity;
+                                break;
+                            }
+                            else
+                            {
+                                quantity -= abonoProductList.Available;
+                                abonoProductList.Available = 0;
+                            }
+                        }
+
+                        ClientProduct clientProduct = _db.ClientProducts.Where(x => x.ClientID == cart.ClientID && x.Product.Type == abonoProduct.Type).Include(x => x.Product).FirstOrDefault() ?? throw new Exception("No se ha encontrado un producto del cliente");
+                        clientProduct.Stock += abonoProduct.Quantity;
+
+                        if (returnedProducts.Any(x => x.Type == abonoProduct.Type))
+                        {
+                            ReturnedProduct returnedProduct = returnedProducts.First(x => x.Type == abonoProduct.Type);
+                            returnedProduct.Quantity += abonoProduct.Quantity;
+                        }
+                    }
                 }
 
                 total = 0;
@@ -392,6 +481,14 @@ namespace AguasNico.Data.Repository
                         total += paymentMethod.Amount;
                     }
                     client.Debt -= total;
+                }
+
+                foreach (ReturnedProduct product in returnedProducts)
+                {
+                    if (product.Quantity <= 0) continue;
+                    ClientProduct clientProduct = _db.ClientProducts.Where(x => x.ClientID == cart.ClientID && x.Product.Type == product.Type).FirstOrDefault() ?? throw new Exception("No se ha encontrado un producto del cliente");
+                    clientProduct.Stock -= product.Quantity;
+                    _db.ReturnedProducts.Add(product);
                 }
 
                 _db.SaveChanges();
@@ -478,6 +575,20 @@ namespace AguasNico.Data.Repository
                 _db.Database.RollbackTransaction();
                 throw;
             }
+        }
+
+        public List<SelectListItem> GetFilterDropDownList()
+        {
+            List<SelectListItem> products = [new() { Text = "Por estado", Value = "", Selected = true }];
+            foreach (State type in Enum.GetValues(typeof(State)))
+            {
+                products.Add(new()
+                {
+                    Text = type.GetDisplayName(),
+                    Value = type.GetDisplayName()
+                });
+            }
+            return products;
         }
     }
 }

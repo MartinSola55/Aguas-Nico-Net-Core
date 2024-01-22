@@ -18,5 +18,6 @@ namespace AguasNico.Data.Repository.IRepository
         int[] GetAnnualSales(ProductType productType, DateTime year);
         int GetClientStock(long productID);
         decimal GetTotalSold(ProductType productType, DateTime year);
+        public List<SelectListItem> GetFilterDropDownList();
     }
 }

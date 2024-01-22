@@ -9,12 +9,12 @@
 <link href="~/lib/datatables/media/css/dataTables.bootstrap4.css" rel="stylesheet">
 
 <script src="~/lib/datatables/datatables.min.js"></script>
-<script src="~/js/custom/routes/filters.js"></script>
 <script src="~/js/custom/routes/dealer/details/clientHistory.js"></script>
 <script src="~/js/custom/routes/admin/details/dispatchedProducts.js"></script>
 <script src="~/js/custom/routes/admin/deleteCart.js"></script>
 <script src="~/js/custom/routes/admin/deleteRoute.js"></script>
 <script src="~/js/custom/routes/admin/details/renewAbonos.js"></script>
+<script src="~/js/custom/routes/filters.js"></script>
 
 
 <div class="container-fluid">
@@ -354,8 +354,8 @@
 
                     <!-- TIMELINE DE CLIENTES -->
                     <ul class="timeline">
-                    @foreach (Cart cart in Model.Route.Carts)
-                    {
+                        @foreach (Cart cart in Model.Route.Carts)
+                        {
                             <li class="@(contador++ % 2 != 0 ? "timeline-inverted" : "")">
                             @if (cart.State == State.Confirmed) 
                             {
@@ -388,7 +388,7 @@
                                         {
                                             <h4 class="timeline-title name-element col-8" style="color: #6c757d">@Html.DisplayFor(x => cart.Client.Name)</h4>
                                         }
-                                        <button class="btn btn-info rounded-circle mr-2" onclick="getClientHistory(@cart.ClientID,'@cart.Client.Name')"><i class="bi bi-clipboard"></i></button>
+                                        <button class="btn btn-info h-100 rounded-circle mr-2" onclick="getClientHistory(@cart.ClientID,'@cart.Client.Name')"><i class="bi bi-clipboard"></i></button>
                                     </div>
                                     <p class="m-0"><small class="text-muted">Bajada #@cart.ID</small></p>
 
@@ -545,7 +545,7 @@
                                 </div>
                             </div>
                         </li>
-                    }
+                        }
                     </ul>
                 </div>
             </div>

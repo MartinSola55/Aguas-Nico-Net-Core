@@ -103,5 +103,20 @@ namespace AguasNico.Data.Repository
         {
             return _db.CartProducts.Where(x => x.Type == productType && x.CreatedAt.Year == year.Year).Sum(x => x.Quantity * x.SettedPrice);
         }
+
+        public List<SelectListItem> GetFilterDropDownList()
+        {
+            List<SelectListItem> products = [new() { Text = "Por producto", Value = "", Selected = true }];
+            foreach (ProductType type in Enum.GetValues(typeof(ProductType)))
+            {
+                products.Add(new()
+                {
+                    Text = type.GetDisplayName(),
+                    Value = type.GetDisplayName()
+                });
+            }
+            return products;
+                
+        }
     }
 }

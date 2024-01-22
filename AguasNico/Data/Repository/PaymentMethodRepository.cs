@@ -34,7 +34,7 @@ namespace AguasNico.Data.Repository
             return methods.Concat(_db.PaymentMethods.OrderBy(x => x.ID).Select(i => new SelectListItem()
             {
                 Text = i.Name,
-                Value = i.ID.ToString(),
+                Value = i.Name,
             }));
         }
     }

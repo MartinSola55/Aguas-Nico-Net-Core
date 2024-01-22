@@ -5,6 +5,7 @@ using AguasNico.Models.ViewModels.Routes.Details;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
 using NuGet.Common;
 using System.Globalization;
@@ -163,14 +164,20 @@ namespace AguasNico.Controllers
                             SoldProducts = _workContainer.Tables.GetSoldProductsByRoute(id),
                             Payments = _workContainer.Route.GetTotalCollected(route.ID),
                             Transfers = _workContainer.Transfer.GetAll(x => x.UserID == route.UserID && x.Date.Date == route.CreatedAt.Date),
-                            PaymentTypes = _workContainer.PaymentMethod.GetFilterDropDownList()
+                            PaymentTypes = _workContainer.PaymentMethod.GetFilterDropDownList(),
+                            ProductTypes = _workContainer.Product.GetFilterDropDownList(),
+                            CartStates = _workContainer.Cart.GetFilterDropDownList(),
                         };
                         return View("~/Views/Routes/Admin/Details.cshtml", adminViewModel);
                     case Constants.Dealer:
+                        
                         DealerViewModel dealerViewModel = new()
                         {
                             Route = route,
                             PaymentMethods = _workContainer.PaymentMethod.GetDropDownList(),
+                            PaymentTypes = _workContainer.PaymentMethod.GetFilterDropDownList(),
+                            ProductTypes = _workContainer.Product.GetFilterDropDownList(),
+                            CartStates = _workContainer.Cart.GetFilterDropDownList(),
                         };
                         foreach (State state in Enum.GetValues(typeof(State)))
                         {

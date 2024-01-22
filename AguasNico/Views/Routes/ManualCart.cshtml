@@ -7,7 +7,7 @@
 <link href="~/lib/datatables/media/css/dataTables.bootstrap4.css" rel="stylesheet">
 
 <script src="~/lib/datatables/datatables.min.js"></script>
-<script src="~/js/custom/routes/manualcart.js"></script>
+<script src="~/js/custom/routes/manualCart.js"></script>
 
 
 <div class="container-fluid">
@@ -33,6 +33,21 @@
                 </div>
                 <div class="modal-body">
                     <div class="col-12 table-responsive">
+                        <div id="divClientAbonos">
+                            <h3 class="text-center">Abonos (sin cargo)</h3>
+                            <table class="table" id="clientAbonoProductsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Disponible</th>
+                                        <th class="col-2">Cantidad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                            <hr>
+                        </div>
                         <table class="table" id="clientProductsTable">
                             <thead>
                                 <tr>
@@ -51,10 +66,23 @@
                     </div>
                     <div class="col-12">
                         <hr />
-                        <div class="col-6 col-md-12">
-                            @Html.DropDownList("cartPaymentMethod", Model.PaymentMethods, new { @class = "form-control mb-2", @id = "cartPaymentMethod" })
+                        <div class="col-12 py-3 d-flex justify-content-center align-items-center">
+                            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                <label class="btn btn-secondary active">
+                                    <input type="radio" name="cartPaymentMethodOption" value="1" checked> Efectivo
+                                </label>
+                                <label class="btn btn-secondary">
+                                    <input type="radio" name="cartPaymentMethodOption" value="2"> Transferencia
+                                </label>
+                                <label class="btn btn-secondary">
+                                    <input type="radio" name="cartPaymentMethodOption" value="3"> Mercado pago
+                                </label>
+                            </div>
                         </div>
-                        <div class="col-6 col-md-12" id="cartPaymentAmountContainer">
+                        @* <div class="col-6">
+                            @Html.DropDownList("cartPaymentMethod", Model.PaymentMethods, new { @class = "form-control mb-2", @id = "cartPaymentMethod" })
+                        </div> *@
+                        <div class="col-12 p-3" id="cartPaymentAmountContainer">
                             <div class="input-group mb-2">
                                 <div class="input-group-prepend">
                                     <div class="input-group-text">$</div>
@@ -111,7 +139,7 @@
         </div>
     </div>
 
-    <form id="form-searchClientProducts" method="get" asp-area="" asp-controller="Clients" asp-action="GetProducts">
+    <form id="form-searchClientProducts" method="get" asp-area="" asp-controller="Clients" asp-action="GetProductsAndAbono">
         @Html.Hidden("id", "")
     </form>
 

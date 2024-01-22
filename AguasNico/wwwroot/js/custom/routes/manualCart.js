@@ -2,19 +2,32 @@ function openModal(clientID, clientName) {
     $("#form-searchClientProducts input[name='id']").val(clientID);
     $("#form-confirmCart input[name='Cart.ClientID']").val(clientID);
     $("#form-confirmCart input:not([type='hidden']").val("");
-    $("#cartPaymentMethod").val("");
-    $("#cartPaymentAmountContainer").hide();
+    $("#divClientAbonos").hide();
 
     $(".modal-title").text(`Confirmar bajada para ${clientName}`);
 
     let form = $("#form-searchClientProducts");
+
+    $('input[name="cartPaymentMethodOption"]').change(function () {
+        cartPaymentMethod = $(this).val();
+        if (cartPaymentMethod === "1") {
+            $("#cartPaymentAmountContainer").show();
+            $("#cartPaymentAmount").val("");
+        } else {
+            $("#cartPaymentAmountContainer").hide();
+            $("#cartPaymentAmount").val("0");
+        }
+    });
+
     $.ajax({
         url: $(form).attr('action'),
         method: $(form).attr('method'),
         data: $(form).serialize(),
         success: function (response) {
             $("#clientProductsTable tbody").empty();
-            response.data.forEach(product => {
+            $("#clientAbonoProductsTable tbody").empty();
+
+            response.products.forEach(product => {
                 $("#clientProductsTable tbody").append(`
                     <tr data-type="${product.type}">
                         <td>${product.name}</td>
@@ -23,6 +36,19 @@ function openModal(clientID, clientName) {
                     </tr>
                 `);
             });
+            if (response.abonoProducts.length > 0) {
+                $("#divClientAbonos").show();
+            }
+            response.abonoProducts.forEach(product => {
+                $("#clientAbonoProductsTable tbody").append(`
+                    <tr data-type="${product.type}">
+                        <td>${product.name}</td>
+                        <td>${product.available}</td>
+                        <td><input type="number" class="form-control" name="quantity" value="" min="1" max="${product.available}"></td>
+                    </tr>
+                `);
+            });
+
             $("#modal").modal('show');
             $("input[name='quantity']").on("input", function () {
                 let total = 0;
@@ -51,11 +77,52 @@ function openModal(clientID, clientName) {
 }
 
 function confirmCart() {
-    let products = [];
-    let rows = $('#clientProductsTable tbody tr');
+    let abonoProducts = [];
+    let rows = $('#clientAbonoProductsTable tbody tr');
     for (let i = 0; i < rows.length; i++) {
         let row = rows[i];
         let quantity = parseInt(row.cells[2].children[0].value);
+        if (quantity <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: "Error",
+                text: "La cantidad debe ser mayor a cero",
+                confirmButtonColor: '#1e88e5',
+            });
+            return false;
+        }
+        if (quantity > parseInt(parseInt(row.cells[1].textContent.trim()))) {
+            Swal.fire({
+                icon: 'warning',
+                title: "Error",
+                text: "No se puede bajar mï¿½s productos del abono de los que dispone",
+                confirmButtonColor: '#1e88e5',
+            });
+            return false;
+        }
+        if (quantity > 0) {
+            abonoProducts.push({
+                Quantity: quantity,
+                Type: parseInt(row.dataset.type)
+            });
+
+        }
+    }
+
+    let products = [];
+    rows = $('#clientProductsTable tbody tr');
+    for (let i = 0; i < rows.length; i++) {
+        let row = rows[i];
+        let quantity = parseInt(row.cells[2].children[0].value);
+        if (quantity <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: "Error",
+                text: "La cantidad debe ser mayor a cero",
+                confirmButtonColor: '#1e88e5',
+            });
+            return false;
+        }
         if (quantity > 0) {
             products.push({
                 Quantity: quantity,
@@ -67,7 +134,7 @@ function confirmCart() {
 
     let methods = [];
     methods.push({
-        PaymentMethodID: $("#cartPaymentMethod").val(),
+        PaymentMethodID: $('input[name="cartPaymentMethodOption"]:checked').val(),
         Amount: $("#cartPaymentAmount").val()
     });
 
@@ -75,9 +142,10 @@ function confirmCart() {
         Cart: {
             Products: products,
             PaymentMethods: methods,
+            AbonoProducts: abonoProducts
         }
     };
-    if (products.length <= 0 && methods[0].Amount <= 0) {
+    if (products.length <= 0 & abonoProducts.length <= 0 && methods[0].Amount <= 0) {
         Swal.fire({
             icon: 'warning',
             title: "Error",
@@ -118,22 +186,18 @@ function confirmCart() {
 }
 
 $(document).ready(function () {
-    $("#cartPaymentMethod").on("change", function () {
-        $("#cartPaymentAmountContainer").show();
-    });
-
     $('#DataTable').DataTable({
         "order": false,
         "language": {
             "sInfo": "Mostrando _START_ a _END_ de _TOTAL_ clientes",
             "sInfoEmpty": "Mostrando 0 a 0 de 0 clientes",
             "sInfoFiltered": "(filtrado de _MAX_ clientes en total)",
-            "emptyTable": 'No hay clientes que coincidan con la búsqueda',
+            "emptyTable": 'No hay clientes que coincidan con la bï¿½squeda',
             "sLengthMenu": "Mostrar _MENU_ clientes",
             "sSearch": "Buscar:",
             "oPaginate": {
                 "sFirst": "Primero",
-                "sLast": "Último",
+                "sLast": "ï¿½ltimo",
                 "sNext": "Siguiente",
                 "sPrevious": "Anterior",
             },
