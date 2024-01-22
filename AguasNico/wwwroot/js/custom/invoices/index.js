@@ -24,6 +24,20 @@ $(document).ready(function () {
         $("div.printableArea").printArea(options);
     });
 
+    const formattedNumber = (number) => {
+        return number.toLocaleString('es-AR', { minimumFractionDigits: 2 });
+    }
+
+    function calculateTotal () {
+        let subtotal = 0;
+        $('#tables_container .productTotal').each(function() {
+            const valor = $(this).text().replace('$', '').replace('.', '').replace(',', '.').trim();
+            subtotal += parseFloat(valor);
+        });
+        $("#IVAAmount").html("IVA (21%) : $" + formattedNumber(subtotal*0.21))
+        $("#totalAmount").html("<b>Total: </b>$" + formattedNumber(subtotal))
+    }
+
     $("#btnSearchInvoices").click(function () {
         let dateRange = $("#dateRange").val();
         let invoiceDay = $("#InvoiceDay").val();
@@ -95,8 +109,18 @@ $(document).ready(function () {
                 $("#IVAAmount").text(`IVA (21%): $${formatNumber(total * 0.21)}`);
                 $("#totalAmount").text(`Total: $${formatNumber(total)}`);
             },
-            error: function (error) {
-                console.error(error);
+            error: function(errorThrown) {
+                $("#tables_container").html("");
+                if (errorThrown.exception !== null) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        html: 'Se agotó el tiempo de espera, por favor intente nuevamente.<br>Si el problema persiste, intente seleccionar un intervalo de fechas más corto.',
+                        confirmButtonColor: '#1e88e5',
+                    });
+                    return;
+                }
+                Response('error', errorThrown.responseJSON.title, errorThrown.responseJSON.message);
             }
         });
     });

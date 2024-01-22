@@ -3,11 +3,21 @@ function openModal(cartID, clientID) {
     $("#form-confirmCart input[name='Cart.ID']").val(cartID);
     $("#form-confirmCart input[name='Cart.ClientID']").val(clientID);
     $("#form-confirmCart input:not([type='hidden']").val("");
-    $("#cartPaymentMethod").val("");
-    $("#cartPaymentAmountContainer").hide();
     $("#divClientAbonos").hide();
 
     let form = $("#form-searchClientProducts");
+
+    $('input[name="cartPaymentMethodOption"]').change(function () {
+        cartPaymentMethod = $(this).val();
+        if (cartPaymentMethod === "1") {
+            $("#cartPaymentAmountContainer").show();
+            $("#cartPaymentAmount").val("");
+        } else {
+            $("#cartPaymentAmountContainer").hide();
+            $("#cartPaymentAmount").val("0");
+        }
+    });
+
     $.ajax({
         url: $(form).attr('action'),
         method: $(form).attr('method'),
@@ -84,7 +94,7 @@ function confirmCart() {
             Swal.fire({
                 icon: 'warning',
                 title: "Error",
-                text: "No se puede bajar más productos del abono de los que dispone",
+                text: "No se puede bajar mï¿½s productos del abono de los que dispone",
                 confirmButtonColor: '#1e88e5',
             });
             return false;
@@ -124,7 +134,7 @@ function confirmCart() {
     let methods = [];
     if ($("#cartPaymentMethod").val() != "" && $("#cartPaymentAmount").val() != "") {
         methods.push({
-            PaymentMethodID: $("#cartPaymentMethod").val(),
+            PaymentMethodID: $('input[name="cartPaymentMethodOption"]:checked').val(),
             Amount: $("#cartPaymentAmount").val()
         });
     }

@@ -576,5 +576,19 @@ namespace AguasNico.Data.Repository
                 throw;
             }
         }
+
+        public List<SelectListItem> GetFilterDropDownList()
+        {
+            List<SelectListItem> products = [new() { Text = "Por estado", Value = "", Selected = true }];
+            foreach (State type in Enum.GetValues(typeof(State)))
+            {
+                products.Add(new()
+                {
+                    Text = type.GetDisplayName(),
+                    Value = type.GetDisplayName()
+                });
+            }
+            return products;
+        }
     }
 }

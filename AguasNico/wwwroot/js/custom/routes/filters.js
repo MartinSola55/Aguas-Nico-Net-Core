@@ -1,5 +1,6 @@
 $(document).ready(function () {
     $("#searchInput").on("input", function () {
+        resetProductAndTypeSelect();
         let searchText = $(this).val().toLowerCase();
         $(".timeline > li").each(function () {
             let nameElement = $(this).find(".name-element");
@@ -15,17 +16,34 @@ $(document).ready(function () {
     });
 
     $("#estadoSelect").on("change", function () {
-        let searchText = $(this).val().toLowerCase();
+        resetProductAndTypeSelect();
+        let searchText =  $(this).find("option:selected").val().toLowerCase();
         $(".timeline > li").each(function () {
             let nameAndStateElement = $(this).find(".name-element");
 
-            if (nameAndStateElement.text().toLowerCase().includes(searchText)) {
+            if (nameAndStateElement.text().toLowerCase().includes(searchText) || searchText === "") {
                 $(this).show();
             } else {
                 $(this).hide();
             }
         });
     });
+
+    $("#paymentMethodSelect").on("change", function () {
+        resetProductAndTypeSelect();
+        let searchPaymentMethod = $(this).find("option:selected").val().toLowerCase();
+        $(".timeline > li").each(function () {
+            let paymentMethodElement = $(this).find(".paymentMethod-element");
+
+            if (paymentMethodElement.text().toLowerCase().includes(searchPaymentMethod) || searchPaymentMethod === "") {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+
+    $("#productSelect, #typeSelect").on("change", applyFilters);
 
     function applyFilters() {
         let productText = $("#productSelect").val().toLowerCase();
@@ -48,23 +66,10 @@ $(document).ready(function () {
 
     function resetProductAndTypeSelect() {
         if ($("#productSelect").val() === "" && $("#typeSelect").val() === "") {
-            return; // No restablecer si los selectores de producto y tipo ya están vacíos
+            return; // No restablecer si los selectores de producto y tipo ya estï¿½n vacï¿½os
         }
 
         $("#productSelect, #typeSelect").val(""); // Establece el valor de los selectores en blanco
-        applyFilters(); // Aplica los filtros después de restablecer los selectores
+        applyFilters(); // Aplica los filtros despuï¿½s de restablecer los selectores
     }
-
-    $("#estadoSelect, #searchInput").on("input", function () {
-        resetProductAndTypeSelect(); // Restablece los selectores de producto y tipo
-    });
-
-    // Restablece los selectores de producto y tipo al cambiar estadoSelect
-    $("#estadoSelect").on("change", function () {
-        resetProductAndTypeSelect(); // Restablece los selectores de producto y tipo
-    });
-
-    $("#productSelect, #typeSelect").on("change", applyFilters);
-
-    applyFilters();
 });

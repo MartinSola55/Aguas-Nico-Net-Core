@@ -2,13 +2,23 @@ function openModal(clientID, clientName) {
     $("#form-searchClientProducts input[name='id']").val(clientID);
     $("#form-confirmCart input[name='Cart.ClientID']").val(clientID);
     $("#form-confirmCart input:not([type='hidden']").val("");
-    $("#cartPaymentMethod").val("");
-    $("#cartPaymentAmountContainer").hide();
     $("#divClientAbonos").hide();
 
     $(".modal-title").text(`Confirmar bajada para ${clientName}`);
 
     let form = $("#form-searchClientProducts");
+
+    $('input[name="cartPaymentMethodOption"]').change(function () {
+        cartPaymentMethod = $(this).val();
+        if (cartPaymentMethod === "1") {
+            $("#cartPaymentAmountContainer").show();
+            $("#cartPaymentAmount").val("");
+        } else {
+            $("#cartPaymentAmountContainer").hide();
+            $("#cartPaymentAmount").val("0");
+        }
+    });
+
     $.ajax({
         url: $(form).attr('action'),
         method: $(form).attr('method'),
@@ -85,7 +95,7 @@ function confirmCart() {
             Swal.fire({
                 icon: 'warning',
                 title: "Error",
-                text: "No se puede bajar más productos del abono de los que dispone",
+                text: "No se puede bajar mï¿½s productos del abono de los que dispone",
                 confirmButtonColor: '#1e88e5',
             });
             return false;
@@ -124,7 +134,7 @@ function confirmCart() {
 
     let methods = [];
     methods.push({
-        PaymentMethodID: $("#cartPaymentMethod").val(),
+        PaymentMethodID: $('input[name="cartPaymentMethodOption"]:checked').val(),
         Amount: $("#cartPaymentAmount").val()
     });
 
@@ -176,22 +186,18 @@ function confirmCart() {
 }
 
 $(document).ready(function () {
-    $("#cartPaymentMethod").on("change", function () {
-        $("#cartPaymentAmountContainer").show();
-    });
-
     $('#DataTable').DataTable({
         "order": false,
         "language": {
             "sInfo": "Mostrando _START_ a _END_ de _TOTAL_ clientes",
             "sInfoEmpty": "Mostrando 0 a 0 de 0 clientes",
             "sInfoFiltered": "(filtrado de _MAX_ clientes en total)",
-            "emptyTable": 'No hay clientes que coincidan con la búsqueda',
+            "emptyTable": 'No hay clientes que coincidan con la bï¿½squeda',
             "sLengthMenu": "Mostrar _MENU_ clientes",
             "sSearch": "Buscar:",
             "oPaginate": {
                 "sFirst": "Primero",
-                "sLast": "Último",
+                "sLast": "ï¿½ltimo",
                 "sNext": "Siguiente",
                 "sPrevious": "Anterior",
             },
