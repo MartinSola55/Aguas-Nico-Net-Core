@@ -249,7 +249,6 @@ namespace AguasNico.Controllers
             try
             {
                 _workContainer.Route.UpdateClients(route.ID, clients);
-                _workContainer.Save();
                 return Json(new
                 {
                     success = true,

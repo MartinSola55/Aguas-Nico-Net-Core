@@ -115,9 +115,9 @@ namespace AguasNico.Data.Repository
                     {
                         ClientID = client.ID,
                         RouteID = routeID,
-                        CreatedAt = DateTime.UtcNow.AddHours(-3),
                         IsStatic = true,
                         Priority = priority++,
+                        State = State.Pending,
                     };
                     _db.Carts.Add(cart);
                 }

@@ -1,3 +1,4 @@
+let sendForm = true;
 function removeFromTable(client_id, table_id) {
     $(`#${table_id}`).DataTable().row(`[data-id="${client_id}"]`).remove().draw();
 }
@@ -34,6 +35,8 @@ function removeClient(client) {
 }
 
 function createClientsArray() {
+    if (!sendForm) return;
+    sendForm = false;
     let clients = [];
 
     if ($("#clientsInRouteTable").DataTable().rows().count() == 0) {
@@ -58,10 +61,11 @@ function createClientsArray() {
         Clients: clients
     };
 
+    let form = $("#form-confirm");
     $.ajax({
-        url: $("#form-confirm").attr('action'),
-        method: $("#form-confirm").attr('method'),
-        data: $("#form-confirm").serialize() + "&" + $.param(clientsData),
+        url: form.attr('action'),
+        method: form.attr('method'),
+        data: form.serialize() + "&" + $.param(clientsData),
         success: function (response) {
             Swal.fire({
                 title: response.message,
