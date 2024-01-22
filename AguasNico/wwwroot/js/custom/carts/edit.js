@@ -77,7 +77,7 @@ function confirm() {
                 allowOutsideClick: false,
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.reload();
+                    window.location.href = window.location.origin + "/Routes/Details/" + response.data;
                 }
             });
         },
