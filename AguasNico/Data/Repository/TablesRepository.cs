@@ -81,13 +81,13 @@ namespace AguasNico.Data.Repository
 
             return invoices;
         }
-
+            
         public List<SoldProductsTable> GetSoldProductsByDate(DateTime date)
         {
-            List<CartProduct> cartProducts = [.. _db.CartProducts.Where(x => x.CreatedAt.Date == date.Date)];
-            List<CartAbonoProduct> cartAbonoProducts = [.. _db.CartAbonoProducts.Where(x => x.CreatedAt.Date == date.Date)];
-            List<DispatchedProduct> dispatchedProducts = [.. _db.DispatchedProducts.Where(x => x.CreatedAt.Date == date.Date)];
-            List<ReturnedProduct> returnedProducts = [.. _db.ReturnedProducts.Where(x => x.CreatedAt.Date == date.Date)];
+            List<CartProduct> cartProducts = [.. _db.CartProducts.Where(x => x.Cart.CreatedAt.Date == date.Date)];
+            List<CartAbonoProduct> cartAbonoProducts = [.. _db.CartAbonoProducts.Where(x => x.Cart.CreatedAt.Date == date.Date)];
+            List<DispatchedProduct> dispatchedProducts = [.. _db.DispatchedProducts.Where(x => x.Route.CreatedAt.Date == date.Date)];
+            List<ReturnedProduct> returnedProducts = [.. _db.ReturnedProducts.Where(x => x.Cart.CreatedAt.Date == date.Date)];
             List<SoldProductsTable> soldProducts = [];
 
             foreach (ProductType type in Enum.GetValues(typeof(ProductType)))

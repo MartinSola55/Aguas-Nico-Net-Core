@@ -233,7 +233,9 @@
                                         }
                                         <button class="btn btn-info rounded-circle mr-2 h-100" onclick="getClientHistory(@cart.ClientID, '@cart.Client.Name')"><i class="bi bi-clipboard"></i></button>
                                     </div>
-                                    <p class="m-0"><small class="text-muted">Cliente #@cart.ClientID</small></p>
+                                    <p class="m-0"><small class="text-muted">Bajada #@cart.ClientID</small></p>
+                                    <p class="m-0"><small class="text-muted">Creada: @cart.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small></p>
+                                    <p class="m-0"><small class="text-muted">Últ. modif: @cart.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</small></p>
 
                                     <!-- Datos del último reparto -->
                                     @* @if ($cart->Client->lastCart != null && $cart->Client->lastCart->created_at != null)

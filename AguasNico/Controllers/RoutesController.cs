@@ -181,8 +181,7 @@ namespace AguasNico.Controllers
                         };
                         foreach (State state in Enum.GetValues(typeof(State)))
                         {
-                            if (state == State.Pending) continue;
-                            if (state == State.Confirmed) continue;
+                            if (state == State.Pending || state == State.Confirmed) continue;
                             dealerViewModel.States.Add(state);
                         }
                         return View("~/Views/Routes/Dealer/Details.cshtml", dealerViewModel);
@@ -305,7 +304,8 @@ namespace AguasNico.Controllers
                 return Json(new
                 {
                     success = true,
-                    routes = routes.Select(x => new {
+                    routes = routes.Select(x => new
+                    {
                         id = x.ID,
                         dealer = x.User.UserName,
                         totalCarts = x.Carts.Count(),

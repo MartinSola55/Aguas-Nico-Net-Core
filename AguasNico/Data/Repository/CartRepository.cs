@@ -167,6 +167,7 @@ namespace AguasNico.Data.Repository
 
                 Cart updatedCart = _db.Carts.Find(cart.ID) ?? throw new Exception("No se ha encontrado la bajada");
                 updatedCart.DeletedAt = null;
+                updatedCart.UpdatedAt = DateTime.UtcNow.AddHours(-3);
                 _db.SaveChanges();
                 _db.Database.CommitTransaction();
             }
@@ -375,6 +376,7 @@ namespace AguasNico.Data.Repository
 
                 Cart updatedCart = _db.Carts.Find(cart.ID) ?? throw new Exception("No se ha encontrado la bajada");
                 updatedCart.State = State.Confirmed;
+                updatedCart.UpdatedAt = DateTime.UtcNow.AddHours(-3);
                 _db.SaveChanges();
                 _db.Database.CommitTransaction();
             }
@@ -392,6 +394,7 @@ namespace AguasNico.Data.Repository
                 _db.Database.BeginTransaction();
                 cart.State = State.Confirmed;
                 cart.IsStatic = false;
+                cart.Priority = _db.Carts.Where(x => x.RouteID == cart.RouteID).Max(x => x.Priority) + 1;
                 _db.Carts.Add(cart);
                 _db.SaveChanges();
 
@@ -567,6 +570,7 @@ namespace AguasNico.Data.Repository
                     }
                 }
                 
+                cart.UpdatedAt = DateTime.UtcNow.AddHours(-3);
                 _db.SaveChanges();
                 _db.Database.CommitTransaction();
             }

@@ -14,10 +14,10 @@ namespace AguasNico.Data.Repository
     {
         private readonly ApplicationDbContext _db = db;
 
-        public void Update(Models.Route transfer)
+        public void Update(Models.Route route)
         {
-            var dbObject = _db.Routes.First(x => x.ID == transfer.ID) ?? throw new Exception("No se ha encontrado la planilla");
-            dbObject.UserID = transfer.UserID;
+            var dbObject = _db.Routes.First(x => x.ID == route.ID) ?? throw new Exception("No se ha encontrado la planilla");
+            dbObject.UserID = route.UserID;
             dbObject.UpdatedAt = DateTime.UtcNow.AddHours(-3);
             _db.SaveChanges();
         }
@@ -122,6 +122,7 @@ namespace AguasNico.Data.Repository
                     _db.Carts.Add(cart);
                 }
                 
+                route.UpdatedAt = DateTime.UtcNow.AddHours(-3);
                 _db.SaveChanges();
                 _db.Database.CommitTransaction();
             }
@@ -240,9 +241,10 @@ namespace AguasNico.Data.Repository
                 {
                     if (oldProducts.Any(x => x.Type == dispatchedProduct.Type))
                     {
-                        oldProducts.First(x => x.Type == dispatchedProduct.Type).DeletedAt = null;
-                        oldProducts.First(x => x.Type == dispatchedProduct.Type).Quantity = dispatchedProduct.Quantity;
-                        oldProducts.First(x => x.Type == dispatchedProduct.Type).UpdatedAt = DateTime.UtcNow.AddHours(-3);
+                        var oldProduct = oldProducts.First(x => x.Type == dispatchedProduct.Type);
+                        oldProduct.DeletedAt = null;
+                        oldProduct.Quantity = dispatchedProduct.Quantity;
+                        oldProduct.UpdatedAt = DateTime.UtcNow.AddHours(-3);
                         _db.SaveChanges();
                     }
                     else
