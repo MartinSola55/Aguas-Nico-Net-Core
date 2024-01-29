@@ -354,7 +354,7 @@
 
                     <!-- TIMELINE DE CLIENTES -->
                     <ul class="timeline">
-                        @foreach (Cart cart in Model.Route.Carts)
+                        @foreach (Cart cart in Model.Route.Carts.OrderBy(x => x.Priority))
                         {
                             <li class="@(contador++ % 2 != 0 ? "timeline-inverted" : "")">
                             @if (cart.State == State.Confirmed) 
