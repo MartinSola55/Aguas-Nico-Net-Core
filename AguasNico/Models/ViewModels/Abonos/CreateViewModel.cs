@@ -7,6 +7,6 @@ namespace AguasNico.Models.ViewModels.Abonos
     public class CreateViewModel
     {
         public Abono Abono { get; set; } = new();
-        public List<ProductType> Products { get; set; } = new List<ProductType>();
+        public List<ProductType> Products { get; set; } = new ConstantsMethods().GetProductTypes();
     }
 }

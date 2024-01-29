@@ -73,7 +73,7 @@
                             <div class="col-12" id="invoiceDataContainer" style="display: none;">
                                 <div class="form-group mb-3">
                                     <label asp-for="Client.InvoiceType" class="mb-0"></label>
-                                    @Html.DropDownListFor(x => x.Client.InvoiceType, Model.InvoiceTyes, new { @class = "form-control mb-2" })
+                                    @Html.DropDownListFor(x => x.Client.InvoiceType, Model.InvoiceTypes, new { @class = "form-control mb-2" })
                                     <span asp-validation-for="Client.InvoiceType" class="text-danger"></span>
                                 </div>
                                 <div class="form-group mb-3">

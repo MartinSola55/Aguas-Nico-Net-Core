@@ -1,7 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 
 namespace AguasNico.Models
 {
+    #region Classes
+
     public class Constants
     {
         public const string Admin = "ADMIN";
@@ -42,6 +45,106 @@ namespace AguasNico.Models
         [Display(Name = "Exento")] EX = 3,
         [Display(Name = "Consumidor Final")] CF = 4,
     }
+
+    #endregion
+
+    #region Methods
+    public class ConstantsMethods
+    {
+        // States
+        public List<State> GetStates()
+        {
+            return Enum.GetValues(typeof(State)).Cast<State>().ToList();
+        }
+        public List<SelectListItem> GetStatesDropdown(SelectListItem firstItem, bool valueString)
+        {
+            var list = Enum.GetValues(typeof(State)).Cast<State>().Select(x => new SelectListItem
+            {
+                Text = x.GetDisplayName(),
+                Value = valueString ? x.GetDisplayName() : ((int)x).ToString()
+            }).ToList();
+
+            list.Insert(0, firstItem);
+
+            return list;
+        }
+
+        // Product Types
+        public List<ProductType> GetProductTypes()
+        {
+            return Enum.GetValues(typeof(ProductType)).Cast<ProductType>().ToList();
+        }
+        public List<SelectListItem> GetProductTypesDropdown(SelectListItem firstItem, bool valueString)
+        {
+            var list = Enum.GetValues(typeof(ProductType)).Cast<ProductType>().Select(x => new SelectListItem
+            {
+                Text = x.GetDisplayName(),
+                Value = valueString ? x.GetDisplayName() : ((int)x).ToString()
+            }).ToList();
+
+            list.Insert(0, firstItem);
+
+            return list;
+        }
+
+        // Days
+        public List<Day> GetDays()
+        {
+            return Enum.GetValues(typeof(Day)).Cast<Day>().ToList();
+        }
+        public List<SelectListItem> GetDaysDropdown(SelectListItem firstItem, bool valueString, bool selectByDay = false)
+        {
+            var list = Enum.GetValues(typeof(Day)).Cast<Day>().Select(x => new SelectListItem
+            {
+                Text = x.ToString(),
+                Value = valueString ? x.ToString() : ((int)x).ToString(),
+                Selected = selectByDay && DateTime.UtcNow.AddHours(-3).DayOfWeek == (DayOfWeek)x
+            }).ToList();
+
+            list.Insert(0, firstItem);
+
+            return list;
+        }
+
+
+        // Invoice Types
+        public List<InvoiceType> GetInvoiceTypes()
+        {
+            return Enum.GetValues(typeof(InvoiceType)).Cast<InvoiceType>().ToList();
+        }
+        public List<SelectListItem> GetInvoiceTypesDropdown(SelectListItem firstItem, bool valueString)
+        {
+            var list = Enum.GetValues(typeof(InvoiceType)).Cast<InvoiceType>().Select(x => new SelectListItem
+            {
+                Text = x.ToString(),
+                Value = valueString ? x.ToString() : ((int)x).ToString()
+            }).ToList();
+
+            list.Insert(0, firstItem);
+
+            return list;
+        }
+
+
+        // Tax Conditions
+        public List<TaxCondition> GetTaxConditions()
+        {
+            return Enum.GetValues(typeof(TaxCondition)).Cast<TaxCondition>().ToList();
+        }
+        public List<SelectListItem> GetTaxConditionsDropdown(SelectListItem firstItem, bool valueString)
+        {
+            var list = Enum.GetValues(typeof(TaxCondition)).Cast<TaxCondition>().Select(x => new SelectListItem
+            {
+                Text = x.GetDisplayName(),
+                Value = valueString ? x.GetDisplayName() : ((int)x).ToString()
+            }).ToList();
+
+            list.Insert(0, firstItem);
+
+            return list;
+        }
+    }
+
     // Mostrar el nombre de la enumeración en lugar del nombre del campo
     public static class EnumExtensions
     {
@@ -56,4 +159,6 @@ namespace AguasNico.Models
             return displayAttribute[0].Name;
         }
     }
+
+    #endregion
 }

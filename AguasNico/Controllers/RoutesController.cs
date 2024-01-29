@@ -165,8 +165,6 @@ namespace AguasNico.Controllers
                             Payments = _workContainer.Route.GetTotalCollected(route.ID),
                             Transfers = _workContainer.Transfer.GetAll(x => x.UserID == route.UserID && x.Date.Date == route.CreatedAt.Date),
                             PaymentTypes = _workContainer.PaymentMethod.GetFilterDropDownList(),
-                            ProductTypes = _workContainer.Product.GetFilterDropDownList(),
-                            CartStates = _workContainer.Cart.GetFilterDropDownList(),
                         };
                         return View("~/Views/Routes/Admin/Details.cshtml", adminViewModel);
                     case Constants.Dealer:
@@ -176,8 +174,6 @@ namespace AguasNico.Controllers
                             Route = route,
                             PaymentMethods = _workContainer.PaymentMethod.GetDropDownList(),
                             PaymentTypes = _workContainer.PaymentMethod.GetFilterDropDownList(),
-                            ProductTypes = _workContainer.Product.GetFilterDropDownList(),
-                            CartStates = _workContainer.Cart.GetFilterDropDownList(),
                         };
                         foreach (State state in Enum.GetValues(typeof(State)))
                         {

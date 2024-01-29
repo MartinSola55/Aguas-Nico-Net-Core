@@ -30,7 +30,6 @@ namespace AguasNico.Controllers
                 {
                     Products = _workContainer.Product.GetAll(x => x.IsActive).OrderBy(x => x.Name).ThenBy(x => x.Price),
                     Product = new Product(),
-                    ProductTypes = _workContainer.Product.GetTypes()
                 };
 
                 return View(viewModel);

@@ -50,17 +50,7 @@ namespace AguasNico.Controllers
         {
             try
             {
-                List<ProductType> types = [];
-                foreach (ProductType type in Enum.GetValues(typeof(ProductType)))
-                {
-                    types.Add(type);
-                }
-                CreateViewModel viewModel = new()
-                {
-                    Products = types
-                };
-
-                return View(viewModel);
+                return View(new CreateViewModel());
             }
             catch (Exception)
             {

@@ -28,17 +28,8 @@ namespace AguasNico.Controllers
         {
             try
             {
-                List<SelectListItem> days =
-                [
-                    new() { Value = "", Text = "Seleccione un día", Disabled = true, Selected = true }
-                ];
-                foreach (Day day in Enum.GetValues(typeof(Day)))
-                {
-                    days.Add(new SelectListItem { Value = ((int)day).ToString(), Text = day.ToString() });
-                }
                 IndexViewModel viewModel = new()
                 {
-                    Days = days,
                     Dealers = _workContainer.ApplicationUser.GetDealersDropDownList()
                 };
 

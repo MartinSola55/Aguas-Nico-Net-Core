@@ -344,7 +344,7 @@
                                         <div class="col-lg-5">
                                             <div class="form-group focused">
                                                 <label asp-for="@Model.Client.InvoiceType" class="form-control-label"></label>
-                                                @Html.DropDownListFor(m => m.Client.InvoiceType, Model.InvoiceTyes, new { @class = "form-control form-select", disabled = "disabled" })
+                                                @Html.DropDownListFor(m => m.Client.InvoiceType, Model.InvoiceTypes, new { @class = "form-control form-select", disabled = "disabled" })
                                                 <span asp-validation-for="@Model.Client.InvoiceType" class="text-danger"></span>
                                             </div>
                                         </div>

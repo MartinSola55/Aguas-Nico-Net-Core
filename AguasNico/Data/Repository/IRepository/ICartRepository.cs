@@ -16,6 +16,5 @@ namespace AguasNico.Data.Repository.IRepository
         void CreateManual(Cart cart);
         List<ReturnedProduct> GetReturnedProducts(long cartID);
         void ReturnProducts(long cartID, List<ReturnedProduct> products);
-        public List<SelectListItem> GetFilterDropDownList();
     }
 }

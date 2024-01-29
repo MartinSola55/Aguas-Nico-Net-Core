@@ -61,19 +61,6 @@ namespace AguasNico.Data.Repository
             return _db.ClientProducts.Where(x => x.ProductID == productID && x.Client.IsActive).Include(x => x.Client).ThenInclude(x => x.Dealer).Select(x => x.Client);
         }
 
-        public List<SelectListItem> GetTypes()
-        {
-            List<SelectListItem> types =
-            [
-                new() { Value = "", Text = "Seleccione un tipo de producto", Disabled = true, Selected = true }
-            ];
-            foreach (ProductType type in Enum.GetValues(typeof(ProductType)))
-            {
-                types.Add(new SelectListItem { Value = ((int)type).ToString(), Text = type.GetDisplayName() });
-            }
-            return types;
-        }
-
         public int[] GetAnnualSales(ProductType productType, DateTime year)
         {
             var salesByMonth = _db.CartProducts
@@ -102,21 +89,6 @@ namespace AguasNico.Data.Repository
         public decimal GetTotalSold(ProductType productType, DateTime year)
         {
             return _db.CartProducts.Where(x => x.Type == productType && x.CreatedAt.Year == year.Year).Sum(x => x.Quantity * x.SettedPrice);
-        }
-
-        public List<SelectListItem> GetFilterDropDownList()
-        {
-            List<SelectListItem> products = [new() { Text = "Por producto", Value = "", Selected = true }];
-            foreach (ProductType type in Enum.GetValues(typeof(ProductType)))
-            {
-                products.Add(new()
-                {
-                    Text = type.GetDisplayName(),
-                    Value = type.GetDisplayName()
-                });
-            }
-            return products;
-                
         }
     }
 }
