@@ -42,14 +42,14 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        public IActionResult Show(string dateRange, Day invoiceDay, string invoiceDealer)
+        public async Task<IActionResult> Show(string dateRange, Day invoiceDay, string invoiceDealer)
         {
             try
             {
                 DateTime startDate = DateTime.Parse(dateRange.Split('-')[0].Trim());
                 DateTime endDate = DateTime.Parse(dateRange.Split('-')[1].Trim());
 
-                List<InvoiceTable> clients = _workContainer.Tables.GetInvoicesByDates(startDate, endDate, invoiceDay, invoiceDealer);
+                List<InvoiceTable> clients = await _workContainer.Tables.GetInvoicesByDates(startDate, endDate, invoiceDay, invoiceDealer);
 
                 return Json(new
                 {

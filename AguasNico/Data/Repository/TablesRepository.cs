@@ -16,15 +16,30 @@ namespace AguasNico.Data.Repository
     {
         private readonly ApplicationDbContext _db = db;
 
-        public List<InvoiceTable> GetInvoicesByDates(DateTime startDate, DateTime endDate, Day invoiceDay, string invoiceDealer)
+        public async Task<List<InvoiceTable>> GetInvoicesByDates(DateTime startDate, DateTime endDate, Day invoiceDay, string invoiceDealer)
         {
-            List<Client> clients = [.. _db.Clients.Where(x => x.DealerID == invoiceDealer && x.DeliveryDay == invoiceDay && x.IsActive)];
-            List<long> clientIDs = clients.Select(x => x.ID).ToList();
-            List<CartProduct> cartProducts = [.. _db.CartProducts.Include(x => x.Cart).Where(x => clientIDs.Contains(x.Cart.ClientID) && x.CreatedAt.Date >= startDate.Date && x.CreatedAt.Date <= endDate.Date)];
-            List<CartAbonoProduct> cartAbonoProducts = [.. _db.CartAbonoProducts.Include(x => x.Cart).Where(x => clientIDs.Contains(x.Cart.ClientID) && x.CreatedAt.Date >= startDate.Date && x.CreatedAt.Date <= endDate.Date)];
+            var clients = await _db
+                .Clients
+                .Where(x => x.DealerID == invoiceDealer && x.DeliveryDay == invoiceDay && x.IsActive)
+                .OrderBy(x => x.Name)
+                .ToListAsync();
+
+            var clientIDs = clients.Select(x => x.ID).ToList();
+
+            var cartProducts = await _db
+                .CartProducts
+                .Include(x => x.Cart)
+                .Where(x => clientIDs.Contains(x.Cart.ClientID) && x.CreatedAt.Date >= startDate.Date && x.CreatedAt.Date <= endDate.Date)
+                .ToListAsync();
+
+            var cartAbonoProducts = await _db
+                .CartAbonoProducts
+                .Include(x => x.Cart)
+                .Where(x => clientIDs.Contains(x.Cart.ClientID) && x.CreatedAt.Date >= startDate.Date && x.CreatedAt.Date <= endDate.Date)
+                .ToListAsync();
 
             List<InvoiceTable> invoices = [];
-            foreach (Client client in clients)
+            foreach (var client in clients)
             {
                 var cartProductsByClient = cartProducts.Where(x => x.Cart.ClientID == client.ID).ToList();
                 if (cartProductsByClient.Count > 0)

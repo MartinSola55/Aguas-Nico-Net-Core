@@ -34,6 +34,7 @@ namespace AguasNico.Models.ViewModels.Tables
     {
         public DateTime Date { get; set; }
         public CartsTransfersType Type { get; set; }
+        public State CartState { get; set; }
         public string AbonoName { get; set; } = null!;
         public List<CartPaymentMethod> PaymentMethods { get; set; } = [];
         public List<CartProduct> Products { get; set; } = [];

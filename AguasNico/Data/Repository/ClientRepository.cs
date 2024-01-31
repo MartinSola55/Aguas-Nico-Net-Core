@@ -351,6 +351,7 @@ namespace AguasNico.Data.Repository
                 {
                     Date = cart.CreatedAt,
                     Type = CartsTransfersType.Cart,
+                    CartState = cart.State,
                     PaymentMethods = payments,
                     Products = products,
                 });

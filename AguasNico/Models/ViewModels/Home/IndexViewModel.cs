@@ -18,6 +18,6 @@ namespace AguasNico.Models.ViewModels.Home
         public List<SoldProductsTable> SoldProducts { get; set; } = [];
         public IEnumerable<Expense> Expenses { get; set; } = [];
         public IEnumerable<Route> DealerRoutes { get; set; } = [];
-        public IEnumerable<SelectListItem> Days { get; set; } = new ConstantsMethods().GetDaysDropdown(valueString: false, firstItem: new() { Text = "Seleccione un día", Value = "", Disabled = true, Selected = true });
+        public IEnumerable<SelectListItem> Days { get; set; } = new ConstantsMethods().GetDaysDropdown(valueString: false, selectByDay: true, firstItem: new() { Text = "Seleccione un día", Value = "", Disabled = true, Selected = true });
     }
 }

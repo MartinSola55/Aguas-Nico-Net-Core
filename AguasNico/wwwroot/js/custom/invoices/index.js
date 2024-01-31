@@ -70,9 +70,9 @@ $(document).ready(function () {
                     <table class="table table-hover mb-1" style="font-size: 0.75rem !important" >
                         <thead>
                             <tr>
-                                <th class="p-1">Descripción</th>
-                                <th class="p-1 text-right">Cantidad</th>
-                                <th class="p-1 text-right">Subtotal</th>
+                                <th class="col-6 p-1">Descripción</th>
+                                <th class="col-3 p-1 text-right">Cantidad</th>
+                                <th class="col-3 p-1 text-right">Subtotal</th>
                             </tr>
                         </thead>
                         <tbody>`;

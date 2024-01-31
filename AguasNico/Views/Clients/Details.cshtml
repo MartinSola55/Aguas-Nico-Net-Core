@@ -61,22 +61,42 @@
                                             }
                                             else if (item.Type == CartsTransfersType.Cart)
                                             {
-                                                <td>
-                                                    <ul class="pl-3 mb-0">
-                                                        @foreach (CartProduct product in item.Products)
-                                                        {
-                                                            <li>@product.Type.GetDisplayName() x @product.Quantity u.</li>
-                                                        }
-                                                    </ul>
-                                                </td>
-                                                <td>
-                                                    <ul class="pl-3 mb-0">
-                                                        @foreach (CartPaymentMethod method in item.PaymentMethods)
-                                                        {
-                                                            <li>@Html.DisplayFor(x => method.PaymentMethod.Name) - $@Html.DisplayFor(x => method.Amount)</li>
-                                                        }
-                                                    </ul>
-                                                </td>
+                                                if (item.CartState != State.Confirmed)
+                                                {
+                                                    <td>@item.CartState.GetDisplayName()</td>
+                                                    <td>-</td>
+                                                    continue;
+                                                }
+                                                @if (item.Products.Count == 0)
+                                                {
+                                                    <td>-</td>
+                                                }
+                                                else
+                                                {
+                                                    <td>
+                                                        <ul class="pl-3 mb-0">
+                                                            @foreach (CartProduct product in item.Products)
+                                                            {
+                                                                <li>@product.Type.GetDisplayName() x @product.Quantity u.</li>
+                                                            }
+                                                        </ul>
+                                                    </td>
+                                                }
+                                                @if (item.PaymentMethods.Count == 0)
+                                                {
+                                                    <td>-</td>
+                                                }
+                                                else
+                                                {
+                                                    <td>
+                                                        <ul class="pl-3 mb-0">
+                                                            @foreach (CartPaymentMethod method in item.PaymentMethods)
+                                                            {
+                                                                <li>@Html.DisplayFor(x => method.PaymentMethod.Name) - $@Html.DisplayFor(x => method.Amount)</li>
+                                                            }
+                                                        </ul>
+                                                    </td>
+                                                }
                                             }
                                         </tr>
                                     }
