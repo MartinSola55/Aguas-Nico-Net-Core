@@ -11,38 +11,38 @@ namespace AguasNico.Data.Repository.IRepository
 {
     public interface IClientRepository : IRepository<Client>
     {
-        void Update(Client client);
-        bool IsDuplicated(Client client);
+        Task Update(Client client);
+        Task<bool> IsDuplicated(Client client);
 
         /// <summary>
         /// Obtiene todos los productos en stock del cliente.
         /// </summary>
         /// <param name="clientID">ID del cliente</param>
         /// <returns>Una colección de los productos en stock del cliente</returns>
-        IEnumerable<ClientProduct> GetProducts(long clientID);
+        Task<List<ClientProduct>> GetProducts(long clientID);
 
         /// <summary>
         /// Obtiene todos los productos del sistema, y asigna el stock del cliente a cada uno.
         /// </summary>
         /// <param name="clientID">ID del cliente</param>
         /// <returns>Una colección de todos los productos, con el stock del cliente en cada uno</returns>
-        IEnumerable<ClientProduct> GetAllProducts(long clientID);
-        void SoftDelete(long id);
+        Task<List<ClientProduct>> GetAllProducts(long clientID);
+        Task SoftDelete(long id);
 
         /// <summary>
         /// Adds a client product in a transaction.
         /// </summary>
         /// <param name="clientProduct">The client product to add.</param>
-        void AddProducInTransaction(ClientProduct clientProduct);
+        Task AddProducInTransaction(ClientProduct clientProduct);
 
-        void UpdateInvoiceData(Client client);
+        Task UpdateInvoiceData(Client client);
 
-        void UpdateProducts(long clientID, List<ClientProduct> clientProduct);
-        void UpdateAbonos(long clientID, List<ClientAbono> abonos);
-        List<ClientAbono> GetAbonos(long clientID);
-        List<AbonoRenewalProduct> GetAbonosRenewedAvailables(long clientID);
-        IEnumerable<ProductHistory> GetProductsHistory(long clientID);
-        IEnumerable<Client> GetNotVisited(DateTime dateFrom, DateTime dateTo, string dealerID);
-        List<CartsTransfersHistoryTable> GetCartsTransfersHistoryTable(long clientID);
+        Task UpdateProducts(long clientID, List<ClientProduct> clientProduct);
+        Task UpdateAbonos(long clientID, List<ClientAbono> abonos);
+        Task<List<ClientAbono>> GetAbonos(long clientID);
+        Task<List<AbonoRenewalProduct>> GetAbonosRenewedAvailables(long clientID);
+        Task<List<ProductHistory>> GetProductsHistory(long clientID);
+        Task<List<Client>> GetNotVisited(DateTime dateFrom, DateTime dateTo, string dealerID);
+        Task<List<CartsTransfersHistoryTable>> GetCartsTransfersHistoryTable(long clientID);
     }
 }

@@ -24,13 +24,13 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             try
             {
                 IndexViewModel viewModel = new()
                 {
-                    Dealers = _workContainer.ApplicationUser.GetDealersDropDownList()
+                    Dealers = await _workContainer.ApplicationUser.GetDealersDropDownList()
                 };
 
                 return View(viewModel);
@@ -46,10 +46,10 @@ namespace AguasNico.Controllers
         {
             try
             {
-                DateTime startDate = DateTime.Parse(dateRange.Split('-')[0].Trim());
-                DateTime endDate = DateTime.Parse(dateRange.Split('-')[1].Trim());
+                var startDate = DateTime.Parse(dateRange.Split('-')[0].Trim());
+                var endDate = DateTime.Parse(dateRange.Split('-')[1].Trim());
 
-                List<InvoiceTable> clients = await _workContainer.Tables.GetInvoicesByDates(startDate, endDate, invoiceDay, invoiceDealer);
+                var clients = await _workContainer.Tables.GetInvoicesByDates(startDate, endDate, invoiceDay, invoiceDealer);
 
                 return Json(new
                 {

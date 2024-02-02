@@ -9,9 +9,9 @@ namespace AguasNico.Data.Repository.IRepository
 {
     public interface ITransferRepository : IRepository<Transfer>
     {
-        new void Add(Transfer transfer);
-        void Update(Transfer transfer);
-        void SoftDelete(long id);
-        IEnumerable<Transfer> GetLastTen(long clientID);
+        Task Add(Transfer transfer);
+        Task Update(Transfer transfer);
+        Task SoftDelete(long id);
+        Task<List<Transfer>> GetLastTen(long clientID);
     }
 }

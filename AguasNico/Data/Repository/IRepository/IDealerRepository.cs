@@ -9,9 +9,9 @@ namespace AguasNico.Data.Repository.IRepository
 {
     public interface IDealerRepository : IRepository<ApplicationUser>
     {
-        int GetTotalCarts(string dealerID, DateTime month);
-        int GetTotalCompletedCarts(string dealerID, DateTime month);
-        int GetTotalPendingCarts(string dealerID, DateTime month);
-        decimal GetTotalCollected(string dealerID, DateTime month);
+        Task<int> GetTotalCarts(string dealerID, DateTime month);
+        Task<int> GetTotalCompletedCarts(string dealerID, DateTime month);
+        Task<int> GetTotalPendingCarts(string dealerID, DateTime month);
+        Task<decimal> GetTotalCollected(string dealerID, DateTime month);
     }
 }

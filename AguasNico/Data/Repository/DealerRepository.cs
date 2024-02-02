@@ -13,32 +13,36 @@ namespace AguasNico.Data.Repository
     {
         private readonly ApplicationDbContext _db = db;
 
-        public int GetTotalCarts(string dealerID, DateTime date)
+        public async Task<int> GetTotalCarts(string dealerID, DateTime date)
         {
-            return _db.Carts
+            return await _db
+                .Carts
                 .Where(x => x.Route.UserID == dealerID && x.CreatedAt.Month == date.Month && x.CreatedAt.Year == date.Year && !x.IsStatic)
-                .Count();
+                .CountAsync();
         }
 
-        public decimal GetTotalCollected(string dealerID, DateTime date)
+        public async Task<decimal> GetTotalCollected(string dealerID, DateTime date)
         {
-            return _db.CartPaymentMethods
+            return await _db
+                .CartPaymentMethods
                 .Where(x => x.Cart.Route.UserID == dealerID && x.CreatedAt.Month == date.Month && x.CreatedAt.Year == date.Year)
-                .Sum(x => x.Amount);
+                .SumAsync(x => x.Amount);
         }
 
-        public int GetTotalCompletedCarts(string dealerID, DateTime date)
+        public async Task<int> GetTotalCompletedCarts(string dealerID, DateTime date)
         {
-            return _db.Carts
+            return await _db
+                .Carts
                 .Where(x => x.Route.UserID == dealerID && x.State == State.Confirmed && x.CreatedAt.Month == date.Month && x.CreatedAt.Year == date.Year && !x.IsStatic)
-                .Count();
+                .CountAsync();
         }
 
-        public int GetTotalPendingCarts(string dealerID, DateTime date)
+        public async Task<int> GetTotalPendingCarts(string dealerID, DateTime date)
         {
-            return _db.Carts
+            return await _db
+                .Carts
                 .Where(x => x.Route.UserID == dealerID && x.State != State.Confirmed && x.CreatedAt.Month == date.Month && x.CreatedAt.Year == date.Year && !x.IsStatic)
-                .Count();
+                .CountAsync();
         }
     }
 }

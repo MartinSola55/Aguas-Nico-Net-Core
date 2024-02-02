@@ -26,17 +26,16 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        [ActionName("Index")]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             try
             {
-                DateTime today = DateTime.UtcNow.AddHours(-3);
+                var today = DateTime.UtcNow.AddHours(-3);
                 IndexViewModel viewModel = new()
                 {
-                    Years = _workContainer.Route.GetYears(),
-                    AnnualProfits = this.GetAnnualProfits(today.Year.ToString()),
-                    MonthlyProfits = this.GetMonthlyProfits(today.Year.ToString(), today.Month.ToString()),
+                    Years = await _workContainer.Route.GetYears(),
+                    AnnualProfits = await this.GetAnnualProfits(today.Year.ToString()),
+                    MonthlyProfits = await this.GetMonthlyProfits(today.Year.ToString(), today.Month.ToString()),
 
                 };
                 return View(viewModel);
@@ -48,18 +47,17 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        [ActionName("Product")]
-        public IActionResult Product(long id)
+        public async Task<IActionResult> Product(long id)
         {
             try
             {
-                Product product = _workContainer.Product.GetFirstOrDefault(p => p.ID == id);
+                var product = await _workContainer.Product.GetFirstOrDefaultAsync(p => p.ID == id);
                 ProductViewModel viewModel = new()
                 {
                     Product = product,
-                    ClientStock = _workContainer.Product.GetClientStock(id),
-                    TotalSold = _workContainer.Product.GetTotalSold(product.Type, DateTime.UtcNow.AddHours(-3)),
-                    Chart = _workContainer.Product.GetAnnualSales(product.Type, DateTime.UtcNow.AddHours(-3)),
+                    ClientStock = await _workContainer.Product.GetClientStock(id),
+                    TotalSold = await _workContainer.Product.GetTotalSold(product.Type, DateTime.UtcNow.AddHours(-3)),
+                    Chart = await _workContainer.Product.GetAnnualSales(product.Type, DateTime.UtcNow.AddHours(-3)),
                 };
                 return View("~/Views/Products/Stats.cshtml", viewModel);
             }
@@ -72,9 +70,9 @@ namespace AguasNico.Controllers
         #region Pegadas AJAX
 
         [HttpGet]
-        public JsonResult GetAnnualProfits(string yearString)
+        public async Task<JsonResult> GetAnnualProfits(string yearString)
         {
-            IEnumerable<Cart> allCarts = _workContainer.Cart.GetAll(x => !x.IsStatic && x.CreatedAt.Year.ToString() == yearString, includeProperties: "PaymentMethods");
+            var allCarts = await _workContainer.Cart.GetAllAsync(x => !x.IsStatic && x.CreatedAt.Year.ToString() == yearString, includeProperties: "PaymentMethods");
 
             // Agrupar las ventas por mes y calcular la suma de Amount
             var cartsByMonth = allCarts
@@ -87,7 +85,7 @@ namespace AguasNico.Controllers
                 .OrderBy(entry => entry.Period)
                 .ToList();
 
-            List<object> annualProfits = [];
+            var annualProfits = new List<object>();
 
             for (int month = 1; month <= 12; month++)
             {
@@ -109,9 +107,9 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        public JsonResult GetMonthlyProfits(string yearString, string monthString)
+        public async Task<JsonResult> GetMonthlyProfits(string yearString, string monthString)
         {
-            IEnumerable<Cart> allCarts = _workContainer.Cart.GetAll(x => !x.IsStatic && x.CreatedAt.Year.ToString() == yearString && x.CreatedAt.Month.ToString() == monthString, includeProperties: "PaymentMethods");
+            var allCarts = await _workContainer.Cart.GetAllAsync(x => !x.IsStatic && x.CreatedAt.Year.ToString() == yearString && x.CreatedAt.Month.ToString() == monthString, includeProperties: "PaymentMethods");
 
             int year = int.Parse(yearString);
             int month = int.Parse(monthString);
@@ -127,7 +125,7 @@ namespace AguasNico.Controllers
                 .OrderBy(entry => entry.Day)
                 .ToList();
 
-            List<object> monthlyProfits = [];
+            var monthlyProfits = new List<object>();
 
             for (int day = 1; day <= DateTime.DaysInMonth(year, month); day++)
             {

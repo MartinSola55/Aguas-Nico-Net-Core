@@ -22,13 +22,14 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             try
             {
+                var products = await _workContainer.Product.GetAllAsync(x => x.IsActive);
                 IndexViewModel viewModel = new()
                 {
-                    Products = _workContainer.Product.GetAll(x => x.IsActive).OrderBy(x => x.Name).ThenBy(x => x.Price),
+                    Products = products.OrderBy(x => x.Name).ThenBy(x => x.Price),
                     Product = new Product(),
                 };
 
@@ -41,22 +42,24 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("Create")]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Product product)
+        public async Task<IActionResult> Create(Product product)
         {
             ModelState.Remove("product.ID");
             if (ModelState.IsValid)
             {
                 try
                 {
-                    if (product.Type == 0) return CustomBadRequest(title: "Error al crear el producto", message: "Debe seleccionar un tipo de producto");
-                    if (_workContainer.Product.IsDuplicated(product)) return CustomBadRequest(title: "Error al crear el producto", message: "Ya existe uno con el mismo nombre y precio");
+                    if (product.Type == 0)
+                        return CustomBadRequest(title: "Error al crear el producto", message: "Debe seleccionar un tipo de producto");
 
-                    _workContainer.Product.Add(product);
-                    _workContainer.Save();
+                    if (await _workContainer.Product.IsDuplicated(product))
+                        return CustomBadRequest(title: "Error al crear el producto", message: "Ya existe uno con el mismo nombre y precio");
 
-                    Product newProduct = _workContainer.Product.GetFirstOrDefault(p => product.ID.Equals(p.ID));
+                    await _workContainer.Product.AddAsync(product);
+                    await _workContainer.SaveAsync();
+
+                    var newProduct = await _workContainer.Product.GetFirstOrDefaultAsync(p => product.ID.Equals(p.ID));
                     return Json(new
                     {
                         success = true,
@@ -73,26 +76,19 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Product product)
+        public async Task<IActionResult> Edit(Product product)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    if (_workContainer.Product.IsDuplicated(product))
-                    {
-                        return BadRequest(new
-                        {
-                            success = false,
-                            title = "Error al crear el producto",
-                            message = "Ya existe uno con el mismo nombre y precio",
-                        });
-                    }
-                    _workContainer.Product.Update(product);
-                    _workContainer.Save();
-                    Product editedProduct = _workContainer.Product.GetFirstOrDefault(p => product.ID.Equals(p.ID));
+                    if (await _workContainer.Product.IsDuplicated(product))
+                        return CustomBadRequest(title: "Error al editar el producto", message: "Ya existe uno con el mismo nombre y precio");
+                    
+                    await _workContainer.Product.Update(product);
+                    
+                    var editedProduct = _workContainer.Product.GetFirstOrDefaultAsync(p => product.ID.Equals(p.ID));
                     return Json(new
                     {
                         success = true,
@@ -110,20 +106,18 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("SoftDelete")]
         [ValidateAntiForgeryToken]
-        public IActionResult SoftDelete(long id)
+        public async Task<IActionResult> SoftDelete(long id)
         {
             try
             {
-                Product product = _workContainer.Product.GetOne(id);
-                if (product == null)
-                {
-                    return CustomBadRequest(title: "Error al eliminar", message: "No se encontró el producto solicitado");
-                }
+                var product = _workContainer.Product.GetOneAsync(id);
 
-                _workContainer.Product.SoftDelete(id);
-                _workContainer.Save();
+                if (product == null)
+                    return CustomBadRequest(title: "Error al eliminar", message: "No se encontró el producto solicitado");
+
+                await _workContainer.Product.SoftDelete(id);
+                
                 return Json(new
                 {
                     success = true,
@@ -138,15 +132,14 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        [ActionName("GetClients")]
-        public IActionResult GetClients(long productID)
+        public async Task<IActionResult> GetClients(long productID)
         {
             try
             {
                 return Json(new
                 {
                     success = true,
-                    data = _workContainer.Product.GetClients(productID).ToList(),
+                    data = await _workContainer.Product.GetClients(productID),
                 });
             }
             catch (Exception e)

@@ -9,9 +9,9 @@ namespace AguasNico.Data.Repository.IRepository
 {
     public interface IExpenseRepository : IRepository<Expense>
     {
-        void Update(Expense expense);
-        void SoftDelete(long id);
-        decimal GetTotalExpenses(DateTime date);
-        decimal GetTotalExpensesByDealer(DateTime date, string dealerID);
+        Task Update(Expense expense);
+        Task SoftDelete(long id);
+        Task<decimal> GetTotalExpenses(DateTime date);
+        Task<decimal> GetTotalExpensesByDealer(DateTime date, string dealerID);
     }
 }

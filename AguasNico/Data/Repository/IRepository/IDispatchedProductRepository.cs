@@ -9,8 +9,8 @@ namespace AguasNico.Data.Repository.IRepository
 {
     public interface IDispatchedProductRepository : IRepository<DispatchedProduct>
     {
-        IEnumerable<DispatchedProduct> GetAllFromRoute(long routeID);
-        void Update(DispatchedProduct dispatchedProduct);
-        void SoftDeleteAll(long routeID);
+        Task<List<DispatchedProduct>> GetAllFromRoute(long routeID);
+        Task Update(DispatchedProduct dispatchedProduct);
+        Task SoftDeleteAll(long routeID);
     }
 }

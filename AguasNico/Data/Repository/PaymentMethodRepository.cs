@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using AguasNico.Data.Repository.IRepository;
 using AguasNico.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace AguasNico.Data.Repository
 {
@@ -13,29 +14,42 @@ namespace AguasNico.Data.Repository
     {
         private readonly ApplicationDbContext _db = db;
 
-        public IEnumerable<SelectListItem> GetDropDownList()
+        public async Task<List<SelectListItem>> GetDropDownList()
         {
-            IEnumerable<SelectListItem> methods = new List<SelectListItem>
+            var dropDown = new List<SelectListItem>
             {
                 new() { Value = "", Text = "Seleccione un método de pago", Disabled = true, Selected = true }
             };
-            return methods.Concat(_db.PaymentMethods.OrderBy(x => x.ID).Select(i => new SelectListItem()
-            {
-                Text = i.Name,
-                Value = i.ID.ToString(),
-            }));
+
+            var methods = await _db
+                .PaymentMethods
+                .OrderBy(x => x.ID)
+                .Select(i => new SelectListItem()
+                {
+                    Text = i.Name,
+                    Value = i.ID.ToString(),
+                })
+                .ToListAsync();
+
+            return [.. dropDown, .. methods];
         }
-        public IEnumerable<SelectListItem> GetFilterDropDownList()
+        public async Task<List<SelectListItem>> GetFilterDropDownList()
         {
-            IEnumerable<SelectListItem> methods = new List<SelectListItem>
+            var dropDown = new List<SelectListItem>
             {
                 new() { Value = "", Text = "Por método de pago", Selected = true }
             };
-            return methods.Concat(_db.PaymentMethods.OrderBy(x => x.ID).Select(i => new SelectListItem()
-            {
-                Text = i.Name,
-                Value = i.Name,
-            }));
+            var methods = await _db
+                .PaymentMethods
+                .OrderBy(x => x.ID)
+                .Select(i => new SelectListItem()
+                {
+                    Text = i.Name,
+                    Value = i.Name,
+                })
+                .ToListAsync();
+
+            return [.. dropDown, .. methods];
         }
     }
 }

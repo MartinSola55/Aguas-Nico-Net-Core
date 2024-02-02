@@ -27,15 +27,15 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        [ActionName("Index")]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             try
             {
+                var clients = await _workContainer.Client.GetAllAsync(x => x.IsActive, includeProperties: "Dealer");
                 IndexViewModel viewModel = new()
                 {
-                    Clients = _workContainer.Client.GetAll(x => x.IsActive, includeProperties: "Dealer").OrderBy(x => x.Name),
+                    Clients = clients.OrderBy(x => x.Name),
                 };
 
                 return View(viewModel);
@@ -47,18 +47,23 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        [ActionName("Create")]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             try
             {
-                ApplicationUser user = _workContainer.ApplicationUser.GetFirstOrDefault(u => u.UserName.Equals(User.Identity.Name));
-                string role = _signInManager.UserManager.GetRolesAsync(user).Result.First();
+                var sessionUser = User.Identity ?? throw new Exception("No se pudo obtener el usuario de la sesión");
+                var user = await _workContainer.ApplicationUser.GetFirstOrDefaultAsync(x => x.UserName != null && x.UserName.Equals(sessionUser.Name));
+                if (user is null)
+                    return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "El usuario no existe", ErrorCode = 404 });
+
+                var role = _signInManager.UserManager.GetRolesAsync(user).Result.First();
+                var products = await _workContainer.Product.GetAllAsync(x => x.IsActive);
+
                 CreateViewModel viewModel = new()
                 {
                     Role = role,
-                    Products = _workContainer.Product.GetAll(x => x.IsActive).OrderBy(x => x.Name).ThenByDescending(x => x.Price),
-                    Dealers = _workContainer.ApplicationUser.GetDealersDropDownList(),
+                    Products = products.OrderBy(x => x.Name).ThenByDescending(x => x.Price),
+                    Dealers = await _workContainer.ApplicationUser.GetDealersDropDownList(),
                 };
 
                 return View(viewModel);
@@ -70,25 +75,22 @@ namespace AguasNico.Controllers
         }
         
         [HttpGet]
-        [ActionName("Details")]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult Details(long id)
+        public async Task<IActionResult> Details(long id)
         {
             try
             {
-                Client client = _workContainer.Client.GetFirstOrDefault(x => x.ID == id, includeProperties: "Dealer, Products");
+                var client = await _workContainer.Client.GetFirstOrDefaultAsync(x => x.ID == id, includeProperties: "Dealer, Products");
                 if (client is null)
-                {
                     return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "El cliente no existe", ErrorCode = 404 });
-                } else if (!client.IsActive)
-                {
+                
+                if (!client.IsActive)
                     return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "El cliente ha sido eliminado", ErrorCode = 404 });
-                }
 
-                List<Abono> abonos = _workContainer.Abono.GetAll().ToList();
-                List<ClientAbono> clientAbonos = _workContainer.Client.GetAbonos(id);
+                var abonos = await _workContainer.Abono.GetAllAsync();
+                var clientAbonos = await _workContainer.Client.GetAbonos(id);
 
-                foreach (Abono abono in abonos)
+                foreach (var abono in abonos)
                 {
                     if (!clientAbonos.Any(x => x.AbonoID == abono.ID))
                     {
@@ -103,11 +105,11 @@ namespace AguasNico.Controllers
                 DetailsViewModel viewModel = new()
                 {
                     Client = client,
-                    Dealers = _workContainer.ApplicationUser.GetDealersDropDownList(),
-                    Products = _workContainer.Client.GetAllProducts(id),
+                    Dealers = await _workContainer.ApplicationUser.GetDealersDropDownList(),
+                    Products = await _workContainer.Client.GetAllProducts(id),
                     Abonos = clientAbonos,
-                    CartsTransfersHistory = _workContainer.Client.GetCartsTransfersHistoryTable(id),
-                    ProductsHistory = _workContainer.Client.GetProductsHistory(id),
+                    CartsTransfersHistory = await _workContainer.Client.GetCartsTransfersHistoryTable(id),
+                    ProductsHistory = await _workContainer.Client.GetProductsHistory(id),
                 };
                 return View(viewModel);
             }
@@ -118,9 +120,8 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("Create")]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(CreateViewModel viewModel)
+        public async Task<IActionResult> Create(CreateViewModel viewModel)
         {
             ModelState.Remove("Role");
             ModelState.Remove("Client.Carts");
@@ -133,18 +134,16 @@ namespace AguasNico.Controllers
             {
                 try
                 {
-                    Client client = viewModel.Client;
-                    _workContainer.BeginTransaction();
-                    _workContainer.Client.Add(client);
-                    _workContainer.Save();
+                    var client = viewModel.Client;
+                    await _workContainer.Client.AddAsync(client);
                     
                     if (client.DealerID is not null && client.DeliveryDay is not null)
                     {
-                        Models.Route route = _workContainer.Route.GetFirstOrDefault(x => x.UserID == client.DealerID && x.DayOfWeek == client.DeliveryDay, includeProperties: "Carts");
+                        var route = await _workContainer.Route.GetFirstOrDefaultAsync(x => x.UserID == client.DealerID && x.DayOfWeek == client.DeliveryDay, includeProperties: "Carts");
                         if (route is not null)
                         {
                             int priority = route.Carts.Any() ? route.Carts.Max(x => x.Priority) + 1 : 1;
-                            Cart cart = new()
+                            var cart = new Cart
                             {
                                 RouteID = route.ID,
                                 ClientID = client.ID,
@@ -152,11 +151,13 @@ namespace AguasNico.Controllers
                                 State = State.Pending,
                                 IsStatic = true,
                             };
-                            _workContainer.Cart.Add(cart);
+                            await _workContainer.Cart.AddAsync(cart);
                         }
                     }
-                    _workContainer.Save();
-                    _workContainer.Commit();
+
+                    await _workContainer.BeginTransactionAsync();
+                    await _workContainer.SaveAsync();
+                    await _workContainer.CommitAsync();
 
                     return Json(new
                     {
@@ -175,10 +176,9 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("Edit")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult Edit(Client client)
+        public async Task<IActionResult> Edit(Client client)
         {
             ModelState.Remove("Client.Carts");
             ModelState.Remove("Client.Dealer");
@@ -193,7 +193,7 @@ namespace AguasNico.Controllers
             {
                 try
                 {
-                    _workContainer.Client.Update(client);
+                    await _workContainer.Client.Update(client);
 
                     return Json(new
                     {
@@ -210,10 +210,9 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("UpdateInvoiceData")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult UpdateInvoiceData(Client client)
+        public async Task<IActionResult> UpdateInvoiceData(Client client)
         {
             ModelState.Remove("Client.Carts");
             ModelState.Remove("Client.Dealer");
@@ -231,8 +230,7 @@ namespace AguasNico.Controllers
             {
                 try
                 {
-                    _workContainer.Client.UpdateInvoiceData(client);
-                    _workContainer.Save();
+                    await _workContainer.Client.UpdateInvoiceData(client);
 
                     return Json(new
                     {
@@ -249,14 +247,13 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("UpdateProducts")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult UpdateProducts(Client client, List<ClientProduct> products)
+        public async Task<IActionResult> UpdateProducts(Client client, List<ClientProduct> products)
         {
             try
             {
-                _workContainer.Client.UpdateProducts(client.ID, products);
+                await _workContainer.Client.UpdateProducts(client.ID, products);
                 return Json(new
                 {
                     success = true,
@@ -271,14 +268,13 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("UpdateAbonos")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult UpdateAbonos(Client client, List<ClientAbono> abonos)
+        public async Task<IActionResult> UpdateAbonos(Client client, List<ClientAbono> abonos)
         {
             try
             {
-                _workContainer.Client.UpdateAbonos(client.ID, abonos);
+                await _workContainer.Client.UpdateAbonos(client.ID, abonos);
                 return Json(new
                 {
                     success = true,
@@ -293,15 +289,14 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("SoftDelete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult SoftDelete(long id)
+        public async Task<IActionResult> SoftDelete(long id)
         {
             try
             {
-                _workContainer.Client.SoftDelete(id);
-                _workContainer.Save();
+                await _workContainer.Client.SoftDelete(id);
+
                 return Json(new
                 {
                     success = true,
@@ -319,14 +314,14 @@ namespace AguasNico.Controllers
         #region Pegadas AJAX
 
         [HttpGet]
-        [ActionName("SearchByName")]
-        public IActionResult SearchByName(string name)
+        public async Task<IActionResult> SearchByName(string name)
         {
             try
             {
-                IEnumerable<Client> clients = _workContainer.Client.GetAll(x => x.Name.Contains(name) && x.IsActive, includeProperties: "Dealer");
-                List<object> clientsList = [];
-                foreach (Client client in clients)
+                var clients = await _workContainer.Client.GetAllAsync(x => x.Name.Contains(name) && x.IsActive, includeProperties: "Dealer");
+                var clientsList = new List<object>();
+
+                foreach (var client in clients)
                 {
                     clientsList.Add(new
                     {
@@ -350,26 +345,32 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        [ActionName("GetProductsAndAbono")]
-        public IActionResult GetProductsAndAbono(long id)
+        public async Task<IActionResult> GetProductsAndAbono(long id)
         {
             try
             {
-                Client client = _workContainer.Client.GetFirstOrDefault(x => x.ID == id, includeProperties: "Products, Products.Product");
-                if (client is null) return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "El cliente no existe", ErrorCode = 404 });
-                List<AbonoRenewalProduct> abonoProductsList = _workContainer.Client.GetAbonosRenewedAvailables(id);
+                var client = await _workContainer.Client.GetFirstOrDefaultAsync(x => x.ID == id, includeProperties: "Products, Products.Product");
                 
-                List<object> products = [];
-                List<object> abonoProducts = abonoProductsList.GroupBy(x => x.Type).Select(x => new
-                {
-                    type = x.Key,
-                    name = x.Key.GetDisplayName(),
-                    available = x.Sum(y => y.Available),
-                }).Cast<object>().ToList();
+                if (client is null)
+                    return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "El cliente no existe", ErrorCode = 404 });
 
-                foreach (ClientProduct clientProduct in client.Products)
+                var abonoProductsList = await _workContainer.Client.GetAbonosRenewedAvailables(id);
+                
+                var products = new List<object>();
+                    var abonoProducts = abonoProductsList.GroupBy(x => x.Type).Select(x => new
+                    {
+                        type = x.Key,
+                        name = x.Key.GetDisplayName(),
+                        available = x.Sum(y => y.Available),
+                    })
+                    .Cast<object>()
+                    .ToList();
+
+                foreach (var clientProduct in client.Products)
                 {
-                    if (clientProduct.Product.Type == ProductType.Máquina) continue;
+                    if (clientProduct.Product.Type == ProductType.Máquina)
+                        continue;
+
                     products.Add(new
                     {
                         type = clientProduct.Product.Type,
@@ -392,14 +393,13 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        [ActionName("GetProductsHistory")]
-        public IActionResult GetProductsHistory(long id)
+        public async Task<IActionResult> GetProductsHistory(long id)
         {
             try
             {
-                Client client = _workContainer.Client.GetOne(id) ?? throw new Exception("El cliente no existe");
-                List<object> data = [];
-                foreach (ProductHistory productHistory in _workContainer.Client.GetProductsHistory(id))
+                var client = await _workContainer.Client.GetOneAsync(id) ?? throw new Exception("El cliente no existe");
+                var data = new List<object>();
+                foreach (var productHistory in await _workContainer.Client.GetProductsHistory(id))
                 {
                     data.Add(new
                     {
@@ -420,6 +420,7 @@ namespace AguasNico.Controllers
                 return CustomBadRequest(title: "Error al obtener los productos", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
             }
         }
+        
         #endregion
     }
 }

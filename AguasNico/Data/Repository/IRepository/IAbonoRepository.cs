@@ -9,11 +9,11 @@ namespace AguasNico.Data.Repository.IRepository
 {
     public interface IAbonoRepository : IRepository<Abono>
     {
-        void Update(Abono abono);
-        void SoftDelete(long id);
-        void RenewAll();
-        void RenewByRoute(long routeID);
-        IEnumerable<Abono> GetLastTen(long clientID);
-        IEnumerable<Client> GetClients(long abonoID);
+        Task Update(Abono abono);
+        Task SoftDelete(long id);
+        Task RenewAll();
+        Task RenewByRoute(long routeID);
+        Task<List<Abono>> GetLastTen(long clientID);
+        Task<List<Client>> GetClients(long abonoID);
     }
 }

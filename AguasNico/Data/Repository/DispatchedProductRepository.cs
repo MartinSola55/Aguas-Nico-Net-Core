@@ -13,27 +13,37 @@ namespace AguasNico.Data.Repository
     {
         private readonly ApplicationDbContext _db = db;
 
-        public void Update(DispatchedProduct product)
+        public async Task Update(DispatchedProduct product)
         {
-            var dbObject = _db.DispatchedProducts.First(x => x.Type == product.Type && x.RouteID == product.RouteID) ?? throw new Exception("No se ha encontrado el producto");
-            dbObject.Quantity = product.Quantity;
-            dbObject.UpdatedAt = DateTime.UtcNow.AddHours(-3);
-            _db.SaveChanges();
+            var oldProduct = await _db
+                .DispatchedProducts
+                .FirstAsync(x => x.Type == product.Type && x.RouteID == product.RouteID) ?? throw new Exception("No se ha encontrado el producto");
+
+            oldProduct.Quantity = product.Quantity;
+            oldProduct.UpdatedAt = DateTime.UtcNow.AddHours(-3);
+            await _db.SaveChangesAsync();
         }
 
-        public void SoftDeleteAll(long routeID)
+        public async Task SoftDeleteAll(long routeID)
         {
-            List<DispatchedProduct> products = _db.DispatchedProducts.Where(x => x.RouteID == routeID).ToList();
-            foreach (DispatchedProduct product in products)
+            var products = await _db
+                .DispatchedProducts
+                .Where(x => x.RouteID == routeID)
+                .ToListAsync();
+
+            foreach (var product in products)
             {
                 product.DeletedAt = DateTime.UtcNow.AddHours(-3);
             }
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
         }
 
-        public IEnumerable<DispatchedProduct> GetAllFromRoute(long routeID)
+        public async Task<List<DispatchedProduct>> GetAllFromRoute(long routeID)
         {
-            return _db.DispatchedProducts.Where(x => x.RouteID == routeID);
+            return await _db
+                .DispatchedProducts
+                .Where(x => x.RouteID == routeID)
+                .ToListAsync();
         }
     }
 }

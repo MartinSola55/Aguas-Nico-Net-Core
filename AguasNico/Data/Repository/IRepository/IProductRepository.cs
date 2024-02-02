@@ -10,12 +10,12 @@ namespace AguasNico.Data.Repository.IRepository
 {
     public interface IProductRepository : IRepository<Product>
     {
-        void Update(Product product);
-        bool IsDuplicated(Product product);
-        void SoftDelete(long id);
-        IEnumerable<Client> GetClients(long productID);
-        int[] GetAnnualSales(ProductType productType, DateTime year);
-        int GetClientStock(long productID);
-        decimal GetTotalSold(ProductType productType, DateTime year);
+        Task Update(Product product);
+        Task<bool> IsDuplicated(Product product);
+        Task SoftDelete(long id);
+        Task<List<Client>> GetClients(long productID);
+        Task<int[]> GetAnnualSales(ProductType productType, DateTime year);
+        Task<int> GetClientStock(long productID);
+        Task<decimal> GetTotalSold(ProductType productType, DateTime year);
     }
 }
