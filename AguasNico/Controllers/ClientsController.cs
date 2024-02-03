@@ -26,17 +26,15 @@ namespace AguasNico.Controllers
             });
         }
 
+        #region Views
+
         [HttpGet]
         [Authorize(Roles = Constants.Admin)]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             try
             {
-                var clients = await _workContainer.Client.GetAllAsync(x => x.IsActive, includeProperties: "Dealer");
-                IndexViewModel viewModel = new()
-                {
-                    Clients = clients.OrderBy(x => x.Name),
-                };
+                IndexViewModel viewModel = new();
 
                 return View(viewModel);
             }
@@ -62,7 +60,7 @@ namespace AguasNico.Controllers
                 CreateViewModel viewModel = new()
                 {
                     Role = role,
-                    Products = products.OrderBy(x => x.Name).ThenByDescending(x => x.Price),
+                    Products = [.. products.OrderBy(x => x.Name).ThenByDescending(x => x.Price) ],
                     Dealers = await _workContainer.ApplicationUser.GetDealersDropDownList(),
                 };
 
@@ -118,6 +116,10 @@ namespace AguasNico.Controllers
                 return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
             }
         }
+
+        #endregion
+
+        #region Actions
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -310,8 +312,9 @@ namespace AguasNico.Controllers
             }
         }
 
+        #endregion
 
-        #region Pegadas AJAX
+        #region AJAX
 
         [HttpGet]
         public async Task<IActionResult> SearchByName(string name)
@@ -320,16 +323,19 @@ namespace AguasNico.Controllers
             {
                 var clients = await _workContainer.Client.GetAllAsync(x => x.Name.Contains(name) && x.IsActive, includeProperties: "Dealer");
                 var clientsList = new List<object>();
-
-                foreach (var client in clients)
+                foreach (var client in clients.OrderBy(x => x.Name))
                 {
+                    var day = client.DeliveryDay is not null ? client.DeliveryDay.ToString() : "Sin día asignado";
+                    var dealer = client.Dealer is not null ? client.Dealer.UserName : "Sin repartidor asignado";
+                    var debt = client.Debt >= 0 ? client.Debt.ToString("#,##") : (client.Debt * -1).ToString("#,##") + " a favor";
                     clientsList.Add(new
                     {
                         id = client.ID,
                         name = client.Name,
                         address = client.Address,
-                        dealer = client.Dealer is not null ? client.Dealer.UserName : "",
-                        debt = client.Debt.ToString("#,##"),
+                        phone = client.Phone,
+                        dealer = dealer + " - " + day,
+                        debt = debt != "" ? debt : "0",
                     });
                 }
                 return Json(new

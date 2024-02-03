@@ -306,7 +306,7 @@ namespace AguasNico.Controllers
 
         #endregion
 
-        #region Pegadas AJAX
+        #region AJAX
 
         [HttpGet]
         [Authorize(Roles = Constants.Admin)]

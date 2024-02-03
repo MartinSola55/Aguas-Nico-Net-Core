@@ -6,6 +6,6 @@ namespace AguasNico.Models.ViewModels.Routes
     {
         public Route Route = new();
         public List<Client> Clients = [];
-        public IEnumerable<SelectListItem> PaymentMethods { get; set; } = [];
+        public List<SelectListItem> PaymentMethods { get; set; } = [];
     }
 }

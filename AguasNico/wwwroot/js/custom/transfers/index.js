@@ -186,9 +186,10 @@ $(document).ready(function () {
             success: function (response) {
                 $('#tableClients tbody').empty();
                 if (response.data.length == 0) {
-                    let row = `<tr>
-                            <td colspan="4" class="text-center">No se encontraron resultados</td>
-                        </tr>`;
+                    let row = `
+                    <tr>
+                        <td colspan="5" class="text-center">No se encontraron resultados</td>
+                    </tr>`;
                     $('#tableClients tbody').append($(row));
                     $('#contentTableClients').show();
                     return;

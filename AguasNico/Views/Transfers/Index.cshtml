@@ -10,7 +10,7 @@
 <script src="~/lib/datatables/datatables.min.js"></script>
 <script src="~/lib/moment/moment-with-locales.js"></script>
 <script src="~/lib/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js"></script>
-<script src="~/js/custom/obrasSociales/index.js"></script>
+<script src="~/js/custom/transfers/index.js"></script>
 
 
 <div class="container-fluid">
@@ -22,11 +22,16 @@
                 <li class="breadcrumb-item active">Gastos</li>
             </ol>
         </div>
+        <div class="col-md-7 col-5 align-self-center">
+            <div class="d-flex m-t-10 justify-content-end">
+                @* <a asp-area="" asp-controller="Transfers" asp-action="Create" class="btn btn-info btn-rounded waves-effect waves-light m-t-10 float-right">Agregar nueva</a> *@
+            </div>
+        </div>
     </div>
 
 
     <!-- Modal -->
-    <div id="modalCreate" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+    @* <div id="modalCreate" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
         <div id="formContainer" class="modal-dialog modal-lg">
             <form id="form-create" method="post" asp-area="" asp-controller="Transfers" asp-action="Create" id="form-create" autocomplete="off">
                 @Html.AntiForgeryToken()
@@ -67,7 +72,7 @@
                                         </div>
                                     </div>
                                     <div class="col-12" id="contentTableClients" style="display: none;">
-                                        <table id="tableClients" class="table table-bordered table-striped">
+                                        <table id="tableClients" class="table table-bordered">
                                             <thead>
                                                 <tr>
                                                     <th>Nombre</th>
@@ -92,17 +97,13 @@
                 </div>
             </form>
         </div>
-    </div>
+    </div> *@
     <!-- End Modal -->
 
     <div class="row">
         <div class="col-12">
             <div class="card shadow">
                 <div class="card-body">
-                    <div class="d-flex flex-row justify-content-between">
-                        <h2 class="card-title">Listado de transferencias</h2>
-                        <button id="btnAdd" type="button" class="btn btn-info btn-rounded waves-effect waves-light m-t-10 float-right" data-toggle="modal" data-target="#modalCreate">Agregar transferencia</button>
-                    </div>
                     <div class="table-responsive m-t-10">
                         <table id="DataTable" class="table table-bordered table-striped">
                             <thead>

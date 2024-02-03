@@ -21,6 +21,8 @@ namespace AguasNico.Controllers
             });
         }
 
+        #region Views
+
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -29,7 +31,7 @@ namespace AguasNico.Controllers
                 var products = await _workContainer.Product.GetAllAsync(x => x.IsActive);
                 IndexViewModel viewModel = new()
                 {
-                    Products = products.OrderBy(x => x.Name).ThenBy(x => x.Price),
+                    Products = [.. products.OrderBy(x => x.Name).ThenBy(x => x.Price) ],
                     Product = new Product(),
                 };
 
@@ -40,6 +42,10 @@ namespace AguasNico.Controllers
                 return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
             }
         }
+
+        #endregion
+
+        #region Actions
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -131,6 +137,10 @@ namespace AguasNico.Controllers
             }
         }
 
+        #endregion
+
+        #region AJAX
+
         [HttpGet]
         public async Task<IActionResult> GetClients(long productID)
         {
@@ -147,5 +157,7 @@ namespace AguasNico.Controllers
                 return CustomBadRequest(title: "Error al obtener los clientes", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
             }
         }
+
+        #endregion
     }
 }

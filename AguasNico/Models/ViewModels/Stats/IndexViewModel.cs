@@ -7,6 +7,6 @@ namespace AguasNico.Models.ViewModels.Stats
     {
         public required JsonResult AnnualProfits { get; set; }
         public required JsonResult MonthlyProfits { get; set; }
-        public IEnumerable<SelectListItem> Years { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> Years { get; set; } = [];
     }
 }

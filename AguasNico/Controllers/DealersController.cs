@@ -22,6 +22,8 @@ namespace AguasNico.Controllers
             });
         }
 
+        #region Views
+
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -30,7 +32,7 @@ namespace AguasNico.Controllers
                 var dealers = await _workContainer.ApplicationUser.GetDealers();
                 IndexViewModel viewModel = new()
                 {
-                    Dealers = dealers.OrderByDescending(x => x.UserName)
+                    Dealers = [.. dealers.OrderByDescending(x => x.UserName) ]
                 };
 
                 return View(viewModel);
@@ -63,7 +65,9 @@ namespace AguasNico.Controllers
             }
         }
 
-        #region Pegadas AJAX
+        #endregion
+
+        #region AJAX
         [HttpGet]
         public async Task<IActionResult> GetClientsByDay(Day day)
         {

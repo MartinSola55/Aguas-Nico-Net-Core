@@ -1,27 +1,23 @@
-﻿@model AguasNico.Models.ViewModels.Clients.IndexViewModel
+﻿@model AguasNico.Models.ViewModels.Transfers.CreateViewModel
 @using System.Globalization
 @{
-    ViewData["Title"] = "Clientes";
+    ViewData["Title"] = "Transferencias";
 }
 
 <link href="~/lib/datatables/media/css/dataTables.bootstrap4.css" rel="stylesheet">
 
 <script src="~/lib/datatables/datatables.min.js"></script>
-<script src="~/js/custom/clients/index.js"></script>
+<script src="~/js/custom/transfers/create.js"></script>
 
 <div class="container-fluid">
     <div class="row page-titles">
         <div class="col-md-5 col-8 align-self-center">
-            <h3 class="text-themecolor m-b-0 m-t-0">Clientes</h3>
+            <h3 class="text-themecolor m-b-0 m-t-0">Transferencias</h3>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">Inicio</a></li>
-                <li class="breadcrumb-item active">Clientes</li>
+                <li class="breadcrumb-item"><a asp-area="" asp-controller="Transfers" asp-action="Index">Transferencias</a></li>
+                <li class="breadcrumb-item active">Nueva</li>
             </ol>
-        </div>
-        <div class="col-md-7 col-5 align-self-center">
-            <div class="d-flex m-t-10 justify-content-end">
-                <a asp-area="" asp-controller="Clients" asp-action="Create" class="btn btn-info btn-rounded waves-effect waves-light m-t-10 float-right">Agregar nuevo cliente</a>
-            </div>
         </div>
     </div>
 
@@ -53,16 +49,6 @@
                                 </tr>
                             </thead>
                             <tbody id="table_body">
-                                @foreach (Client client in Model.Clients)
-                                {
-                                    <tr>
-                                        <td><a target="_blank" asp-area="" asp-controller="Clients" asp-action="Details" asp-route-id="@client.ID">@Html.DisplayFor(c => client.Name)</a></td>
-                                        <td>@Html.DisplayFor(c => client.Address)</td>
-                                        <td>@Html.DisplayFor(c => client.Phone)</td>
-                                        <td>$@(client.Debt >= 0 ? Html.DisplayFor(c => client.Debt) : (client.Debt * -1).ToString("#,##") + " a favor")</td>
-                                        <td>@Html.DisplayFor(c => client.Dealer.UserName) - @Html.DisplayFor(c => client.DeliveryDay)</td>
-                                    </tr>
-                                }
                             </tbody>
                         </table>
                     </div>

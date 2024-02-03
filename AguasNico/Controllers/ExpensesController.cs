@@ -23,6 +23,8 @@ namespace AguasNico.Controllers
             });
         }
 
+        #region Views
+
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -31,7 +33,7 @@ namespace AguasNico.Controllers
                 var expenses = await _workContainer.Expense.GetAllAsync(x => x.CreatedAt.Date == DateTime.UtcNow.AddHours(-3).Date, includeProperties: "User");
                 IndexViewModel viewModel = new()
                 {
-                    Expenses = expenses.OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Amount),
+                    Expenses = [.. expenses.OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Amount) ],
                     Dealers = await _workContainer.ApplicationUser.GetDealersDropDownList(),
                     CreateViewModel = new Expense()
                 };
@@ -43,6 +45,10 @@ namespace AguasNico.Controllers
                 return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
             }
         }
+
+        #endregion
+
+        #region Actions
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -125,6 +131,10 @@ namespace AguasNico.Controllers
             }
         }
 
+        #endregion
+
+        #region AJAX
+
         [HttpGet]
         [Authorize(Roles = Constants.Admin)]
         public async Task<IActionResult> SearchBetweenDates(string dateFrom, string dateTo)
@@ -172,5 +182,7 @@ namespace AguasNico.Controllers
                 return CustomBadRequest(title: "No se encontraron planillas", message: "Intente nuevamente o comuníquese para soporte");
             }
         }
+
+        #endregion
     }
 }

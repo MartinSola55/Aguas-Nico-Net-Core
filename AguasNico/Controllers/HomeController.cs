@@ -44,7 +44,7 @@ namespace AguasNico.Controllers
                         return View("~/Views/Home/Admin/Index.cshtml", viewModel);
                     case Constants.Dealer:
                         var dealerRoutes = await _workContainer.Route.GetAllAsync(x => x.UserID == user.Id && !x.IsStatic && x.DayOfWeek == today, includeProperties: "User, Carts, Carts.PaymentMethods");
-                        viewModel.DealerRoutes = dealerRoutes.OrderByDescending(x => x.CreatedAt);
+                        viewModel.DealerRoutes = [.. dealerRoutes.OrderByDescending(x => x.CreatedAt) ];
                         return View("~/Views/Home/Dealer/Index.cshtml", viewModel);
                     default:
                         return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });

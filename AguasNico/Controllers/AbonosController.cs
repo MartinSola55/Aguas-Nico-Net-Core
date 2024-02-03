@@ -23,6 +23,8 @@ namespace AguasNico.Controllers
             });
         }
 
+        #region Views
+
         [HttpGet]
         [Authorize(Roles = Constants.Admin)]
         public async Task<IActionResult> Index()
@@ -55,6 +57,10 @@ namespace AguasNico.Controllers
                 return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
             }
         }
+
+        #endregion
+
+        #region Actions
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -199,5 +205,7 @@ namespace AguasNico.Controllers
                 return CustomBadRequest(title: "Error al obtener los clientes", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
             }
         }
+
+        #endregion
     }
 }

@@ -18,12 +18,12 @@ namespace AguasNico.Models.ViewModels.Routes.Details
         public decimal TotalExpenses { get; set; } = 0;
 
         public List<CartPaymentMethod> Payments { get; set; } = [];
-        public IEnumerable<SelectListItem> PaymentTypes { get; set; } = [];
-        public IEnumerable<Transfer> Transfers { get; set; } = [];
+        public List<SelectListItem> PaymentTypes { get; set; } = [];
+        public List<Transfer> Transfers { get; set; } = [];
 
         public int CompletedCarts { get; set; } = 0;
         public int PendingCarts { get; set; } = 0;
-        public IEnumerable<SelectListItem> CartStates { get; set; } = new ConstantsMethods().GetStatesDropdown(valueString: true, firstItem: new () { Text = "Por estado", Value = "", Selected = true });
-        public IEnumerable<SelectListItem> ProductTypes { get; set; } = new ConstantsMethods().GetProductTypesDropdown(valueString: true, firstItem: new() { Text = "Por producto", Value = "", Selected = true });
+        public List<SelectListItem> CartStates { get; set; } = new ConstantsMethods().GetStatesDropdown(valueString: true, firstItem: new () { Text = "Por estado", Value = "", Selected = true });
+        public List<SelectListItem> ProductTypes { get; set; } = new ConstantsMethods().GetProductTypesDropdown(valueString: true, firstItem: new() { Text = "Por producto", Value = "", Selected = true });
     }
 }

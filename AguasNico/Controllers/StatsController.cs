@@ -10,10 +10,9 @@ using System.Linq.Expressions;
 namespace AguasNico.Controllers
 {
     [Authorize(Roles = Constants.Admin)]
-    public class StatsController(IWorkContainer workContainer, SignInManager<ApplicationUser> signInManager) : Controller
+    public class StatsController(IWorkContainer workContainer) : Controller
     {
         private readonly IWorkContainer _workContainer = workContainer;
-        private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
         private BadRequestObjectResult CustomBadRequest(string title, string message, string? error = null)
         {
             return BadRequest(new
@@ -24,6 +23,8 @@ namespace AguasNico.Controllers
                 error,
             });
         }
+
+        #region Views
 
         [HttpGet]
         public async Task<IActionResult> Index()
@@ -67,86 +68,112 @@ namespace AguasNico.Controllers
             }
         }
 
-        #region Pegadas AJAX
+        #endregion
+
+        #region AJAX
 
         [HttpGet]
         public async Task<JsonResult> GetAnnualProfits(string yearString)
         {
-            var allCarts = await _workContainer.Cart.GetAllAsync(x => !x.IsStatic && x.CreatedAt.Year.ToString() == yearString, includeProperties: "PaymentMethods");
+            try
+            {
+                var allCarts = await _workContainer.Cart.GetAllAsync(x => !x.IsStatic && x.CreatedAt.Year.ToString() == yearString, includeProperties: "PaymentMethods");
 
-            // Agrupar las ventas por mes y calcular la suma de Amount
-            var cartsByMonth = allCarts
-                .GroupBy(x => new { x.CreatedAt.Year, x.CreatedAt.Month })
-                .Select(group => new
+                // Agrupar las ventas por mes y calcular la suma de Amount
+                var cartsByMonth = allCarts
+                    .GroupBy(x => new { x.CreatedAt.Year, x.CreatedAt.Month })
+                    .Select(group => new
+                    {
+                        Period = $"{group.Key.Year}-{group.Key.Month.ToString().PadLeft(2, '0')}",
+                        Profit = group.Sum(x => x.PaymentMethods.Sum(y => y.Amount)),
+                    })
+                    .OrderBy(entry => entry.Period)
+                    .ToList();
+
+                var annualProfits = new List<object>();
+
+                for (int month = 1; month <= 12; month++)
                 {
-                    Period = $"{group.Key.Year}-{group.Key.Month.ToString().PadLeft(2, '0')}",
-                    Profit = group.Sum(x => x.PaymentMethods.Sum(y => y.Amount)),
-                })
-                .OrderBy(entry => entry.Period)
-                .ToList();
+                    string monthPadded = month.ToString().PadLeft(2, '0');
+                    string period = $"{yearString}-{monthPadded}";
 
-            var annualProfits = new List<object>();
+                    var cartsEntry = cartsByMonth.FirstOrDefault(entry => entry.Period == period);
 
-            for (int month = 1; month <= 12; month++)
-            {
-                string monthPadded = month.ToString().PadLeft(2, '0');
-                string period = $"{yearString}-{monthPadded}";
+                    decimal sold = (cartsEntry?.Profit ?? 0);
 
-                var cartsEntry = cartsByMonth.FirstOrDefault(entry => entry.Period == period);
+                    annualProfits.Add(new { period, sold });
+                }
 
-                decimal sold = (cartsEntry?.Profit ?? 0);
-
-                annualProfits.Add(new { period, sold });
+                return Json(new
+                {
+                    success = true,
+                    data = annualProfits,
+                });
             }
-
-            return Json(new
+            catch (Exception)
             {
-                success = true,
-                data = annualProfits,
-            });
+                return Json(new
+                {
+                    success = false,
+                    title = "Ha ocurrido un error al obtener las estadísticas",
+                    message = "Intente nuevamente o comuníquese para soporte",
+                });
+            }
         }
 
         [HttpGet]
         public async Task<JsonResult> GetMonthlyProfits(string yearString, string monthString)
         {
-            var allCarts = await _workContainer.Cart.GetAllAsync(x => !x.IsStatic && x.CreatedAt.Year.ToString() == yearString && x.CreatedAt.Month.ToString() == monthString, includeProperties: "PaymentMethods");
+            try
+            {
+                var allCarts = await _workContainer.Cart.GetAllAsync(x => !x.IsStatic && x.CreatedAt.Year.ToString() == yearString && x.CreatedAt.Month.ToString() == monthString, includeProperties: "PaymentMethods");
 
-            int year = int.Parse(yearString);
-            int month = int.Parse(monthString);
+                int year = int.Parse(yearString);
+                int month = int.Parse(monthString);
 
-            // Agrupar las ventas por día y calcular la suma de Amount
-            var cartsByDay = allCarts
-                .GroupBy(x => x.CreatedAt.Day)
-                .Select(group => new
+                // Agrupar las ventas por día y calcular la suma de Amount
+                var cartsByDay = allCarts
+                    .GroupBy(x => x.CreatedAt.Day)
+                    .Select(group => new
+                    {
+                        Day = group.Key,
+                        Profit = group.Sum(x => x.PaymentMethods.Sum(y => y.Amount)),
+                    })
+                    .OrderBy(entry => entry.Day)
+                    .ToList();
+
+                var monthlyProfits = new List<object>();
+
+                for (int day = 1; day <= DateTime.DaysInMonth(year, month); day++)
                 {
-                    Day = group.Key,
-                    Profit = group.Sum(x => x.PaymentMethods.Sum(y => y.Amount)),
-                })
-                .OrderBy(entry => entry.Day)
-                .ToList();
+                    var cart = cartsByDay.FirstOrDefault(s => s.Day == day);
 
-            var monthlyProfits = new List<object>();
+                    decimal sold = (cart?.Profit ?? 0);
 
-            for (int day = 1; day <= DateTime.DaysInMonth(year, month); day++)
-            {
-                var cart = cartsByDay.FirstOrDefault(s => s.Day == day);
+                    string monthPadded = month.ToString().PadLeft(2, '0');
+                    string dayPadded = day.ToString().PadLeft(2, '0');
+                    string period = $"{yearString}-{monthPadded}-{dayPadded}";
 
-                decimal sold = (cart?.Profit ?? 0);
+                    var dailySaleObject = new { period, sold };
 
-                string monthPadded = month.ToString().PadLeft(2, '0');
-                string dayPadded = day.ToString().PadLeft(2, '0');
-                string period = $"{yearString}-{monthPadded}-{dayPadded}";
+                    monthlyProfits.Add(dailySaleObject);
+                }
 
-                var dailySaleObject = new { period, sold };
-
-                monthlyProfits.Add(dailySaleObject);
+                return Json(new
+                {
+                    success = true,
+                    data = monthlyProfits,
+                });
             }
-
-            return Json(new
+            catch (Exception)
             {
-                success = true,
-                data = monthlyProfits,
-            });
+                return Json(new
+                {
+                    success = false,
+                    title = "Ha ocurrido un error al obtener las estadísticas",
+                    message = "Intente nuevamente o comuníquese para soporte",
+                });
+            }
         }
 
         #endregion

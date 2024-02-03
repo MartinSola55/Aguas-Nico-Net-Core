@@ -11,10 +11,9 @@ using Microsoft.AspNetCore.Authorization;
 namespace AguasNico.Controllers
 {
     [Authorize]
-    public class CartsController(IWorkContainer workContainer, SignInManager<ApplicationUser> signInManager) : Controller
+    public class CartsController(IWorkContainer workContainer) : Controller
     {
         private readonly IWorkContainer _workContainer = workContainer;
-        private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
         private BadRequestObjectResult CustomBadRequest(string title, string message, string? error = null)
         {
             return BadRequest(new
@@ -25,6 +24,8 @@ namespace AguasNico.Controllers
                 error,
             });
         }
+
+        #region Views
 
         [HttpGet]
         public async Task<IActionResult> Edit(long id)
@@ -83,7 +84,7 @@ namespace AguasNico.Controllers
                     Text = i.Name,
                     Value = i.ID.ToString(),
                     Selected = cart.PaymentMethods.Any(x => x.PaymentMethodID == i.ID),
-                });
+                }).ToList();
 
                 var editViewModel = new EditViewModel()
                 {
@@ -101,6 +102,10 @@ namespace AguasNico.Controllers
                 return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
             }
         }
+
+        #endregion
+
+        #region Actions
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -283,5 +288,7 @@ namespace AguasNico.Controllers
                 return CustomBadRequest(title: "Error", message: "No se ha podido eliminar la bajada", error: e.Message);
             }
         }
+
+        #endregion
     }
 }

@@ -22,6 +22,8 @@ namespace AguasNico.Controllers
             });
         }
 
+        #region Views
+
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -30,9 +32,8 @@ namespace AguasNico.Controllers
                 var transfers = await _workContainer.Transfer.GetAllAsync(x => x.CreatedAt.Date == DateTime.UtcNow.AddHours(-3).Date, includeProperties: "Client, User");
                 IndexViewModel viewModel = new()
                 {
-                    Transfers = transfers.OrderByDescending(x => x.Date).ThenByDescending(x => x.Amount),
-                    Dealers = await _workContainer.ApplicationUser.GetDropDownList(),
-                    CreateViewModel = new Transfer()
+                    Transfers = [.. transfers.OrderByDescending(x => x.Date).ThenByDescending(x => x.Amount)],
+
                 };
 
                 return View(viewModel);
@@ -43,9 +44,29 @@ namespace AguasNico.Controllers
             }
         }
 
+        public async Task<IActionResult> Create()
+        {
+            try
+            {
+                CreateViewModel viewModel = new()
+                {
+                    Dealers = await _workContainer.ApplicationUser.GetDropDownList(),
+                };
+                return View(viewModel);
+            }
+            catch (Exception)
+            {
+                return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
+            }
+        }
+
+        #endregion
+
+        #region Actions
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(IndexViewModel viewModel)
+        public async Task<IActionResult> Create(Transfer transfer)
         {
             ModelState.Remove("CreateViewModel.User");
             ModelState.Remove("CreateViewModel.Client");
@@ -54,8 +75,6 @@ namespace AguasNico.Controllers
             {
                 try
                 {
-                    var transfer = viewModel.CreateViewModel;
-
                     transfer.CreatedAt = DateTime.UtcNow.AddHours(-3);
                     await _workContainer.Transfer.AddAsync(transfer);
                     await _workContainer.SaveAsync();
@@ -88,7 +107,7 @@ namespace AguasNico.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(IndexViewModel viewModel)
+        public async Task<IActionResult> Edit(Transfer transfer)
         {
             ModelState.Remove("CreateViewModel.User");
             ModelState.Remove("CreateViewModel.Client");
@@ -98,7 +117,6 @@ namespace AguasNico.Controllers
             {
                 try
                 {
-                    var transfer = viewModel.CreateViewModel;
                     await _workContainer.Transfer.Update(transfer);
 
                     var newTransfer = await _workContainer.Transfer.GetFirstOrDefaultAsync(x => x.ID == transfer.ID, includeProperties: "Client, User");
@@ -149,6 +167,10 @@ namespace AguasNico.Controllers
             }
         }
 
+        #endregion
+
+        #region AJAX
+
         [HttpGet]
         public async Task<IActionResult> SearchBetweenDates(string dateFrom, string dateTo)
         {
@@ -169,5 +191,7 @@ namespace AguasNico.Controllers
                 return CustomBadRequest(title: "Error al buscar las transferencias", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
             }
         }
+
+        #endregion
     }
 }
