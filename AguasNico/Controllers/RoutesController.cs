@@ -99,6 +99,14 @@ namespace AguasNico.Controllers
                 if ((route.UserID != user.Id && role != Constants.Admin) || (route.IsStatic && role != Constants.Admin))
                     return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nNo tienes permisos para ver esta planilla", ErrorCode = 403 });
 
+                var clientIDs = route.Carts.Select(x => x.ClientID).Distinct().ToList();
+
+                var clientData = new List<ClientData>();
+                foreach (var clientID in clientIDs)
+                {
+                    clientData.Add(await GetProductsAndAbono(clientID));
+                }
+
                 switch (role)
                 {
                     case Constants.Admin:
@@ -108,6 +116,7 @@ namespace AguasNico.Controllers
                         AdminViewModel adminViewModel = new()
                         {
                             Route = route,
+                            Clients = clientData,
                             TotalExpenses = await _workContainer.Expense.GetTotalExpensesByDealer(route.CreatedAt.Date, route.UserID),
                             TotalSold = await _workContainer.Route.GetTotalSoldByRoute(id),
                             CompletedCarts = completedCarts.Count(),
@@ -124,6 +133,7 @@ namespace AguasNico.Controllers
                         DealerViewModel dealerViewModel = new()
                         {
                             Route = route,
+                            Clients = clientData,
                             PaymentMethods = await _workContainer.PaymentMethod.GetDropDownList(),
                             PaymentTypes = await _workContainer.PaymentMethod.GetFilterDropDownList(),
                         };
@@ -145,6 +155,49 @@ namespace AguasNico.Controllers
             catch (Exception)
             {
                 return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
+            }
+        }
+
+        private async Task<ClientData> GetProductsAndAbono(long id)
+        {
+            try
+            {
+                var client = await _workContainer.Client.GetFirstOrDefaultAsync(x => x.ID == id, includeProperties: "Products, Products.Product");
+
+                var abonoProductsList = await _workContainer.Client.GetAbonosRenewedAvailables(id);
+
+                var products = new List<ClientData.Product>();
+                var abonoProducts = abonoProductsList.GroupBy(x => x.Type).Select(x => new ClientData.Product()
+                {
+                    Type = x.Key,
+                    Name = x.Key.GetDisplayName(),
+                    Available = x.Sum(y => y.Available),
+                })
+                .ToList();
+
+                foreach (var clientProduct in client.Products)
+                {
+                    if (clientProduct.Product.Type == ProductType.Máquina)
+                        continue;
+
+                    products.Add(new ClientData.Product()
+                    {
+                        Type = clientProduct.Product.Type,
+                        Name = clientProduct.Product.Name,
+                        Price = clientProduct.Product.Price,
+                    });
+                }
+
+                return new ClientData()
+                {
+                    ClientID = id,
+                    Products = products,
+                    AbonoProducts = abonoProducts,
+                };
+            }
+            catch (Exception e)
+            {
+                throw;
             }
         }
 

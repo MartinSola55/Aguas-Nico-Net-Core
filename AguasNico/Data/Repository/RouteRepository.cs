@@ -7,6 +7,7 @@ using AguasNico.Data.Repository.IRepository;
 using AguasNico.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using AguasNico.Models.ViewModels.Routes.Details;
 
 namespace AguasNico.Data.Repository
 {

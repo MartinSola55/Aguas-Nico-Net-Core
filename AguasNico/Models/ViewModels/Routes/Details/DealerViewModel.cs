@@ -7,6 +7,7 @@ namespace AguasNico.Models.ViewModels.Routes.Details
     public class DealerViewModel
     {
         public Route Route = new();
+        public List<ClientData> Clients = [];
         public Cart Cart = new();
         public List<SelectListItem> PaymentTypes { get; set; } = [];
         public List<SelectListItem> CartStates { get; set; } = new ConstantsMethods().GetStatesDropdown(valueString: true, firstItem: new() { Text = "Por estado", Value = "", Selected = true });

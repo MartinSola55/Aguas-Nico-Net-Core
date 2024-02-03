@@ -75,115 +75,119 @@ function openModal(cartID, clientID) {
     });
 }
 
-function confirmCart() {
+function confirmCart(id) {
+    const form = $(`#form-confirmCart_${id}`);
+
+    // AGUS SEGUI ACA
     let abonoProducts = [];
-    let rows = $('#clientAbonoProductsTable tbody tr');
-    for (let i = 0; i < rows.length; i++) {
-        let row = rows[i];
-        let quantity = parseInt(row.cells[2].children[0].value);
-        if (quantity <= 0) {
-            Swal.fire({
-                icon: 'warning',
-                title: "Error",
-                text: "La cantidad debe ser mayor a cero",
-                confirmButtonColor: '#1e88e5',
-            });
-            return false;
-        }
-        if (quantity > parseInt(parseInt(row.cells[1].textContent.trim()))) {
-            Swal.fire({
-                icon: 'warning',
-                title: "Error",
-                text: "No se puede bajar m�s productos del abono de los que dispone",
-                confirmButtonColor: '#1e88e5',
-            });
-            return false;
-        }
-        if (quantity > 0) {
-            abonoProducts.push({
-                Quantity: quantity,
-                Type: parseInt(row.dataset.type)
-            });
+    const productRows = $(form).find('table[name="tableProducts"] tbody tr');
+    console.log(productRows);
+    //for (let i = 0; i < rows.length; i++) {
+    //    let row = rows[i];
+    //    let quantity = parseInt(row.cells[2].children[0].value);
+    //    if (quantity <= 0) {
+    //        Swal.fire({
+    //            icon: 'warning',
+    //            title: "Error",
+    //            text: "La cantidad debe ser mayor a cero",
+    //            confirmButtonColor: '#1e88e5',
+    //        });
+    //        return false;
+    //    }
+    //    if (quantity > parseInt(parseInt(row.cells[1].textContent.trim()))) {
+    //        Swal.fire({
+    //            icon: 'warning',
+    //            title: "Error",
+    //            text: "No se puede bajar m�s productos del abono de los que dispone",
+    //            confirmButtonColor: '#1e88e5',
+    //        });
+    //        return false;
+    //    }
+    //    if (quantity > 0) {
+    //        abonoProducts.push({
+    //            Quantity: quantity,
+    //            Type: parseInt(row.dataset.type)
+    //        });
 
-        }
-    }
+    //    }
+    //}
 
-    let products = [];
-    rows = $('#clientProductsTable tbody tr');
-    for (let i = 0; i < rows.length; i++) {
-        let row = rows[i];
-        let quantity = parseInt(row.cells[2].children[0].value);
-        if (quantity <= 0) {
-            Swal.fire({
-                icon: 'warning',
-                title: "Error",
-                text: "La cantidad debe ser mayor a cero",
-                confirmButtonColor: '#1e88e5',
-            });
-            return false;
-        }
-        if (quantity > 0) {
-            products.push({
-                Quantity: quantity,
-                Type: parseInt(row.dataset.type)
-            });
+    //let products = [];
+    //rows = $('#clientProductsTable tbody tr');
+    //for (let i = 0; i < rows.length; i++) {
+    //    let row = rows[i];
+    //    let quantity = parseInt(row.cells[2].children[0].value);
+    //    if (quantity <= 0) {
+    //        Swal.fire({
+    //            icon: 'warning',
+    //            title: "Error",
+    //            text: "La cantidad debe ser mayor a cero",
+    //            confirmButtonColor: '#1e88e5',
+    //        });
+    //        return false;
+    //    }
+    //    if (quantity > 0) {
+    //        products.push({
+    //            Quantity: quantity,
+    //            Type: parseInt(row.dataset.type)
+    //        });
 
-        }
-    }
+    //    }
+    //}
 
-    let methods = [];
-    if ($("#cartPaymentMethod").val() != "" && $("#cartPaymentAmount").val() != "") {
-        methods.push({
-            PaymentMethodID: $('input[name="cartPaymentMethodOption"]:checked').val(),
-            Amount: $("#cartPaymentAmount").val()
-        });
-    }
+    //let methods = [];
+    //if ($("#cartPaymentMethod").val() != "" && $("#cartPaymentAmount").val() != "") {
+    //    methods.push({
+    //        PaymentMethodID: $('input[name="cartPaymentMethodOption"]:checked').val(),
+    //        Amount: $("#cartPaymentAmount").val()
+    //    });
+    //}
 
-    let productsData = {
-        Cart: {
-            Products: products,
-            PaymentMethods: methods,
-            AbonoProducts: abonoProducts
-        }
-    };
-    if (products.length <= 0 & abonoProducts.length <=0 && methods[0].Amount <= 0) {
-        Swal.fire({
-            icon: 'warning',
-            title: "Error",
-            text: "No se puede confirmar una bajada sin productos y dinero.",
-            confirmButtonColor: '#1e88e5',
-        });
-        return false;
-    }
+    //let productsData = {
+    //    Cart: {
+    //        Products: products,
+    //        PaymentMethods: methods,
+    //        AbonoProducts: abonoProducts
+    //    }
+    //};
+    //if (products.length <= 0 & abonoProducts.length <=0 && methods[0].Amount <= 0) {
+    //    Swal.fire({
+    //        icon: 'warning',
+    //        title: "Error",
+    //        text: "No se puede confirmar una bajada sin productos y dinero.",
+    //        confirmButtonColor: '#1e88e5',
+    //    });
+    //    return false;
+    //}
 
-    let form = $("#form-confirmCart");
-    $.ajax({
-        url: $(form).attr('action'),
-        method: $(form).attr('method'),
-        data: $(form).serialize() + "&" + $.param(productsData),
-        success: function (response) {
-            Swal.fire({
-                title: response.message,
-                icon: 'success',
-                showCancelButton: false,
-                confirmButtonColor: '#1e88e5',
-                confirmButtonText: 'OK',
-                allowOutsideClick: false,
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.reload();
-                }
-            });
-        },
-        error: function (errorThrown) {
-            Swal.fire({
-                icon: 'error',
-                title: errorThrown.responseJSON.title,
-                html: errorThrown.responseJSON.message + "<br/>" + errorThrown.responseJSON.error,
-                confirmButtonColor: '#1e88e5',
-            });
-        }
-    });
+    //let form = $("#form-confirmCart");
+    //$.ajax({
+    //    url: $(form).attr('action'),
+    //    method: $(form).attr('method'),
+    //    data: $(form).serialize() + "&" + $.param(productsData),
+    //    success: function (response) {
+    //        Swal.fire({
+    //            title: response.message,
+    //            icon: 'success',
+    //            showCancelButton: false,
+    //            confirmButtonColor: '#1e88e5',
+    //            confirmButtonText: 'OK',
+    //            allowOutsideClick: false,
+    //        }).then((result) => {
+    //            if (result.isConfirmed) {
+    //                window.location.reload();
+    //            }
+    //        });
+    //    },
+    //    error: function (errorThrown) {
+    //        Swal.fire({
+    //            icon: 'error',
+    //            title: errorThrown.responseJSON.title,
+    //            html: errorThrown.responseJSON.message + "<br/>" + errorThrown.responseJSON.error,
+    //            confirmButtonColor: '#1e88e5',
+    //        });
+    //    }
+    //});
 }
 
 $(document).ready(function () {

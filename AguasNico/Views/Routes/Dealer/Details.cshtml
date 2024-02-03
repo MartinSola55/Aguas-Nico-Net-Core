@@ -196,212 +196,227 @@
                     </div>
 
                     <!-- TIMELINE DE CLIENTES -->
-                    <ul class="timeline">
+                    <div class="col-12">
                     @foreach (Cart cart in Model.Route.Carts.OrderBy(x => x.Priority))
                     {
-                            <li class="@(contador++ % 2 != 0 ? "timeline-inverted" : "")">
-                            @if (cart.State == State.Confirmed) 
-                            {
-                                <div class="timeline-badge" style="background-color: #30d577"><i class="bi bi-truck"></i></div>
-                            }
-                            else if (cart.State == State.Ausent ||cart.State == State.NotNeeded ||cart.State == State.Holidays) 
-                            { 
-                                <div class="timeline-badge" style="background-color: #ffc107"><i class="bi bi-truck"></i></div>
-                            }
-                            else
-                            {
-                                <div class="timeline-badge" style="background-color: #6c757d"><i class="bi bi-truck"></i></div>
-                            }
-                            <div class="timeline-panel">
-                                <div class="timeline-heading">
-                                    <div class="row justify-content-between">
-                                        @if (cart.State == State.Confirmed)
-                                        {
-                                            <h4 class="timeline-title name-element col-8" style="color: #30d577">@Html.DisplayFor(x => cart.Client.Name) - @Html.DisplayFor(x => cart.State)</h4>
-                                        }
-                                        else if (cart.State == State.Ausent ||cart.State == State.NotNeeded ||cart.State == State.Holidays) 
-                                        {
-                                            <h4 class="timeline-title name-element col-8" style="color: #ffc107">@Html.DisplayFor(x => cart.Client.Name) - @Html.DisplayFor(x => cart.State)</h4>
-                                        }
-                                        else if (cart.State == State.Pending)
-                                        {
-                                            <h4 class="timeline-title name-element col-8" style="color: #6c757d">@Html.DisplayFor(x => cart.Client.Name) - @Html.DisplayFor(x => cart.State)</h4>
-                                        }
-                                        else
-                                        {
-                                            <h4 class="timeline-title name-element col-8" style="color: #6c757d">@Html.DisplayFor(x => cart.Client.Name)</h4>
-                                        }
-                                        <button class="btn btn-info rounded-circle mr-2 h-100" onclick="getClientHistory(@cart.ClientID, '@cart.Client.Name')"><i class="bi bi-clipboard"></i></button>
-                                    </div>
-                                    <p class="m-0"><small class="text-muted">Bajada #@cart.ClientID</small></p>
-                                    <p class="m-0"><small class="text-muted">Creada: @cart.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small></p>
-                                    <p class="m-0"><small class="text-muted">Últ. modif: @cart.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</small></p>
-
-                                    <!-- Datos del último reparto -->
-                                    @* @if ($cart->Client->lastCart != null && $cart->Client->lastCart->created_at != null)
-                                    <p class="m-0">Último reparto: {{ $cart->Client->lastCart->created_at->format('d/m/Y') }} - {{ $states[$cart->Client->lastCart->state] }}</p>
-                                    @endif *@
-
-                                    <!-- Mostrar si renovo maquina -->
-                                    @* @if ($cart->RenewMachine)
-                                        <p class="m-0 machine-element"><small><b>Renovo {{$cart->RenewMachine->Machine->name}} x {{$cart->RenewMachine->quantity}}</b></small></p>
-                                    @endif *@
-
-                                    <!-- Mostrar las duedas de cada cliente -->
-                                    @if (cart.Client.Debt == 0)
+                        <div class="card shadow">
+                            <div class="card-body">
+                                <div class="d-flex flex-row justify-content-between align-items-center">
+                                    @if (cart.State == State.Confirmed)
                                     {
-                                        <p class="m-0"><small class="text-muted">Sin deuda</small></p>
+                                        <h4 class="card-title mb-0 name-element" style="color: #30d577">@Html.DisplayFor(x => cart.Client.Name) - @Html.DisplayFor(x => cart.State)</h4>
                                     }
-                                    else if (cart.Client.Debt > 0)
+                                    else if (cart.State == State.Ausent ||cart.State == State.NotNeeded ||cart.State == State.Holidays) 
                                     {
-                                        <p class="m-0"><small class="text-danger">Deuda: $@Html.DisplayFor(x => cart.Client.Debt)</small></p>
+                                        <h4 class="card-title mb-0 name-element" style="color: #ffc107">@Html.DisplayFor(x => cart.Client.Name) - @Html.DisplayFor(x => cart.State)</h4>
+                                    }
+                                    else if (cart.State == State.Pending)
+                                    {
+                                        <h4 class="card-title mb-0 name-element" style="color: #6c757d">@Html.DisplayFor(x => cart.Client.Name) - @Html.DisplayFor(x => cart.State)</h4>
                                     }
                                     else
                                     {
-                                        <p class="m-0"><small class="text-success">A favor: $@((cart.Client.Debt * -1).ToString("#,##"))</small></p>
+                                        <h4 class="card-title mb-0 name-element" style="color: #6c757d">@Html.DisplayFor(x => cart.Client.Name)</h4>
                                     }
-
-                                    <!-- Deuda del mes actual -->
-                                    @* <p class="m-0"><small class="text-muted">Consumo del mes actual: ${{ $cart->Client->debtOfTheMonth }}</small></p> *@
-
-                                    <!-- Deuda del mes anterior -->
-                                    @* <p class="m-0"><small class="text-muted">Consumo del mes anterior: ${{ $cart->Client->debtOfPreviousMonth }}</small></p> *@
-
-                                    <p class="mb-0"><small class="text-muted address-element"><i class="bi bi-house-door"></i> @Html.DisplayFor(x => cart.Client.Address)&nbsp;&nbsp;-&nbsp;&nbsp;<i class="bi bi-telephone"></i> @Html.DisplayFor(x => cart.Client.Phone)</small></p>
+                                    <button class="btn btn-info rounded-circle mr-2 h-100" onclick="getClientHistory(@cart.ClientID, '@cart.Client.Name')"><i class="bi bi-clipboard"></i></button>
                                 </div>
-                                <div class="timeline-body">
-                                    @if (cart.State == State.Confirmed)
-                                    {
-                                        @if (cart.Products.Any())
-                                        {
-                                            <div class="row">
-                                                <div class="col-lg-12">
-                                                    <hr />
-                                                    <h3 class="text-center type-element text-muted mb-0">Bajada</h3>
-                                                    <div class="table-responsive">
-                                                        <table class="table">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Cantidad</th>
-                                                                    <th>Producto</th>
-                                                                    <th>Precio</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                            @foreach (CartProduct product in cart.Products)
-                                                            {
-                                                                <tr>
-                                                                    <td>@Html.DisplayFor(x => product.Quantity)</td>
-                                                                    <td class="product-element">@product.Type.GetDisplayName()</td>
-                                                                    <td>@Html.DisplayFor(x => product.SettedPrice)</td>
-                                                                </tr>
-                                                            }
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        }
-                                        @if (cart.AbonoProducts.Any())
-                                        {
-                                            <div class="row">
-                                                <div class="col-lg-12">
-                                                    <hr />
-                                                    <h3 class="text-center type-element text-muted mb-0">Abonos</h3>
-                                                    <div class="table-responsive">
-                                                        <table class="table">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Cantidad</th>
-                                                                    <th>Producto</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                            @foreach (CartAbonoProduct product in cart.AbonoProducts)
-                                                            {
-                                                                <tr>
-                                                                    <td>@Html.DisplayFor(x => product.Quantity)</td>
-                                                                    <td class="product-element">@product.Type.GetDisplayName()</td>
-                                                                </tr>
-                                                            }
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        }
-                                        @if (cart.ReturnedProducts.Any())
-                                        {
-                                            <div class="row">
-                                                <div class="col-lg-12">
-                                                    <hr />
-                                                    <h3 class="text-center type-element text-muted mb-0">Devoluciones</h3>
-                                                    <div class="table-responsive">
-                                                        <table class="table">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Cantidad</th>
-                                                                    <th>Producto</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                            @foreach (ReturnedProduct product in cart.ReturnedProducts)
-                                                            {
-                                                                <tr>
-                                                                    <td>@Html.DisplayFor(x => product.Quantity)</td>
-                                                                    <td class="product-element">@product.Type.GetDisplayName()</td>
-                                                                </tr>
-                                                            }
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        }
+                                <p class="m-0"><small class="text-muted">Bajada #@cart.ClientID</small> - 
+                                <small class="text-muted">Creada: @cart.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small> - 
+                                <small class="text-muted">Últ. modif: @cart.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</small> - 
 
-                                        <div class="d-flex flex-md-row flex-column justify-content-end">
-                                            <button type="button" onclick="getReturnedProducts('@cart.ClientID', '@cart.Client.Name', '@cart.ID')" class="btn btn-sm btn-info btn-rounded px-3 mb-2 mb-md-0 ml-auto ml-md-0">Devuelve</button>
-                                            <a asp-area="" asp-controller="Carts" asp-action="Edit" asp-route-id="@cart.ID" class="btn btn-sm btn-info btn-rounded px-3 ml-auto ml-md-2">Editar Bajada</a>
-                                            </div>
-                                        <hr>
-                                        <div class="d-flex flex-row justify-content-start">
-                                            <ul>
-                                                @foreach (CartPaymentMethod paymentMethod in cart.PaymentMethods)
-                                                {
-                                                    <li>@Html.DisplayFor(x => paymentMethod.PaymentMethod.Name): $@Html.DisplayFor(x => paymentMethod.Amount)</li>
-                                                }
-                                            </ul>
-                                        </div>
-                                    }
-                                    @if (cart.State == State.Pending)
+                                <!-- Mostrar las deudas de cada cliente -->
+                                @if (cart.Client.Debt == 0)
+                                {
+                                    <small class="text-muted">Sin deuda</small>
+                                }
+                                else if (cart.Client.Debt > 0)
+                                {
+                                    <small class="text-danger">Deuda: $@Html.DisplayFor(x => cart.Client.Debt)</small>
+                                }
+                                else
+                                {
+                                    <small class="text-success">A favor: $@((cart.Client.Debt * -1).ToString("#,##"))</small>
+                                }
+                                </p>
+
+                                <p class="mb-0"><small class="text-muted address-element"><i class="bi bi-house-door"></i> @Html.DisplayFor(x => cart.Client.Address)&nbsp;&nbsp;-&nbsp;&nbsp;<i class="bi bi-telephone"></i> @Html.DisplayFor(x => cart.Client.Phone)</small></p>
+                               
+                                <!--Bajada confirmada -->
+                                @if (cart.State == State.Confirmed)
+                                {
+                                    <hr />
+                                    <div class="row justify-content-between">
+                                    @if (cart.Products.Any())
                                     {
-                                        <div class="d-flex flex-row justify-content-end">
-                                            <div class="btn-group">
-                                                <button type="button" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown">Acción</button>
-                                                <div class="dropdown-menu">
-                                                    <button type="button" class="dropdown-item" data-toggle="modal" data-target="#modalConfirmation" style="cursor: pointer;" onclick="openModal(@cart.ID, @cart.ClientID)"><b>Bajar</b></button>
-                                                    <div class="dropdown-divider"></div>
-                                                    @foreach (State state in Model.States)
+                                        <div class="col-12 col-md-6 col-lg-4 p-2">
+                                            <h3 class="text-center type-element text-muted mb-0">Bajada</h3>
+                                            <div class="table-responsive">
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Cantidad</th>
+                                                            <th>Producto</th>
+                                                            <th>Precio</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    @foreach (CartProduct product in cart.Products)
                                                     {
-                                                        <button class="dropdown-item" type="button" style="cursor: pointer;" onclick="setState(@cart.ID, @((int)state), '@state.GetDisplayName().ToLower()')">@state.GetDisplayName()</button>
+                                                        <tr>
+                                                            <td>@Html.DisplayFor(x => product.Quantity)</td>
+                                                            <td class="product-element">@product.Type.GetDisplayName()</td>
+                                                            <td>@Html.DisplayFor(x => product.SettedPrice)</td>
+                                                        </tr>
                                                     }
-                                                </div>
+                                                    </tbody>
+                                                </table>
                                             </div>
                                         </div>
                                     }
-                                    <!-- Resetear estado del carrito (no confirmado) -->
-                                    @if (cart.State != State.Pending && cart.State != State.Confirmed)
+                                    @if (cart.AbonoProducts.Any())
                                     {
-                                        <hr>
-                                        <div class="d-flex flex-row justify-content-end">
-                                            <button type="button" class="btn btn-sm btn-danger btn-rounded px-3" onclick="cancelState(@cart.ID)">Cancelar estado</button>
+                                        <div class="col-12 col-md-6 col-lg-4 p-2">
+                                            <h3 class="text-center type-element text-muted mb-0">Abonos</h3>
+                                            <div class="table-responsive">
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Cantidad</th>
+                                                            <th>Producto</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    @foreach (CartAbonoProduct product in cart.AbonoProducts)
+                                                    {
+                                                        <tr>
+                                                            <td>@Html.DisplayFor(x => product.Quantity)</td>
+                                                            <td class="product-element">@product.Type.GetDisplayName()</td>
+                                                        </tr>
+                                                    }
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
                                     }
-                                </div>
+                                    @if (cart.ReturnedProducts.Any())
+                                    {
+                                        <div class="col-12 col-md-6 col-lg-4 p-2">
+                                            <h3 class="text-center type-element text-muted mb-0">Devoluciones</h3>
+                                            <div class="table-responsive">
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Cantidad</th>
+                                                            <th>Producto</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    @foreach (ReturnedProduct product in cart.ReturnedProducts)
+                                                    {
+                                                        <tr>
+                                                            <td>@Html.DisplayFor(x => product.Quantity)</td>
+                                                            <td class="product-element">@product.Type.GetDisplayName()</td>
+                                                        </tr>
+                                                    }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    }
+                                    </div>
+
+                                    <div class="d-flex flex-md-row flex-column justify-content-end">
+                                        <button type="button" onclick="getReturnedProducts('@cart.ClientID', '@cart.Client.Name', '@cart.ID')" class="btn btn-sm btn-info btn-rounded px-3 mb-2 mb-md-0 ml-auto ml-md-0">Devuelve</button>
+                                        <a asp-area="" asp-controller="Carts" asp-action="Edit" asp-route-id="@cart.ID" class="btn btn-sm btn-info btn-rounded px-3 ml-auto ml-md-2">Editar Bajada</a>
+                                        </div>
+                                    <hr>
+                                    <div class="d-flex flex-row justify-content-start">
+                                        <ul>
+                                            @foreach (CartPaymentMethod paymentMethod in cart.PaymentMethods)
+                                            {
+                                                <li>@Html.DisplayFor(x => paymentMethod.PaymentMethod.Name): $@Html.DisplayFor(x => paymentMethod.Amount)</li>
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+                                
+                                <!--Bajada pendiente -->
+                                @if (cart.State == State.Pending)
+                                {
+                                    <div class="d-flex flex-row justify-content-end">
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown">Acción</button>
+                                            <div class="dropdown-menu">
+                                                <button type="button" class="dropdown-item" data-toggle="modal" data-target="#modalConfirmation" style="cursor: pointer;" onclick="openModal(@cart.ID, @cart.ClientID)"><b>Bajar</b></button>
+                                                <div class="dropdown-divider"></div>
+                                                @foreach (State state in Model.States)
+                                                {
+                                                    <button class="dropdown-item" type="button" style="cursor: pointer;" onclick="setState(@cart.ID, @((int)state), '@state.GetDisplayName().ToLower()')">@state.GetDisplayName()</button>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr />
+                                    <form method="post" asp-controller="Carts" asp-action="Confirm" asp-route-Cart.ID="@cart.ID" id="form-confirmCart_@cart.ID">
+                                        @if (Model.Clients.First(x => x.ClientID == cart.ClientID).Products.Count > 0)
+                                        {
+                                            <h2 class="text-center">Bajada</h2>
+                                            <table class="table" data-name="tableProducts">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="col-4">Producto</th>
+                                                        <th class="col-4">Bajó</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var product in Model.Clients.First(x => x.ClientID == cart.ClientID).Products)
+                                                    {
+                                                        <tr>
+                                                            <td>@product.Name - @Html.DisplayFor(x => product.Price)</td>
+                                                            <td><input type="number" class="form-control" /></td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        }
+
+                                        @if (Model.Clients.First(x => x.ClientID == cart.ClientID).AbonoProducts.Count > 0)
+                                        {
+                                        <hr />
+                                        <h2 class="text-center">Abonos</h2>
+                                        <table class="table" data-name="tableAbonoProducts">
+                                            <thead>
+                                                <tr>
+                                                    <th class="col-4">Producto</th>
+                                                    <th class="col-4">Bajó</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var product in Model.Clients.First(x => x.ClientID == cart.ClientID).AbonoProducts)
+                                                {
+                                                    <tr>
+                                                        <td>@product.Type.GetDisplayName() - Dispone: @product.Available</td>
+                                                        <td><input type="number" class="form-control" /></td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                        }
+                                        <button type="button" class="btn btn-info btn-rounded" onclick="confirmCart(@cart.ID)">Confirmar bajada</button>
+                                    </form>
+                                }
+                                <!-- Resetear estado del carrito (no confirmado) -->
+                                @if (cart.State != State.Pending && cart.State != State.Confirmed)
+                                {
+                                    <hr>
+                                    <div class="d-flex flex-row justify-content-end">
+                                        <button type="button" class="btn btn-sm btn-danger btn-rounded px-3" onclick="cancelState(@cart.ID)">Cancelar estado</button>
+                                    </div>
+                                }
                             </div>
-                        </li>
+                        </div>
                     }
-                    </ul>
+                    </div>
                 </div>
             </div>
         </div>

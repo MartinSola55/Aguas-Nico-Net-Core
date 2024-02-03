@@ -363,14 +363,14 @@ namespace AguasNico.Controllers
                 var abonoProductsList = await _workContainer.Client.GetAbonosRenewedAvailables(id);
                 
                 var products = new List<object>();
-                    var abonoProducts = abonoProductsList.GroupBy(x => x.Type).Select(x => new
-                    {
-                        type = x.Key,
-                        name = x.Key.GetDisplayName(),
-                        available = x.Sum(y => y.Available),
-                    })
-                    .Cast<object>()
-                    .ToList();
+                var abonoProducts = abonoProductsList.GroupBy(x => x.Type).Select(x => new
+                {
+                    type = x.Key,
+                    name = x.Key.GetDisplayName(),
+                    available = x.Sum(y => y.Available),
+                })
+                .Cast<object>()
+                .ToList();
 
                 foreach (var clientProduct in client.Products)
                 {

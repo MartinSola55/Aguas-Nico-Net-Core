@@ -9,6 +9,7 @@ namespace AguasNico.Models.ViewModels.Routes.Details
     public class AdminViewModel
     {
         public Route Route = new();
+        public List<ClientData> Clients = [];
         public List<SoldProductsTable> SoldProducts { get; set; } = [];
 
         [DisplayFormat(DataFormatString = "${0:#,##0}", ApplyFormatInEditMode = true)]
