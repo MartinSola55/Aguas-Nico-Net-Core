@@ -56,4 +56,21 @@
             </div>
         </div>
     </div>
+
+    <form id="form-create" method="post" asp-area="" asp-controller="Transfers" asp-action="Create">
+        @Html.AntiForgeryToken()
+        @Html.Hidden("Transfer.ClientID", "")
+        @Html.Hidden("Transfer.Amount", "")
+        @Html.Hidden("Transfer.Date", "")
+    </form>
+
 </div>
+
+<style>
+    .clickable {
+        cursor: pointer;
+    }
+    #DataTable tbody tr:hover {
+        background-color: #dfeaff;
+    }
+</style>

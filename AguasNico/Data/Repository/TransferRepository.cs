@@ -15,6 +15,10 @@ namespace AguasNico.Data.Repository
 
         public async Task Add(Transfer transfer)
         {
+            if (transfer.Amount <= 0)
+                throw new Exception("El monto de la transferencia no puede ser menor o igual a 0");
+            if (transfer.Date.Date > DateTime.UtcNow.AddHours(-3).Date)
+                throw new Exception("La fecha de la transferencia no puede ser mayor a la fecha actual");
 
             var client = await _db
                 .Clients
@@ -39,8 +43,12 @@ namespace AguasNico.Data.Repository
             }
         }
 
-        public async Task Update(Transfer transfer)
+        public async Task Update(Transfer transfer, bool updateDate)
         {
+            if (transfer.Amount <= 0)
+                throw new Exception("El monto de la transferencia no puede ser menor o igual a 0");
+            if (transfer.Date.Date > DateTime.UtcNow.AddHours(-3).Date)
+                throw new Exception("La fecha de la transferencia no puede ser mayor a la fecha actual");
 
             var oldTransfer = await _db
                 .Transfers
@@ -52,12 +60,15 @@ namespace AguasNico.Data.Repository
 
             client.Debt += oldTransfer.Amount;
             client.Debt -= transfer.Amount;
+            
             if (client.DealerID != null)
-            {
                 oldTransfer.UserID = client.DealerID;
-            }
+
             oldTransfer.Amount = transfer.Amount;
-            oldTransfer.Date = transfer.Date;
+            
+            if (updateDate)
+                oldTransfer.Date = transfer.Date;
+
             oldTransfer.UpdatedAt = DateTime.UtcNow.AddHours(-3);
 
             try

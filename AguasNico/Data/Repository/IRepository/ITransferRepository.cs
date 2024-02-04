@@ -10,7 +10,7 @@ namespace AguasNico.Data.Repository.IRepository
     public interface ITransferRepository : IRepository<Transfer>
     {
         Task Add(Transfer transfer);
-        Task Update(Transfer transfer);
+        Task Update(Transfer transfer, bool updateDate);
         Task SoftDelete(long id);
         Task<List<Transfer>> GetLastTen(long clientID);
     }

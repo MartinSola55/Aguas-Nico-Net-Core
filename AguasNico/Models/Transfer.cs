@@ -17,7 +17,7 @@ namespace AguasNico.Models
 
         [Required(ErrorMessage = "Debes ingresar un monto")]
         [Display(Name = "Monto")]
-        [Range(1, 1000000, ErrorMessage = "El monto debe ser mayor a 0")]
+        [Range(1, 10000000, ErrorMessage = "El monto debe ser mayor a 0")]
         [Column(TypeName = "money")]
         [DisplayFormat(DataFormatString = "{0:#,##0}", ApplyFormatInEditMode = true)]
         public decimal Amount { get; set; }
