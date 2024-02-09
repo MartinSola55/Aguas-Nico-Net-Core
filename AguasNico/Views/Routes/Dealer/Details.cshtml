@@ -220,7 +220,7 @@
                                     }
                                     <button class="btn btn-info rounded-circle mr-2 h-100" tabindex="-1" onclick="getClientHistory(@cart.ClientID, '@cart.Client.Name')"><i class="bi bi-clipboard"></i></button>
                                 </div>
-                                <p class="m-0"><small class="text-muted">Bajada #@cart.ClientID</small> - 
+                                <p class="m-0"><small class="text-muted">Bajada #@cart.ID</small> - 
                                 <small class="text-muted">Creada: @cart.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small> - 
                                 <small class="text-muted">Últ. modif: @cart.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</small> - 
 
@@ -357,7 +357,8 @@
                                         </div>
                                     </div>
                                     <hr />
-                                    <form method="post" asp-controller="Carts" asp-action="Confirm" asp-route-Cart.ID="@cart.ID" id="form-confirmCart_@cart.ID">
+                                    <form method="post" asp-controller="Carts" asp-action="Confirm" asp-route-Cart.ID="@cart.ID" asp-route-Cart.ClientID="@cart.ClientID" id="form-confirmCart_@cart.ID">
+                                        @Html.AntiForgeryToken()
                                         <div class="row">
                                         @if (Model.Clients.First(x => x.ClientID == cart.ClientID).Products.Count > 0)
                                         {
@@ -373,7 +374,7 @@
                                                     <tbody>
                                                         @foreach (var product in Model.Clients.First(x => x.ClientID == cart.ClientID).Products)
                                                         {
-                                                            <tr data-type="@product.Type">
+                                                            <tr data-type="@((int)product.Type)">
                                                                 <td>@product.Name - <i class="price"> @Html.DisplayFor(x => product.Price)</i></td>
                                                                 <td><input type="number" class="form-control" name="quantity" value="" min="1" /></td>
                                                             </tr>
@@ -387,7 +388,7 @@
                                         {
                                             <div class="col-lg-4 col-md-4 col-sm-12">
                                                 <h3>Abonos</h3>
-                                                <table class="table" data-name="tableAbonoProducts">
+                                                <table class="table" data-name="tableAbonoProducts" data-cart-id="@cart.ID">
                                                     <thead>
                                                         <tr>
                                                             <th class="col-4">Producto</th>
@@ -397,7 +398,7 @@
                                                     <tbody>
                                                         @foreach (var product in Model.Clients.First(x => x.ClientID == cart.ClientID).AbonoProducts)
                                                         {
-                                                            <tr data-type="@product.Type">
+                                                            <tr data-type="@((int)product.Type)">
                                                                 <td>@product.Type.GetDisplayName() - Dispone: @product.Available</td>
                                                                 <td><input type="number" name="quantity" class="form-control" value="" min="1" max="@product.Available" /></td>
                                                             </tr>
@@ -406,20 +407,20 @@
                                                 </table>
                                             </div>
                                         }
-                                            <div class="col-lg-4 col-md-4 col-sm-12"  id="totalCartContainer_@cart.ID">
+                                            <div class="col-lg-4 col-md-4 col-sm-12" id="totalCartContainer_@cart.ID">
                                                 <div class="d-flex row justify-content-between">
                                                     <strong class="col-12 align-items-center justify-content-end mb-0 totalCart">Total: $0</strong>
                                                 </div>
                                                 <div class="col-12 py-3 d-flex justify-content-center align-items-center">
                                                     <div class="btn-group btn-group-toggle" data-toggle="buttons">
                                                         <label class="btn btn-secondary active">
-                                                            <input type="radio" name="cartPaymentMethodOption" value="1" checked> Efectivo
+                                                            <input type="radio" name="cartPaymentMethodOption" id="cartPaymentMethod_@cart.ID" value="1" checked> Efectivo
                                                         </label>
                                                         <label class="btn btn-secondary">
-                                                            <input type="radio" name="cartPaymentMethodOption" value="2"> Transferencia
+                                                            <input type="radio" name="cartPaymentMethodOption" id="cartPaymentMethod_@cart.ID" value="2"> Transferencia
                                                         </label>
                                                         <label class="btn btn-secondary">
-                                                            <input type="radio" name="cartPaymentMethodOption" value="3"> Mercado pago
+                                                            <input type="radio" name="cartPaymentMethodOption" id="cartPaymentMethod_@cart.ID" value="3"> Mercado pago
                                                         </label>
                                                     </div>
                                                 </div>

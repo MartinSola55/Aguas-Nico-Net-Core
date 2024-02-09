@@ -114,12 +114,11 @@ namespace AguasNico.Controllers
             try
             {
                 await _workContainer.Cart.Update(cart);
-                var route = _workContainer.Cart.GetFirstOrDefaultAsync(x => x.ID == cart.ID);
                 return Json(new
                 {
                     success = true,
                     message = "Se ha editado la bajada correctamente",
-                    data = route.Result.ID,
+                    data = cart.RouteID,
                 });
             }
             catch (Exception e)

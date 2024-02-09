@@ -15,6 +15,9 @@ namespace AguasNico.Data.Repository
 
         public async Task Update(Cart cart)
         {
+            try
+            {
+                await _db.Database.BeginTransactionAsync();
                 await SoftDelete(cart.ID);
 
                 var client = await _db
@@ -193,14 +196,12 @@ namespace AguasNico.Data.Repository
 
                 var updatedCart = await _db
                     .Carts
-                    .FindAsync(cart.ID) ?? throw new Exception("No se ha encontrado la bajada");
+                    .IgnoreQueryFilters()
+                    .FirstOrDefaultAsync(x => x.ID == cart.ID) ?? throw new Exception("No se ha encontrado la bajada");
 
                 updatedCart.DeletedAt = null;
                 updatedCart.UpdatedAt = DateTime.UtcNow.AddHours(-3);
 
-            try
-            {
-                await _db.Database.BeginTransactionAsync();
                 await _db.SaveChangesAsync();
                 await _db.Database.CommitTransactionAsync();
             }
@@ -215,13 +216,12 @@ namespace AguasNico.Data.Repository
         {
             var cart = await _db
                 .Carts
-                .Where(x => x.ID == id)
                 .Include(x => x.Client)
                 .Include(x => x.Products)
                 .Include(x => x.AbonoProducts)
                 .Include(x => x.ReturnedProducts)
                 .Include(x => x.PaymentMethods)
-                .FirstOrDefaultAsync() ?? throw new Exception("No se ha encontrado la bajada");
+                .FirstOrDefaultAsync(x => x.ID == id) ?? throw new Exception("No se ha encontrado la bajada");
 
             // Productos de la bajada
             if (cart.Products is not null)
@@ -333,7 +333,7 @@ namespace AguasNico.Data.Repository
             {
                 returnedProducts.Add(new()
                 {
-                    Cart = cart,
+                    CartID = cart.ID,
                     Type = type,
                     Quantity = 0,
                 });
@@ -354,7 +354,7 @@ namespace AguasNico.Data.Repository
 
                     clientProduct.Stock += product.Quantity;
                     product.SettedPrice = clientProduct.Product.Price;
-                    product.Cart = cart;
+                    product.CartID = cart.ID;
                     total += product.Quantity * product.SettedPrice;
                     
                     await _db.CartProducts.AddAsync(product);
@@ -411,7 +411,7 @@ namespace AguasNico.Data.Repository
                         .FirstOrDefaultAsync() ?? throw new Exception("No se ha encontrado un producto del cliente");
                     clientProduct.Stock += abonoProduct.Quantity;
 
-                    abonoProduct.Cart = cart;
+                    abonoProduct.CartID = cart.ID;
                     await _db.CartAbonoProducts.AddAsync(abonoProduct);
 
                     if (returnedProducts.Any(x => x.Type == abonoProduct.Type))
@@ -446,8 +446,12 @@ namespace AguasNico.Data.Repository
                 await _db.ReturnedProducts.AddAsync(product);
             }
 
-            cart.State = State.Confirmed;
-            cart.UpdatedAt = DateTime.UtcNow.AddHours(-3);
+            var cartToUpdate = await _db
+                .Carts
+                .FindAsync(cart.ID) ?? throw new Exception("No se ha encontrado la bajada");
+
+            cartToUpdate.State = State.Confirmed;
+            cartToUpdate.UpdatedAt = DateTime.UtcNow.AddHours(-3);
 
             try
             {
