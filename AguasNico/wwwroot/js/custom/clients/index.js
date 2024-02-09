@@ -40,6 +40,10 @@ function searchByName() {
         method: $(form).attr('method'),
         data: $(form).serialize(),
         success: function (response) {
+            if (response.data.length === 0) {
+                emptyTable();
+                return;
+            }
             fillTable(response.data)
         },
         error: function () {
@@ -91,4 +95,13 @@ function fillTable(clients) {
             </tr>`;
         $('#DataTable tbody').append($(row));
     });
+}
+
+function emptyTable() {
+    $('#DataTable tbody').empty();
+    let row = `
+    <tr>
+        <td colspan="5"><h6>No hay clientes que coincidan con la búsqueda</h6></td>
+    </tr>`;
+    $('#DataTable tbody').append($(row));
 }

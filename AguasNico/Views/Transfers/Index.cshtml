@@ -22,9 +22,9 @@
                 <li class="breadcrumb-item active">Gastos</li>
             </ol>
         </div>
-        <div class="col-md-7 col-5 align-self-center">
+        <div class="col-md-7 col-4 align-self-center">
             <div class="d-flex m-t-10 justify-content-end">
-                @* <a asp-area="" asp-controller="Transfers" asp-action="Create" class="btn btn-info btn-rounded waves-effect waves-light m-t-10 float-right">Agregar nueva</a> *@
+                <a asp-area="" asp-controller="Transfers" asp-action="Create" class="btn btn-info btn-rounded waves-effect waves-light m-t-10 float-right">Nueva</a>
             </div>
         </div>
     </div>
@@ -138,8 +138,12 @@
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="id" value="">
                     </form>
-                    <form id="form-searchClients" method="get" asp-area="" asp-controller="Clients" asp-action="SearchByName">
-                        <input type="hidden" name="name" value="">
+                    <form id="form-edit" method="post" asp-area="" asp-controller="Transfers" asp-action="Edit">
+                        @Html.AntiForgeryToken()
+                        @Html.Hidden("Transfer.ID", "")
+                        @Html.Hidden("Transfer.Amount", "")
+                        @Html.Hidden("Transfer.Date", "")
+                        @Html.Hidden("updateDate", "")
                     </form>
                 </div>
             </div>

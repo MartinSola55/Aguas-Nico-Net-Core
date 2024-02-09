@@ -33,7 +33,6 @@ namespace AguasNico.Controllers
                 IndexViewModel viewModel = new()
                 {
                     Transfers = [.. transfers.OrderByDescending(x => x.Date).ThenByDescending(x => x.Amount)],
-
                 };
 
                 return View(viewModel);
@@ -68,81 +67,52 @@ namespace AguasNico.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Transfer transfer)
         {
-            ModelState.Remove("CreateViewModel.User");
-            ModelState.Remove("CreateViewModel.Client");
-            ModelState.Remove("CreateViewModel.UserID");
-            if (ModelState.IsValid)
+            try
             {
-                try
-                {
-                    transfer.CreatedAt = DateTime.UtcNow.AddHours(-3);
-                    await _workContainer.Transfer.AddAsync(transfer);
-                    await _workContainer.SaveAsync();
+                await _workContainer.Transfer.Add(transfer);
 
-                    var newTransfer = await _workContainer.Transfer.GetFirstOrDefaultAsync(x => x.ID == transfer.ID, includeProperties: "Client, User");
-
-                    var data = new
-                    {
-                        id = newTransfer.ID,
-                        client = newTransfer.Client.Name,
-                        dealer = newTransfer.User.UserName,
-                        amount = newTransfer.Amount,
-                        date = newTransfer.Date,
-                        createdAt = newTransfer.CreatedAt
-                    };
-                    return Json(new
-                    {
-                        success = true,
-                        data,
-                        message = "La transferencia se creó correctamente",
-                    });
-                }
-                catch (Exception e)
+                return Json(new
                 {
-                    return CustomBadRequest(title: "Error al crear la transferencia", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
-                }
+                    success = true,
+                    message = "La transferencia se creó correctamente",
+                });
             }
-            return CustomBadRequest(title: "Error al crear la transferencia", message: "Alguno de los campos ingresados no es válido");
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al crear la transferencia", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Transfer transfer)
+        public async Task<IActionResult> Edit(Transfer transfer, bool updateDate)
         {
-            ModelState.Remove("CreateViewModel.User");
-            ModelState.Remove("CreateViewModel.Client");
-            ModelState.Remove("CreateViewModel.UserID");
-            ModelState.Remove("CreateViewModel.ClientID");
-            if (ModelState.IsValid)
+            try
             {
-                try
-                {
-                    await _workContainer.Transfer.Update(transfer);
+                await _workContainer.Transfer.Update(transfer, updateDate);
 
-                    var newTransfer = await _workContainer.Transfer.GetFirstOrDefaultAsync(x => x.ID == transfer.ID, includeProperties: "Client, User");
+                var newTransfer = await _workContainer.Transfer.GetFirstOrDefaultAsync(x => x.ID == transfer.ID, includeProperties: "Client, User");
 
-                    var data = new
-                    {
-                        id = newTransfer.ID,
-                        client = newTransfer.Client.Name,
-                        dealer = newTransfer.User.UserName,
-                        amount = newTransfer.Amount,
-                        date = newTransfer.Date,
-                        createdAt = newTransfer.CreatedAt
-                    };
-                    return Json(new
-                    {
-                        success = true,
-                        data,
-                        message = "La transferencia se editó correctamente",
-                    });
-                }
-                catch (Exception e)
+                var data = new
                 {
-                    return CustomBadRequest(title: "Error al editar la transferencia", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
-                }
+                    id = newTransfer.ID,
+                    client = newTransfer.Client.Name,
+                    dealer = newTransfer.User.UserName,
+                    amount = newTransfer.Amount,
+                    date = newTransfer.Date,
+                    createdAt = newTransfer.CreatedAt
+                };
+                return Json(new
+                {
+                    success = true,
+                    data,
+                    message = "La transferencia se editó correctamente",
+                });
             }
-            return CustomBadRequest(title: "Error al editar la transferencia", message: "Alguno de los campos ingresados no es válido");
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al editar la transferencia", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
         }
 
         [HttpPost]
@@ -180,6 +150,26 @@ namespace AguasNico.Controllers
                 var dateToParsed = DateTime.Parse(dateTo);
 
                 var transfers = await _workContainer.Transfer.GetAllAsync(x => x.Date >= dateFromParsed && x.Date <= dateToParsed, includeProperties: "Client, User.UserName");
+                return Json(new
+                {
+                    success = true,
+                    data = transfers.OrderByDescending(x => x.Amount),
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al buscar las transferencias", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetByDate(string dateString)
+        {
+            try
+            {
+                var dateFromParsed = DateTime.Parse(dateString);
+
+                var transfers = await _workContainer.Transfer.GetAllAsync(x => x.Date == dateFromParsed, includeProperties: "Client, User.UserName");
                 return Json(new
                 {
                     success = true,
