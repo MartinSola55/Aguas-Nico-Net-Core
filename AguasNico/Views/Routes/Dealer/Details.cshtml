@@ -218,7 +218,7 @@
                                     {
                                         <h4 class="card-title mb-0 name-element" style="color: #6c757d">@Html.DisplayFor(x => cart.Client.Name)</h4>
                                     }
-                                    <button class="btn btn-info rounded-circle mr-2 h-100" onclick="getClientHistory(@cart.ClientID, '@cart.Client.Name')"><i class="bi bi-clipboard"></i></button>
+                                    <button class="btn btn-info rounded-circle mr-2 h-100" tabindex="-1" onclick="getClientHistory(@cart.ClientID, '@cart.Client.Name')"><i class="bi bi-clipboard"></i></button>
                                 </div>
                                 <p class="m-0"><small class="text-muted">Bajada #@cart.ClientID</small> - 
                                 <small class="text-muted">Creada: @cart.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small> - 
@@ -345,7 +345,7 @@
                                 {
                                     <div class="d-flex flex-row justify-content-end">
                                         <div class="btn-group">
-                                            <button type="button" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown">Acción</button>
+                                            <button type="button" tabindex="-1" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown">Acción</button>
                                             <div class="dropdown-menu">
                                                 <button type="button" class="dropdown-item" data-toggle="modal" data-target="#modalConfirmation" style="cursor: pointer;" onclick="openModal(@cart.ID, @cart.ClientID)"><b>Bajar</b></button>
                                                 <div class="dropdown-divider"></div>
@@ -358,51 +358,84 @@
                                     </div>
                                     <hr />
                                     <form method="post" asp-controller="Carts" asp-action="Confirm" asp-route-Cart.ID="@cart.ID" id="form-confirmCart_@cart.ID">
+                                        <div class="row">
                                         @if (Model.Clients.First(x => x.ClientID == cart.ClientID).Products.Count > 0)
                                         {
-                                            <h2 class="text-center">Bajada</h2>
-                                            <table class="table" data-name="tableProducts">
-                                                <thead>
-                                                    <tr>
-                                                        <th class="col-4">Producto</th>
-                                                        <th class="col-4">Bajó</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @foreach (var product in Model.Clients.First(x => x.ClientID == cart.ClientID).Products)
-                                                    {
+                                            <div class="col-lg-4 col-md-4 col-sm-12">
+                                                <h3>Bajada</h3>
+                                                <table class="table" data-name="tableProducts" data-cart-id="@cart.ID">
+                                                    <thead>
                                                         <tr>
-                                                            <td>@product.Name - @Html.DisplayFor(x => product.Price)</td>
-                                                            <td><input type="number" class="form-control" /></td>
+                                                            <th class="col-4">Producto</th>
+                                                            <th class="col-4">Bajó</th>
                                                         </tr>
-                                                    }
-                                                </tbody>
-                                            </table>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var product in Model.Clients.First(x => x.ClientID == cart.ClientID).Products)
+                                                        {
+                                                            <tr data-type="@product.Type">
+                                                                <td>@product.Name - <i class="price"> @Html.DisplayFor(x => product.Price)</i></td>
+                                                                <td><input type="number" class="form-control" name="quantity" value="" min="1" /></td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         }
 
                                         @if (Model.Clients.First(x => x.ClientID == cart.ClientID).AbonoProducts.Count > 0)
                                         {
-                                        <hr />
-                                        <h2 class="text-center">Abonos</h2>
-                                        <table class="table" data-name="tableAbonoProducts">
-                                            <thead>
-                                                <tr>
-                                                    <th class="col-4">Producto</th>
-                                                    <th class="col-4">Bajó</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach (var product in Model.Clients.First(x => x.ClientID == cart.ClientID).AbonoProducts)
-                                                {
-                                                    <tr>
-                                                        <td>@product.Type.GetDisplayName() - Dispone: @product.Available</td>
-                                                        <td><input type="number" class="form-control" /></td>
-                                                    </tr>
-                                                }
-                                            </tbody>
-                                        </table>
+                                            <div class="col-lg-4 col-md-4 col-sm-12">
+                                                <h3>Abonos</h3>
+                                                <table class="table" data-name="tableAbonoProducts">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="col-4">Producto</th>
+                                                            <th class="col-4">Bajó</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var product in Model.Clients.First(x => x.ClientID == cart.ClientID).AbonoProducts)
+                                                        {
+                                                            <tr data-type="@product.Type">
+                                                                <td>@product.Type.GetDisplayName() - Dispone: @product.Available</td>
+                                                                <td><input type="number" name="quantity" class="form-control" value="" min="1" max="@product.Available" /></td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         }
-                                        <button type="button" class="btn btn-info btn-rounded" onclick="confirmCart(@cart.ID)">Confirmar bajada</button>
+                                            <div class="col-lg-4 col-md-4 col-sm-12"  id="totalCartContainer_@cart.ID">
+                                                <div class="d-flex row justify-content-between">
+                                                    <strong class="col-12 align-items-center justify-content-end mb-0 totalCart">Total: $0</strong>
+                                                </div>
+                                                <div class="col-12 py-3 d-flex justify-content-center align-items-center">
+                                                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                                        <label class="btn btn-secondary active">
+                                                            <input type="radio" name="cartPaymentMethodOption" value="1" checked> Efectivo
+                                                        </label>
+                                                        <label class="btn btn-secondary">
+                                                            <input type="radio" name="cartPaymentMethodOption" value="2"> Transferencia
+                                                        </label>
+                                                        <label class="btn btn-secondary">
+                                                            <input type="radio" name="cartPaymentMethodOption" value="3"> Mercado pago
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 p-3" id="cartPaymentAmountContainer_@cart.ID">
+                                                    <div class="input-group mb-2">
+                                                        <div class="input-group-prepend">
+                                                            <div class="input-group-text">$</div>
+                                                        </div>
+                                                        <input type="number" class="form-control" id="cartPaymentAmount_@cart.ID" placeholder="Entrega" min="0" step="1">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-end">
+                                            <button type="button" class="btn btn-info btn-rounded" onclick="confirmCart(@cart.ID)">Confirmar bajada</button>
+                                        </div>
                                     </form>
                                 }
                                 <!-- Resetear estado del carrito (no confirmado) -->
