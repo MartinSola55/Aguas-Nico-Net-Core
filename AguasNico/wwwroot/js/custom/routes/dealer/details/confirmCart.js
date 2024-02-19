@@ -157,5 +157,13 @@ $(document).ready(function () {
 
         // Actualizar el texto del totalCart específico
         $('#totalCartContainer_' + cartId + ' .totalCart').text('Total: $' + total);
+        
+        // Verificar el método de pago seleccionado
+        const cartPaymentMethod = $('input[name="cartPaymentMethodOption"]:checked').val();
+
+        // Si el método de pago es "1", actualizar el valor de la input #cartPaymentAmount_
+        if (cartPaymentMethod === "1") {
+            $("#cartPaymentAmount_" + cartId).val(total);
+        }
     }
 });
