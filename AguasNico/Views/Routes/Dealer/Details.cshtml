@@ -249,7 +249,7 @@
                                     @if (cart.Products.Any())
                                     {
                                         <div class="col-12 col-md-6 col-lg-4 p-2">
-                                            <h3 class="text-center type-element text-muted mb-0">Bajada</h3>
+                                            <h3 class="type-element text-muted mb-0">Bajada</h3>
                                             <div class="table-responsive">
                                                 <table class="table">
                                                     <thead>
@@ -276,7 +276,7 @@
                                     @if (cart.AbonoProducts.Any())
                                     {
                                         <div class="col-12 col-md-6 col-lg-4 p-2">
-                                            <h3 class="text-center type-element text-muted mb-0">Abonos</h3>
+                                            <h3 class="type-element text-muted mb-0">Abonos</h3>
                                             <div class="table-responsive">
                                                 <table class="table">
                                                     <thead>
@@ -301,7 +301,7 @@
                                     @if (cart.ReturnedProducts.Any())
                                     {
                                         <div class="col-12 col-md-6 col-lg-4 p-2">
-                                            <h3 class="text-center type-element text-muted mb-0">Devoluciones</h3>
+                                            <h3 class="type-element text-muted mb-0">Devoluciones</h3>
                                             <div class="table-responsive">
                                                 <table class="table">
                                                     <thead>
@@ -347,7 +347,7 @@
                                         <div class="btn-group">
                                             <button type="button" tabindex="-1" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown">Acción</button>
                                             <div class="dropdown-menu">
-                                                <button type="button" class="dropdown-item" data-toggle="modal" data-target="#modalConfirmation" style="cursor: pointer;" onclick="openModal(@cart.ID, @cart.ClientID)"><b>Bajar</b></button>
+                                                @* <button type="button" class="dropdown-item" data-toggle="modal" data-target="#modalConfirmation" style="cursor: pointer;" onclick="openModal(@cart.ID, @cart.ClientID)"><b>Bajar</b></button> *@
                                                 <div class="dropdown-divider"></div>
                                                 @foreach (State state in Model.States)
                                                 {
