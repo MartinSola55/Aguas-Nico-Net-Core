@@ -29,25 +29,29 @@ namespace AguasNico.Controllers
             });
         }
 
+        #region Views
+
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             try
             {
-                ApplicationUser user = _workContainer.ApplicationUser.GetFirstOrDefault(u => u.UserName.Equals(User.Identity.Name));
-                string role = _signInManager.UserManager.GetRolesAsync(user).Result.First();
+                var sessionUser = User.Identity ?? throw new Exception("No se pudo obtener el usuario de la sesión");
+                var user = await _workContainer.ApplicationUser.GetFirstOrDefaultAsync(x => x.UserName != null && x.UserName.Equals(sessionUser.Name));
+                var role = _signInManager.UserManager.GetRolesAsync(user).Result.First();
+
                 IndexViewModel viewModel = new()
                 {
                     User = user
                 };
-                Day today = (Day)(int)DateTime.UtcNow.AddHours(-3).DayOfWeek;
+                var today = (Day)(int)DateTime.UtcNow.AddHours(-3).DayOfWeek;
                 switch (role)
                 {
                     case Constants.Admin:
-                        viewModel.Routes = _workContainer.Route.GetStaticsByDay(today);
+                        viewModel.Routes = await _workContainer.Route.GetStaticsByDay(today);
                         return View("~/Views/Routes/Admin/Index.cshtml", viewModel);
                     case Constants.Dealer:
-                        viewModel.Routes = _workContainer.Route.GetStaticsByDealer(user.Id);
+                        viewModel.Routes = await _workContainer.Route.GetStaticsByDealer(user.Id);
                         return View("~/Views/Routes/Dealer/Index.cshtml", viewModel);
                     default:
                         return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
@@ -60,15 +64,14 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        [ActionName("Create")]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             try
             {
                 CreateViewModel viewModel = new()
                 {
-                    Dealers = _workContainer.ApplicationUser.GetDealers(),
+                    Dealers = await _workContainer.ApplicationUser.GetDealers(),
                     Route = new()
                 };
                 return View("~/Views/Routes/Admin/Create.cshtml", viewModel);
@@ -79,11 +82,189 @@ namespace AguasNico.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Details(long id)
+        {
+            try
+            {
+                var sessionUser = User.Identity ?? throw new Exception("No se pudo obtener el usuario de la sesión");
+                var user = await _workContainer.ApplicationUser.GetFirstOrDefaultAsync(x => x.UserName != null && x.UserName.Equals(sessionUser.Name));
+                var role = _signInManager.UserManager.GetRolesAsync(user).Result.First();
+
+                var route = await _workContainer.Route.GetFirstOrDefaultAsync(x => x.ID == id, includeProperties: "User, Carts, Carts.Products, Carts.Products, Carts.AbonoProducts, Carts.ReturnedProducts, Carts.Client, Carts.PaymentMethods, Carts.PaymentMethods.PaymentMethod");
+
+                if (route is null)
+                    return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nLa planilla no existe", ErrorCode = 404 });
+                
+                if ((route.UserID != user.Id && role != Constants.Admin) || (route.IsStatic && role != Constants.Admin))
+                    return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nNo tienes permisos para ver esta planilla", ErrorCode = 403 });
+
+                var clientIDs = route.Carts.Select(x => x.ClientID).Distinct().ToList();
+
+                var clientData = new List<ClientData>();
+                foreach (var clientID in clientIDs)
+                {
+                    clientData.Add(await GetProductsAndAbono(clientID));
+                }
+
+                switch (role)
+                {
+                    case Constants.Admin:
+                        var completedCarts = await _workContainer.Cart.GetAllAsync(x => x.RouteID == id && x.State != State.Pending);
+                        var pendingCarts = await _workContainer.Cart.GetAllAsync(x => x.RouteID == id && x.State == State.Pending);
+
+                        AdminViewModel adminViewModel = new()
+                        {
+                            Route = route,
+                            Clients = clientData,
+                            TotalExpenses = await _workContainer.Expense.GetTotalExpensesByDealer(route.CreatedAt.Date, route.UserID),
+                            TotalSold = await _workContainer.Route.GetTotalSoldByRoute(id),
+                            CompletedCarts = completedCarts.Count(),
+                            PendingCarts = pendingCarts.Count(),
+                            SoldProducts = await _workContainer.Tables.GetSoldProductsByRoute(id),
+                            Payments = await _workContainer.Route.GetTotalCollected(route.ID),
+                            Transfers = await _workContainer.Transfer.GetAllAsync(x => x.UserID == route.UserID && x.Date.Date == route.CreatedAt.Date),
+                            PaymentTypes = await _workContainer.PaymentMethod.GetFilterDropDownList(),
+                        };
+                        return View("~/Views/Routes/Admin/Details.cshtml", adminViewModel);
+
+                    case Constants.Dealer:
+
+                        DealerViewModel dealerViewModel = new()
+                        {
+                            Route = route,
+                            Clients = clientData,
+                            PaymentMethods = await _workContainer.PaymentMethod.GetDropDownList(),
+                            PaymentTypes = await _workContainer.PaymentMethod.GetFilterDropDownList(),
+                        };
+
+                        foreach (var state in new ConstantsMethods().GetStates())
+                        {
+                            if (state == State.Pending || state == State.Confirmed)
+                                continue;
+
+                            dealerViewModel.States.Add(state);
+                        }
+
+                        return View("~/Views/Routes/Dealer/Details.cshtml", dealerViewModel);
+
+                    default:
+                        return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
+                }
+            }
+            catch (Exception)
+            {
+                return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
+            }
+        }
+
+        private async Task<ClientData> GetProductsAndAbono(long id)
+        {
+            try
+            {
+                var client = await _workContainer.Client.GetFirstOrDefaultAsync(x => x.ID == id, includeProperties: "Products, Products.Product");
+
+                var abonoProductsList = await _workContainer.Client.GetAbonosRenewedAvailables(id);
+
+                var products = new List<ClientData.Product>();
+                var abonoProducts = abonoProductsList.GroupBy(x => x.Type).Select(x => new ClientData.Product()
+                {
+                    Type = x.Key,
+                    Name = x.Key.GetDisplayName(),
+                    Available = x.Sum(y => y.Available),
+                })
+                .ToList();
+
+                foreach (var clientProduct in client.Products)
+                {
+                    if (clientProduct.Product.Type == ProductType.Máquina)
+                        continue;
+
+                    products.Add(new ClientData.Product()
+                    {
+                        Type = clientProduct.Product.Type,
+                        Name = clientProduct.Product.Name,
+                        Price = clientProduct.Product.Price,
+                    });
+                }
+
+                return new ClientData()
+                {
+                    ClientID = id,
+                    Products = products,
+                    AbonoProducts = abonoProducts,
+                };
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+        }
+
+        [HttpGet]
+        [Authorize(Roles = Constants.Admin)]
+        public async Task<IActionResult> Edit(long id)
+        {
+            try
+            {
+                var route = await _workContainer.Route.GetFirstOrDefaultAsync(x => x.ID == id, includeProperties: "User, Carts, Carts.Client");
+                
+                if (route is null)
+                    return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nLa planilla no existe", ErrorCode = 404 });
+
+                EditViewModel viewModel = new()
+                {
+                    Route = route,
+                    ClientsInRoute = await _workContainer.Route.ClientsInRoute(id),
+                    ClientsNotInRoute = await _workContainer.Route.ClientsNotInRoute(id),
+                };
+                return View("~/Views/Routes/Admin/Edit.cshtml", viewModel);
+            }
+            catch (Exception)
+            {
+                return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ManualCart(long id)
+        {
+            try
+            {
+                var route = await _workContainer.Route.GetFirstOrDefaultAsync(x => x.ID == id, includeProperties: "User, Carts") ?? throw new Exception("La planilla no existe");
+                
+                var sessionUser = User.Identity ?? throw new Exception("No se pudo obtener el usuario de la sesión");
+                var user = await _workContainer.ApplicationUser.GetFirstOrDefaultAsync(x => x.UserName != null && x.UserName.Equals(sessionUser.Name));
+                var role = _signInManager.UserManager.GetRolesAsync(user).Result.First();
+
+                if (route.IsStatic)
+                    return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nLa planilla no existe", ErrorCode = 404 });
+                
+                if (route.UserID != user.Id && role != Constants.Admin)
+                    return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nNo tienes permisos para ver esta planilla", ErrorCode = 403 });
+
+                ManualCartViewModel viewModel = new()
+                {
+                    Route = route,
+                    Clients = await _workContainer.Route.ClientsNotInRoute(id),
+                    PaymentMethods = await _workContainer.PaymentMethod.GetDropDownList()
+                };
+                return View(viewModel);
+            }
+            catch (Exception)
+            {
+                return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
+            }
+        }
+
+        #endregion
+
+        #region Actions
+
         [HttpPost]
-        [ActionName("Create")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult Create(Models.Route route)
+        public async Task<IActionResult> Create(Models.Route route)
         {
             ModelState.Remove("route.Carts");
             ModelState.Remove("route.User");
@@ -93,13 +274,11 @@ namespace AguasNico.Controllers
                 try
                 {
                     route.IsStatic = true;
-                    if (_workContainer.Route.GetFirstOrDefault(x => x.DayOfWeek == route.DayOfWeek && x.IsStatic && x.UserID == route.UserID) is not null)
-                    {
+                    if (await _workContainer.Route.GetFirstOrDefaultAsync(x => x.DayOfWeek == route.DayOfWeek && x.IsStatic && x.UserID == route.UserID) is not null)
                         return CustomBadRequest(title: "Error al crear la planilla", message: "El repartidor ya tiene una planilla para ese día");
-                    }
-                    _workContainer.Route.Add(route);
                     
-                    _workContainer.Save();
+                    await _workContainer.Route.AddAsync(route);
+                    await _workContainer.SaveAsync();
 
                     return Json(new
                     {
@@ -116,14 +295,13 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("CreateByDealer")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Constants.Dealer)]
-        public IActionResult CreateByDealer(long routeID)
+        public async Task<IActionResult> CreateByDealer(long routeID)
         {
             try
             {
-                long id = _workContainer.Route.CreateByDealer(routeID);
+                var id = await _workContainer.Route.CreateByDealer(routeID);
 
                 return Json(new
                 {
@@ -138,119 +316,14 @@ namespace AguasNico.Controllers
             }
         }
 
-        [HttpGet]
-        [ActionName("Details")]
-        public IActionResult Details(long id)
-        {
-            try
-            {
-                ApplicationUser user = _workContainer.ApplicationUser.GetFirstOrDefault(u => u.UserName.Equals(User.Identity.Name));
-                string role = _signInManager.UserManager.GetRolesAsync(user).Result.First();
-                Models.Route route = _workContainer.Route.GetFirstOrDefault(x => x.ID == id, includeProperties: "User, Carts, Carts.Products, Carts.Products, Carts.AbonoProducts, Carts.ReturnedProducts, Carts.Client, Carts.PaymentMethods, Carts.PaymentMethods.PaymentMethod");
-                
-                if (route is null) return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nLa planilla no existe", ErrorCode = 404 });
-                if ((route.UserID != user.Id && role != Constants.Admin) || (route.IsStatic && role != Constants.Admin)) return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nNo tienes permisos para ver esta planilla", ErrorCode = 403 });
-
-                switch (role)
-                {
-                    case Constants.Admin:
-                        AdminViewModel adminViewModel = new()
-                        {
-                            Route = route,
-                            TotalExpenses = _workContainer.Expense.GetTotalExpensesByDealer(route.CreatedAt.Date, route.UserID),
-                            TotalSold = _workContainer.Route.GetTotalSoldByRoute(id),
-                            CompletedCarts = _workContainer.Cart.GetAll(x => x.RouteID == id && x.State != State.Pending).Count(),
-                            PendingCarts = _workContainer.Cart.GetAll(x => x.RouteID == id && x.State == State.Pending).Count(),
-                            SoldProducts = _workContainer.Tables.GetSoldProductsByRoute(id),
-                            Payments = _workContainer.Route.GetTotalCollected(route.ID),
-                            Transfers = _workContainer.Transfer.GetAll(x => x.UserID == route.UserID && x.Date.Date == route.CreatedAt.Date),
-                            PaymentTypes = _workContainer.PaymentMethod.GetFilterDropDownList(),
-                        };
-                        return View("~/Views/Routes/Admin/Details.cshtml", adminViewModel);
-                    case Constants.Dealer:
-                        
-                        DealerViewModel dealerViewModel = new()
-                        {
-                            Route = route,
-                            PaymentMethods = _workContainer.PaymentMethod.GetDropDownList(),
-                            PaymentTypes = _workContainer.PaymentMethod.GetFilterDropDownList(),
-                        };
-                        foreach (State state in Enum.GetValues(typeof(State)))
-                        {
-                            if (state == State.Pending || state == State.Confirmed) continue;
-                            dealerViewModel.States.Add(state);
-                        }
-                        return View("~/Views/Routes/Dealer/Details.cshtml", dealerViewModel);
-                    default:
-                        return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
-                }
-            }
-            catch (Exception)
-            {
-                return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
-            }
-        }
-
-        [HttpGet]
-        [ActionName("Edit")]
-        [Authorize(Roles = Constants.Admin)]
-        public IActionResult Edit(long id)
-        {
-            try
-            {
-                Models.Route route = _workContainer.Route.GetFirstOrDefault(x => x.ID == id, includeProperties: "User, Carts, Carts.Client");
-                if (route is null) return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nLa planilla no existe", ErrorCode = 404 });
-
-                EditViewModel viewModel = new()
-                {
-                    Route = route,
-                    ClientsInRoute = _workContainer.Route.ClientsInRoute(id),
-                    ClientsNotInRoute = _workContainer.Route.ClientsNotInRoute(id),
-                };
-                return View("~/Views/Routes/Admin/Edit.cshtml", viewModel);
-            }
-            catch (Exception)
-            {
-                return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
-            }
-        }
-
-        [HttpGet]
-        [ActionName("ManualCart")]
-        public IActionResult ManualCart(long id)
-        {
-            try
-            {
-                Models.Route route = _workContainer.Route.GetFirstOrDefault(x => x.ID == id, includeProperties: "User, Carts") ?? throw new Exception("La planilla no existe");
-                ApplicationUser user = _workContainer.ApplicationUser.GetFirstOrDefault(u => u.UserName.Equals(User.Identity.Name));
-                string role = _signInManager.UserManager.GetRolesAsync(user).Result.First();
-
-                if (route.IsStatic) return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nLa planilla no existe", ErrorCode = 404 });
-                if (route.UserID != user.Id && role != Constants.Admin) return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nNo tienes permisos para ver esta planilla", ErrorCode = 403 });
-
-                ManualCartViewModel viewModel = new()
-                {
-                    Route = route,
-                    Clients = _workContainer.Route.ClientsNotInRoute(id),
-                    PaymentMethods = _workContainer.PaymentMethod.GetDropDownList()
-                };
-                return View(viewModel);
-            }
-            catch (Exception)
-            {
-                return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
-            }
-        }
-
         [HttpPost]
-        [ActionName("UpdateClients")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult UpdateClients(Models.Route route, List<Client> clients)
+        public async Task<IActionResult> UpdateClients(Models.Route route, List<Client> clients)
         {
             try
             {
-                _workContainer.Route.UpdateClients(route.ID, clients);
+                await _workContainer.Route.UpdateClients(route.ID, clients);
                 return Json(new
                 {
                     success = true,
@@ -265,14 +338,13 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("SoftDelete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult SoftDelete(Models.Route route)
+        public async Task<IActionResult> SoftDelete(Models.Route route)
         {
             try
             {
-                _workContainer.Route.SoftDelete(route.ID);
+                await _workContainer.Route.SoftDelete(route.ID);
                 return Json(new
                 {
                     success = true,
@@ -285,17 +357,18 @@ namespace AguasNico.Controllers
             }
         }
 
-        #region Pegadas AJAX
+        #endregion
+
+        #region AJAX
 
         [HttpGet]
-        [ActionName("SearchByDate")]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult SearchByDate(string dateString)
+        public async Task<IActionResult> SearchByDate(string dateString)
         {
             try
             {
-                DateTime date = DateTime.Parse(dateString);
-                IEnumerable<Models.Route> routes = _workContainer.Route.GetAll(x => x.CreatedAt.Date == date.Date && !x.IsStatic, includeProperties: "User, Carts, Carts.PaymentMethods");
+                var date = DateTime.Parse(dateString);
+                var routes = await _workContainer.Route.GetAllAsync(x => x.CreatedAt.Date == date.Date && !x.IsStatic, includeProperties: "User, Carts, Carts.PaymentMethods");
 
                 return Json(new
                 {
@@ -319,24 +392,23 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        [ActionName("SearchSoldProducts")]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult SearchSoldProducts(string dateString, long? routeID = null)
+        public async Task<IActionResult> SearchSoldProducts(string dateString, long? routeID = null)
         {
             try
             {
-                DateTime date = DateTime.Parse(dateString);
+                var date = DateTime.Parse(dateString);
                 return routeID switch
                 {
                     null => Json(new
                     {
                         success = true,
-                        data = _workContainer.Tables.GetSoldProductsByDate(date)
+                        data = await _workContainer.Tables.GetSoldProductsByDate(date)
                     }),
                     _ => Json(new
                     {
                         success = true,
-                        data = _workContainer.Tables.GetSoldProductsByDateAndRoute(date, routeID.Value)
+                        data = await _workContainer.Tables.GetSoldProductsByDateAndRoute(date, routeID.Value)
                     }),
                 };
             }
@@ -347,42 +419,63 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        [ActionName("SearchByDay")]
-        public IActionResult SearchByDay(Day dayString)
+        public async Task<IActionResult> SearchByDay(Day dayString)
         {
             try
             {
-                ApplicationUser user = _workContainer.ApplicationUser.GetFirstOrDefault(u => u.UserName.Equals(User.Identity.Name));
-                string role = _signInManager.UserManager.GetRolesAsync(user).Result.First();
-                return role switch
+                var sessionUser = User.Identity ?? throw new Exception("No se pudo obtener el usuario de la sesión");
+                var user = await _workContainer.ApplicationUser.GetFirstOrDefaultAsync(x => x.UserName != null && x.UserName.Equals(sessionUser.Name));
+                var role = _signInManager.UserManager.GetRolesAsync(user).Result.First();
+
+                switch (role)
                 {
-                    Constants.Admin => Json(new
+                    case Constants.Admin:
                     {
-                        success = true,
-                        routes = _workContainer.Route.GetAll(x => x.DayOfWeek == dayString && x.IsStatic, includeProperties: "User, Carts").Select(x => new
-                        {
-                            id = x.ID,
-                            dealer = x.User.UserName,
-                            totalCarts = x.Carts.Count(),
-                        })
-                    }),
-                    Constants.Dealer => Json(new
+
+                        break;
+                    }
+
+                    default:
+                        break;
+                }
+
+                switch (role)
+                {
+                    case Constants.Admin:
                     {
-                        success = true,
-                        routes = _workContainer.Route.GetAll(x => x.DayOfWeek == dayString && !x.IsStatic && x.UserID == user.Id, includeProperties: "User, Carts, Carts.PaymentMethods")
-                        .OrderByDescending(x => x.CreatedAt)
-                        .Select(x => new
+                        var routes = await _workContainer.Route.GetAllAsync(x => x.DayOfWeek == dayString && x.IsStatic, includeProperties: "User, Carts");
+                        return Json(new
                         {
-                            id = x.ID,
-                            dealer = x.User.UserName,
-                            totalCarts = x.Carts.Count(),
-                            completedCarts = x.Carts.Count(y => y.State != State.Pending),
-                            state = x.Carts.Count(y => y.State != State.Pending) == x.Carts.Count() ? "Completado" : "Pendiente",
-                            totalCollected = x.Carts.Sum(y => y.PaymentMethods.Sum(z => z.Amount)),
-                            date = x.CreatedAt.ToString("dd/MM/yyyy"),
-                        })
-                    }),
-                    _ => CustomBadRequest(title: "No se encontraron planillas", message: "Intente nuevamente o comuníquese para soporte"),
+                            success = true,
+                            routes = routes.Select(x => new
+                            {
+                                id = x.ID,
+                                dealer = x.User.UserName,
+                                totalCarts = x.Carts.Count(),
+                            })
+                        });
+                    }
+                    case Constants.Dealer:
+                        {
+                            var routes = await _workContainer.Route.GetAllAsync(x => x.DayOfWeek == dayString && !x.IsStatic && x.UserID == user.Id, includeProperties: "User, Carts, Carts.PaymentMethods");
+                            return Json(new
+                            {
+                                success = true,
+                                routes = routes.OrderByDescending(x => x.CreatedAt)
+                                .Select(x => new
+                                {
+                                    id = x.ID,
+                                    dealer = x.User.UserName,
+                                    totalCarts = x.Carts.Count(),
+                                    completedCarts = x.Carts.Count(y => y.State != State.Pending),
+                                    state = x.Carts.Count(y => y.State != State.Pending) == x.Carts.Count() ? "Completado" : "Pendiente",
+                                    totalCollected = x.Carts.Sum(y => y.PaymentMethods.Sum(z => z.Amount)),
+                                    date = x.CreatedAt.ToString("dd/MM/yyyy"),
+                                })
+                            });
+                        }
+                    default:
+                        return CustomBadRequest(title: "No se encontraron planillas", message: "Intente nuevamente o comuníquese para soporte");
                 };
             }
             catch (Exception)
@@ -396,17 +489,19 @@ namespace AguasNico.Controllers
         #region Details actions
 
         [HttpGet]
-        [ActionName("GetDispatched")]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult GetDispatched(long routeID)
+        public async Task<IActionResult> GetDispatched(long routeID)
         {
             try
             {
-                List<DispatchedProduct> dispatchedProducts = _workContainer.DispatchedProduct.GetAll(x => x.RouteID == routeID).ToList();
-                List<object> data = [];
-                foreach (ProductType productType in Enum.GetValues(typeof(ProductType)))
+                var dispatchedProducts = await _workContainer.DispatchedProduct.GetAllAsync(x => x.RouteID == routeID);
+                
+                var data = new List<object>();
+                foreach (var productType in new ConstantsMethods().GetProductTypes())
                 {
-                    if (productType == ProductType.Máquina) continue;
+                    if (productType == ProductType.Máquina)
+                        continue;
+
                     data.Add(new
                     {
                         type = productType,
@@ -427,14 +522,13 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("UpdateDispatched")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult UpdateDispatched(long routeID, List<DispatchedProduct> products)
+        public async Task<IActionResult> UpdateDispatched(long routeID, List<DispatchedProduct> products)
         {
             try
             {
-                _workContainer.Route.UpdateDispatched(routeID, products);
+                await _workContainer.Route.UpdateDispatched(routeID, products);
                 return Json(new
                 {
                     success = true,

@@ -64,5 +64,25 @@ namespace AguasNico.Data.Repository
         {
             _db.SaveChanges();
         }
+
+        public async Task BeginTransactionAsync()
+        {
+            await _db.Database.BeginTransactionAsync();
+        }
+
+        public async Task CommitAsync()
+        {
+            await _db.Database.CommitTransactionAsync();
+        }
+
+        public async Task RollbackAsync()
+        {
+            await _db.Database.RollbackTransactionAsync();
+        }
+
+        public async Task SaveAsync()
+        {
+            await _db.SaveChangesAsync();
+        }
     }
 }

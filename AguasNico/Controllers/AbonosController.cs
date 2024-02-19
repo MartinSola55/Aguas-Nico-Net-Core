@@ -23,16 +23,17 @@ namespace AguasNico.Controllers
             });
         }
 
+        #region Views
+
         [HttpGet]
-        [ActionName("Index")]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             try
             {
                 IndexViewModel viewModel = new()
                 {
-                    Abonos = _workContainer.Abono.GetAll(includeProperties: "Products"),
+                    Abonos = await _workContainer.Abono.GetAllAsync(includeProperties: "Products"),
                 };
 
                 return View(viewModel);
@@ -44,7 +45,6 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        [ActionName("Create")]
         [Authorize(Roles = Constants.Admin)]
         public IActionResult Create()
         {
@@ -58,11 +58,14 @@ namespace AguasNico.Controllers
             }
         }
 
+        #endregion
+
+        #region Actions
+
         [HttpPost]
-        [ActionName("Create")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult Create(CreateViewModel viewModel)
+        public async Task<IActionResult> Create(CreateViewModel viewModel)
         {
             ModelState.RemoveAll<CreateViewModel>(x => x.Abono.Products);
             ModelState.RemoveAll<CreateViewModel>(x => x.Abono.Renewals);
@@ -70,9 +73,9 @@ namespace AguasNico.Controllers
             {
                 try
                 {
-                    Abono abono = viewModel.Abono;
-                    _workContainer.Abono.Add(abono);
-                    _workContainer.Save();
+                    var abono = viewModel.Abono;
+                    await _workContainer.Abono.AddAsync(abono);
+                    await _workContainer.SaveAsync();
 
                     return Json(new
                     {
@@ -91,10 +94,9 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("Edit")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult Edit(IndexViewModel viewModel)
+        public async Task<IActionResult> Edit(IndexViewModel viewModel)
         {
             ModelState.Remove("EditedAbono.Products");
             ModelState.Remove("EditedAbono.Renewals");
@@ -102,11 +104,11 @@ namespace AguasNico.Controllers
             {
                 try
                 {
-                    Abono abono = viewModel.EditedAbono;
-                    _workContainer.Abono.Update(abono);
-                    _workContainer.Save();
+                    var abono = viewModel.EditedAbono;
+                    await _workContainer.Abono.Update(abono);
+                    await _workContainer.SaveAsync();
 
-                    Abono newAbono = _workContainer.Abono.GetOne(abono.ID);
+                    var newAbono = await _workContainer.Abono.GetOneAsync(abono.ID);
                     return Json(new
                     {
                         success = true,
@@ -123,15 +125,14 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("SoftDelete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult SoftDelete(long id)
+        public async Task<IActionResult> SoftDelete(long id)
         {
             try
             {
-                Abono abono = _workContainer.Abono.GetOne(id) ?? throw new Exception("No se encontró el abono");
-                _workContainer.Abono.SoftDelete(id);
+                var abono = await _workContainer.Abono.GetOneAsync(id) ?? throw new Exception("No se encontró el abono");
+                await _workContainer.Abono.SoftDelete(id);
 
                 return Json(new
                 {
@@ -147,14 +148,13 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("RenewAll")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult RenewAll()
+        public async Task<IActionResult> RenewAll()
         {
             try
             {
-                _workContainer.Abono.RenewAll();
+                await _workContainer.Abono.RenewAll();
 
                 return Json(new
                 {
@@ -169,14 +169,13 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("RenewByRoute")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult RenewByRoute(long routeID)
+        public async Task<IActionResult> RenewByRoute(long routeID)
         {
             try
             {
-                _workContainer.Abono.RenewByRoute(routeID);
+               await  _workContainer.Abono.RenewByRoute(routeID);
 
                 return Json(new
                 {
@@ -191,15 +190,14 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        [ActionName("GetClients")]
-        public IActionResult GetClients(long abonoID)
+        public async Task<IActionResult> GetClients(long abonoID)
         {
             try
             {
                 return Json(new
                 {
                     success = true,
-                    data = _workContainer.Abono.GetClients(abonoID).ToList(),
+                    data = await _workContainer.Abono.GetClients(abonoID),
                 });
             }
             catch (Exception e)
@@ -207,5 +205,7 @@ namespace AguasNico.Controllers
                 return CustomBadRequest(title: "Error al obtener los clientes", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
             }
         }
+
+        #endregion
     }
 }

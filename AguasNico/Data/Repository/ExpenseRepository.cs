@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using AguasNico.Data.Repository.IRepository;
 using AguasNico.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace AguasNico.Data.Repository
 {
@@ -12,41 +13,43 @@ namespace AguasNico.Data.Repository
     {
         private readonly ApplicationDbContext _db = db;
 
-        public void Update(Expense expense)
+        public async Task Update(Expense expense)
         {
-            var dbObject = _db.Expenses.First(x => x.ID == expense.ID) ?? throw new Exception("No se ha encontrado el gasto");
-            dbObject.UserID = expense.UserID;
-            dbObject.Amount = expense.Amount;
-            dbObject.UpdatedAt = DateTime.UtcNow.AddHours(-3);
-            _db.SaveChanges();
+            var oldExpense = await _db
+                .Expenses
+                .FirstAsync(x => x.ID == expense.ID) ?? throw new Exception("No se ha encontrado el gasto");
+
+            oldExpense.UserID = expense.UserID;
+            oldExpense.Amount = expense.Amount;
+            oldExpense.UpdatedAt = DateTime.UtcNow.AddHours(-3);
+
+            await _db.SaveChangesAsync();
         }
 
-        public void SoftDelete(long id)
+        public async Task SoftDelete(long id)
         {
-            try
-            {
-                var dbObject = _db.Expenses.First(x => x.ID == id) ?? throw new Exception("No se ha encontrado el gasto");
-                dbObject.DeletedAt = DateTime.UtcNow.AddHours(-3);
-                _db.SaveChanges();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            var oldExpense = await _db
+                .Expenses
+                .FirstAsync(x => x.ID == id) ?? throw new Exception("No se ha encontrado el gasto");
+
+            oldExpense.DeletedAt = DateTime.UtcNow.AddHours(-3);
+            await _db.SaveChangesAsync();
         }
 
-        public decimal GetTotalExpenses(DateTime date)
+        public async Task<decimal> GetTotalExpenses(DateTime date)
         {
-            return _db.Expenses
+            return await _db
+                .Expenses
                 .Where(x => x.CreatedAt.Date == date.Date)
-                .Sum(x => x.Amount);
+                .SumAsync(x => x.Amount);
         }
 
-        public decimal GetTotalExpensesByDealer(DateTime date, string dealerID)
+        public async Task<decimal> GetTotalExpensesByDealer(DateTime date, string dealerID)
         {
-            return _db.Expenses
+            return await _db
+                .Expenses
                 .Where(x => x.CreatedAt.Date == date.Date && x.UserID == dealerID)
-                .Sum(x => x.Amount);
+                .SumAsync(x => x.Amount);
         }
     }
 }

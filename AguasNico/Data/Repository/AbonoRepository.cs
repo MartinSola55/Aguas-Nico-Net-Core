@@ -14,149 +14,183 @@ namespace AguasNico.Data.Repository
     {
         private readonly ApplicationDbContext _db = db;
 
-        public void Update(Abono abono)
+        public async Task Update(Abono abono)
         {
+            var dbObject = await _db
+                .Abonos
+                .FirstAsync(x => x.ID == abono.ID) ?? throw new Exception("No se encontró el abono");
+
+            dbObject.Name = abono.Name;
+            dbObject.Price = abono.Price;
+            dbObject.UpdatedAt = DateTime.UtcNow.AddHours(-3);
+
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task SoftDelete(long id)
+        {
+            var abono = await _db
+                .Abonos
+                .FindAsync(id) ?? throw new Exception("No se encontró el abono");
+
+            abono.DeletedAt = DateTime.UtcNow.AddHours(-3);
+
+            foreach (var clientAbono in await _db.ClientAbonos.Where(x => x.AbonoID == id).ToListAsync())
+            {
+                clientAbono.DeletedAt = DateTime.UtcNow.AddHours(-3);
+            }
+
+            foreach (var abonoProduct in await _db.AbonoProducts.Where(x => x.AbonoID == id).ToListAsync())
+            {
+                abonoProduct.DeletedAt = DateTime.UtcNow.AddHours(-3);
+            }
+            
             try
             {
-                Abono dbObject = _db.Abonos.First(x => x.ID == abono.ID) ?? throw new Exception("No se ha encontrado el abono");
-                dbObject.Name = abono.Name;
-                dbObject.Price = abono.Price;
-                dbObject.UpdatedAt = DateTime.UtcNow.AddHours(-3);
-                _db.SaveChanges();
+                await _db.Database.BeginTransactionAsync();
+                await _db.SaveChangesAsync();
+                await _db.Database.CommitTransactionAsync();
             }
             catch (Exception)
             {
+                await _db.Database.RollbackTransactionAsync();
+                throw;
+            }
+        } 
+
+        public async Task RenewAll()
+        {
+            DateTime today = DateTime.UtcNow.AddHours(-3);
+            var clientAbonos = await _db
+                .ClientAbonos
+                .Include(x => x.Abono)
+                    .ThenInclude(x => x.Products)
+                .Include(x => x.Client)
+                .AsNoTracking()
+                .ToListAsync();
+
+            foreach (var clientAbono in clientAbonos)
+            {
+                var abonoRenewed = await _db
+                    .AbonoRenewals
+                    .AnyAsync(x => x.AbonoID == clientAbono.AbonoID && x.ClientID == clientAbono.ClientID && x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year);
+                if (abonoRenewed) continue;
+
+                var abonoRenewal = new AbonoRenewal()
+                {
+                    AbonoID = clientAbono.AbonoID,
+                    ClientID = clientAbono.ClientID,
+                    SettedPrice = clientAbono.Abono.Price
+                };
+
+                await _db.AbonoRenewals.AddAsync(abonoRenewal);
+
+                foreach (AbonoProduct abonoRenewalProduct in clientAbono.Abono.Products)
+                {
+                    await _db.AbonoRenewalProducts.AddAsync(new()
+                    {
+                        AbonoRenewal = abonoRenewal,
+                        Type = abonoRenewalProduct.Type,
+                        Available = abonoRenewalProduct.Quantity
+                    });
+                }
+
+                clientAbono.Client.Debt += clientAbono.Abono.Price;
+            }
+            try
+            {
+                await _db.Database.BeginTransactionAsync();
+                await _db.SaveChangesAsync();
+                await _db.Database.CommitTransactionAsync();
+            }
+            catch (Exception)
+            {
+                await _db.Database.RollbackTransactionAsync();
                 throw;
             }
         }
 
-        public void SoftDelete(long id)
+        public async Task RenewByRoute(long routeID)
         {
+            DateTime today = DateTime.UtcNow.AddHours(-3);
+            var clients = await _db
+                .Routes
+                .Where(x => x.ID == routeID)
+                .SelectMany(x => x.Carts)
+                .Select(x => x.Client)
+                .AsNoTracking()
+                .ToListAsync();
+
+            var clientAbonos = await _db
+                .ClientAbonos
+                .Where(x => clients.Contains(x.Client))
+                .Include(x => x.Abono)
+                    .ThenInclude(x => x.Products)
+                .Include(x => x.Client)
+                .AsNoTracking()
+                .ToListAsync();
+
+            foreach (var clientAbono in clientAbonos)
+            {
+                var abonoRenewed = await _db
+                    .AbonoRenewals
+                    .AnyAsync(x => x.AbonoID == clientAbono.AbonoID && x.ClientID == clientAbono.ClientID && x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year);
+                if (abonoRenewed) continue;
+
+                var abonoRenewal = new AbonoRenewal()
+                {
+                    Abono = clientAbono.Abono,
+                    Client = clientAbono.Client,
+                    SettedPrice = clientAbono.Abono.Price
+                };
+
+                await _db.AbonoRenewals.AddAsync(abonoRenewal);
+
+                foreach (var abonoRenewalProduct in clientAbono.Abono.Products)
+                {
+                    await _db.AbonoRenewalProducts.AddAsync(new()
+                    {
+                        AbonoRenewal = abonoRenewal,
+                        Type = abonoRenewalProduct.Type,
+                        Available = abonoRenewalProduct.Quantity
+                    });
+                }
+
+                clientAbono.Client.Debt += clientAbono.Abono.Price;
+            }
             try
             {
-                _db.Database.BeginTransaction();
-
-                Abono abono = _db.Abonos.Find(id) ?? throw new Exception("No se encontr� el abono");
-                abono.DeletedAt = DateTime.UtcNow.AddHours(-3);
-
-                foreach (ClientAbono clientAbono in _db.ClientAbonos.Where(x => x.AbonoID == id))
-                {
-                    clientAbono.DeletedAt = DateTime.UtcNow.AddHours(-3);
-                }
-
-                foreach (AbonoProduct abonoProduct in _db.AbonoProducts.Where(x => x.AbonoID == id))
-                {
-                    abonoProduct.DeletedAt = DateTime.UtcNow.AddHours(-3);
-                }
-
-                _db.SaveChanges();
-                _db.Database.CommitTransaction();
+                await _db.Database.BeginTransactionAsync();
+                await _db.SaveChangesAsync();
+                await _db.Database.CommitTransactionAsync();
             }
             catch (Exception)
             {
-                _db.Database.RollbackTransaction();
+                await _db.Database.RollbackTransactionAsync();
                 throw;
             }
         }
 
-        public void RenewAll()
+        public async Task<List<Abono>> GetLastTen(long clientID)
         {
-            try
-            {
-                _db.Database.BeginTransaction();
-
-                DateTime today = DateTime.UtcNow.AddHours(-3);
-                List<ClientAbono> clientAbonos = [.. _db.ClientAbonos.Include(x => x.Abono).ThenInclude(x => x.Products).Include(x => x.Client)];
-                foreach (ClientAbono clientAbono in clientAbonos)
-                {
-                    if (_db.AbonoRenewals.Any(x => x.AbonoID == clientAbono.AbonoID && x.ClientID == clientAbono.ClientID && x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year)) continue;
-
-                    AbonoRenewal abonoRenewal = new()
-                    {
-                        AbonoID = clientAbono.AbonoID,
-                        ClientID = clientAbono.ClientID,
-                        SettedPrice = clientAbono.Abono.Price
-                    };
-
-                    _db.AbonoRenewals.Add(abonoRenewal);
-                    _db.SaveChanges();
-
-                    foreach (AbonoProduct abonoRenewalProduct in clientAbono.Abono.Products)
-                    {
-                        _db.AbonoRenewalProducts.Add(new()
-                        {
-                            AbonoRenewalID = abonoRenewal.ID,
-                            Type = abonoRenewalProduct.Type,
-                            Available = abonoRenewalProduct.Quantity
-                        });
-                    }
-
-                    clientAbono.Client.Debt += clientAbono.Abono.Price;
-                }
-
-                _db.SaveChanges();
-                _db.Database.CommitTransaction();
-            }
-            catch (Exception)
-            {
-                _db.Database.RollbackTransaction();
-                throw;
-            }
+            return await _db
+                .AbonoRenewals
+                .Where(x => x.ClientID == clientID)
+                .OrderByDescending(x => x.CreatedAt)
+                .Take(10)
+                .Select(x => x.Abono)
+                .ToListAsync();
         }
 
-        public void RenewByRoute(long routeID)
+        public async Task<List<Client>> GetClients(long abonoID)
         {
-            try
-            {
-                _db.Database.BeginTransaction();
-
-                DateTime today = DateTime.UtcNow.AddHours(-3);
-                List<Client> clients = [.. _db.Routes.Where(x => x.ID == routeID).SelectMany(x => x.Carts).Select(x => x.Client)];
-                foreach (ClientAbono clientAbono in _db.ClientAbonos.Where(x => clients.Contains(x.Client)).Include(x => x.Abono).ThenInclude(x => x.Products).Include(x => x.Client))
-                {
-                    if (_db.AbonoRenewals.Any(x => x.AbonoID == clientAbono.AbonoID && x.ClientID == clientAbono.ClientID && x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year)) continue;
-
-                    AbonoRenewal abonoRenewal = new()
-                    {
-                        AbonoID = clientAbono.AbonoID,
-                        ClientID = clientAbono.ClientID,
-                        SettedPrice = clientAbono.Abono.Price
-                    };
-
-                    _db.AbonoRenewals.Add(abonoRenewal);
-                    _db.SaveChanges();
-
-                    foreach (AbonoProduct abonoRenewalProduct in clientAbono.Abono.Products)
-                    {
-                        _db.AbonoRenewalProducts.Add(new()
-                        {
-                            AbonoRenewalID = abonoRenewal.ID,
-                            Type = abonoRenewalProduct.Type,
-                            Available = abonoRenewalProduct.Quantity
-                        });
-                    }
-
-                    clientAbono.Client.Debt += clientAbono.Abono.Price;
-                }
-
-                _db.SaveChanges();
-                _db.Database.CommitTransaction();
-            }
-            catch (Exception)
-            {
-                _db.Database.RollbackTransaction();
-                throw;
-            }
-        }
-
-        public IEnumerable<Abono> GetLastTen(long clientID)
-        {
-            return _db.AbonoRenewals.Where(x => x.ClientID == clientID).OrderByDescending(x => x.CreatedAt).Take(10).Select(x => x.Abono);
-        }
-
-        public IEnumerable<Client> GetClients(long abonoID)
-        {
-            return _db.ClientAbonos.Where(x => x.AbonoID == abonoID && x.Client.IsActive).Include(x => x.Client).ThenInclude(x => x.Dealer).Select(x => x.Client);
+            return await _db
+                .ClientAbonos
+                .Where(x => x.AbonoID == abonoID && x.Client.IsActive)
+                .Include(x => x.Client)
+                .ThenInclude(x => x.Dealer)
+                .Select(x => x.Client)
+                .ToListAsync();
         }
     }
 }

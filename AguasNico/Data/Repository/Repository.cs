@@ -13,15 +13,15 @@ namespace AguasNico.Data.Repository
         protected readonly DbContext _context = context;
         internal DbSet<T> dbSet = context.Set<T>();
 
-        public void Add(T entity)
+        public async Task AddAsync(T entity)
         {
-            dbSet.Add(entity);
+            await dbSet.AddAsync(entity);
         }
 
-        public IEnumerable<T> GetAll(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-            string includeProperties = null)
+        public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+            string? includeProperties = null)
         {
-            IQueryable<T> query = dbSet;
+            IQueryable<T> query = dbSet.AsQueryable();
             if (filter != null)
             {
                 query = query.Where(filter);
@@ -37,14 +37,19 @@ namespace AguasNico.Data.Repository
 
             if (orderBy != null)
             {
-                return orderBy(query).ToList();
+                var list = await orderBy(query).ToListAsync();
+                return list;
             }
-            return query.ToList();
+            else
+            {
+                var list = await query.ToListAsync();
+                return list;
+            }
         }
 
-        public T GetFirstOrDefault(Expression<Func<T, bool>> filter = null, string includeProperties = null)
+        public async Task<T> GetFirstOrDefaultAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
         {
-            IQueryable<T> query = dbSet;
+            IQueryable<T> query = dbSet.AsQueryable();
             if (filter != null)
             {
                 query = query.Where(filter);
@@ -57,32 +62,22 @@ namespace AguasNico.Data.Repository
                     query = query.Include(includeProperty.Trim());
                 }
             }
-            return query.FirstOrDefault();
+            return await query.FirstOrDefaultAsync() ?? throw new NullReferenceException("No se ha encontrado la entidad");
         }
 
-        public T GetOne(int id) => dbSet.Find(id);
-        public T GetOne(short id) => dbSet.Find(id);
-        public T GetOne(long id) => dbSet.Find(id);
-
-        public void Remove(int id)
+        public async Task<T> GetOneAsync(int id)
         {
-            T entityToRemove = dbSet.Find(id);
-            this.Remove(entityToRemove);
-        }
-        public void Remove(short id)
-        {
-            T entityToRemove = dbSet.Find(id);
-            this.Remove(entityToRemove);
-        }
-        public void Remove(long id)
-        {
-            T entityToRemove = dbSet.Find(id);
-            this.Remove(entityToRemove);
+            return await dbSet.FindAsync(id) ?? throw new NullReferenceException("No se ha encontrado la entidad");
         }
 
-        public void Remove(T entity)
+        public async Task<T> GetOneAsync(short id)
         {
-            dbSet.Remove(entity);
+            return await dbSet.FindAsync(id) ?? throw new NullReferenceException("No se ha encontrado la entidad");
+        }
+
+        public async Task<T> GetOneAsync(long id)
+        {
+            return await dbSet.FindAsync(id) ?? throw new NullReferenceException("No se ha encontrado la entidad");
         }
     }
 }

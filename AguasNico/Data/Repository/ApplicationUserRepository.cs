@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using AguasNico.Data.Repository.IRepository;
 using AguasNico.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace AguasNico.Data.Repository
 {
@@ -13,40 +14,71 @@ namespace AguasNico.Data.Repository
     {
         private readonly ApplicationDbContext _db = db;
 
-        public IEnumerable<ApplicationUser> GetDealers()
+        public async Task<List<ApplicationUser>> GetDealers()
         {
-            return _db.UserRoles.Where(x => x.RoleId.Equals(_db.Roles.First(x => x.Name.Equals(Constants.Dealer)).Id)).Select(x => x.UserId).Select(x => _db.User.First(y => y.Id.Equals(x)));
+            var dealer = await _db.Roles.FirstAsync(x => x.Name != null && x.Name.Equals(Constants.Dealer));
+            return await _db
+                .UserRoles
+                .Where(x => x.RoleId.Equals(dealer.Id))
+                .Select(x => x.UserId)
+                .Select(x => _db.User.First(y => y.Id.Equals(x)))
+                .ToListAsync();
         }
 
-        public IdentityRole GetRole(string userID)
+        public async Task<IdentityRole> GetRole(string userID)
         {
-            return _db.Roles.First(x => x.Id.Equals(_db.UserRoles.First(x => x.UserId.Equals(userID)).RoleId));
+            var role = await _db.UserRoles.FirstAsync(x => x.UserId.Equals(userID));
+            return await _db
+                .Roles
+                .FirstAsync(x => x.Id.Equals(role.RoleId));
         }
 
-        public IEnumerable<SelectListItem> GetDropDownList()
+        public async Task<List<SelectListItem>> GetDropDownList()
         {
-            IEnumerable<SelectListItem> users = new List<SelectListItem>
+            var dropDown = new List<SelectListItem>
             {
                 new() { Value = "", Text = "Seleccione un usuario", Disabled = true, Selected = true }
             };
-            return users.Concat(_db.User.OrderBy(x => x.UserName).Select(i => new SelectListItem()
-            {
-                Text = i.UserName,
-                Value = i.Id,
-            }));
+            var users = await _db
+                .User
+                .OrderBy(x => x.UserName)
+                .Select(i => new SelectListItem()
+                {
+                    Text = i.UserName,
+                    Value = i.Id,
+                })
+                .ToListAsync();
+
+            return [.. dropDown, .. users];
         }
 
-        public IEnumerable<SelectListItem> GetDealersDropDownList()
+        public async Task<List<SelectListItem>> GetDealersDropDownList()
         {
-            IEnumerable<SelectListItem> users = new List<SelectListItem>
+            var dropDown = new List<SelectListItem>
             {
                 new() { Value = "", Text = "Seleccione un repartidor", Disabled = true, Selected = true }
             };
-            return users.Concat(_db.UserRoles.Where(x => x.RoleId.Equals(_db.Roles.First(x => x.Name.Equals(Constants.Dealer)).Id)).Select(x => x.UserId).Select(x => _db.User.First(y => y.Id.Equals(x))).OrderBy(x => x.UserName).Select(i => new SelectListItem()
-            {
-                Text = i.UserName,
-                Value = i.Id,
-            }));
+
+            var role = await _db.Roles.FirstAsync(x => x.Name != null && x.Name.Equals(Constants.Dealer));
+
+            var usersIds = await _db
+                .UserRoles
+                .Where(x => x.RoleId.Equals(role.Id))
+                .Select(x => x.UserId)
+                .ToListAsync();
+            
+            var users = await _db
+                .User
+                .Where(x => usersIds.Contains(x.Id))
+                .OrderBy(x => x.UserName)
+                .Select(i => new SelectListItem()
+                {
+                    Text = i.UserName,
+                    Value = i.Id,
+                })
+                .ToListAsync();
+
+            return [.. dropDown, .. users];
         }
     }
 }

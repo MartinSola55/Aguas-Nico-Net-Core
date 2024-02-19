@@ -25,5 +25,9 @@ namespace AguasNico.Data.Repository.IRepository
         void Commit();
         void Rollback();
         void Save();
+        Task BeginTransactionAsync();
+        Task CommitAsync();
+        Task RollbackAsync();
+        Task SaveAsync();
     }
 }

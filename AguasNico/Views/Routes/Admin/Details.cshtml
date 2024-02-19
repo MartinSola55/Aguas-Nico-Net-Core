@@ -529,14 +529,6 @@
                                             </ul>
                                         </div>
                                     }
-                                    <!-- Resetear estado del carrito (no confirmado) -->
-                                    @if (!cart.IsStatic && cart.State != State.Pending && cart.State != State.Confirmed)
-                                    {
-                                        <hr>
-                                        <div class="d-flex flex-row justify-content-end">
-                                            <button name="btnResetCartState" type="button" class="btn btn-sm btn-danger btn-rounded px-3" onclick="cancelState(@cart.ID)">Cancelar estado</button>
-                                        </div>
-                                    }
                                     @if (!cart.IsStatic)
                                     {
                                         <hr>
@@ -553,13 +545,6 @@
             </div>
         </div>
     </div>
-
-
-    <form id="form-resetState" method="post" asp-area="" asp-controller="Carts" asp-action="ResetState">
-        @Html.AntiForgeryToken()
-        <input type="hidden" name="id" value="">
-        <input type="hidden" name="state" value="0">
-    </form>
 
     <form id="form-deleteCart" method="post" asp-area="" asp-controller="Carts" asp-action="SoftDelete">
         @Html.AntiForgeryToken()

@@ -10,9 +10,9 @@ namespace AguasNico.Data.Repository.IRepository
 {
     public interface IApplicationUserRepository : IRepository<ApplicationUser>
     {
-        IEnumerable<ApplicationUser> GetDealers();
-        IdentityRole GetRole(string userID);
-        IEnumerable<SelectListItem> GetDropDownList();
-        IEnumerable<SelectListItem> GetDealersDropDownList();
+        Task<List<ApplicationUser>> GetDealers();
+        Task<IdentityRole> GetRole(string userID);
+        Task<List<SelectListItem>> GetDropDownList();
+        Task<List<SelectListItem>> GetDealersDropDownList();
     }
 }

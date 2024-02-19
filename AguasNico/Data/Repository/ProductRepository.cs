@@ -14,63 +14,82 @@ namespace AguasNico.Data.Repository
     {
         private readonly ApplicationDbContext _db = db;
 
-        public void Update(Product product)
+        public async Task Update(Product product)
         {
-            var dbObject = _db.Products.FirstOrDefault(x => x.ID == product.ID);
-            if (dbObject != null)
+            var oldProduct = await _db
+                .Products
+                .FirstOrDefaultAsync(x => x.ID == product.ID);
+
+            if (oldProduct != null)
             {
-                dbObject.Name = product.Name;
-                dbObject.Price = product.Price;
-                dbObject.Type = product.Type;
-                dbObject.UpdatedAt = DateTime.UtcNow.AddHours(-3);
-                _db.SaveChanges();
+                oldProduct.Name = product.Name;
+                oldProduct.Price = product.Price;
+                oldProduct.Type = product.Type;
+                oldProduct.UpdatedAt = DateTime.UtcNow.AddHours(-3);
+                await _db.SaveChangesAsync();
             }
         }
 
-        public bool IsDuplicated(Product product)
+        public async Task<bool> IsDuplicated(Product product)
         {
-            return _db.Products.Any(x => x.Name == product.Name && x.Price == product.Price && x.ID != product.ID);
+            return await _db
+                .Products
+                .AnyAsync(x => x.Name == product.Name && x.Price == product.Price && x.ID != product.ID);
         }
 
-        public void SoftDelete(long id)
+        public async Task SoftDelete(long id)
         {
+            var oldProduct = await _db
+                .Products
+                .FirstOrDefaultAsync(x => x.ID == id) ?? throw new Exception("No se ha encontrado el producto");
+
+            oldProduct.IsActive = false;
+
+            var clientProducts = await _db
+                .ClientProducts
+                .Where(x => x.ProductID == id)
+                .ToListAsync();
+
+            foreach (var clientProduct in clientProducts)
+            {
+                clientProduct.DeletedAt = DateTime.UtcNow.AddHours(-3);
+            }
             try
             {
-                _db.Database.BeginTransaction();
-
-                var dbObject = _db.Products.FirstOrDefault(x => x.ID == id) ?? throw new Exception("No se ha encontrado el producto");
-                dbObject.IsActive = false;
-
-                foreach (var clientProduct in _db.ClientProducts.Where(x => x.ProductID == id))
-                {
-                    clientProduct.DeletedAt = DateTime.UtcNow.AddHours(-3);
-                }
-                
-                _db.SaveChanges();
-                _db.Database.CommitTransaction();
+                await _db.Database.BeginTransactionAsync();
+                await _db.SaveChangesAsync();
+                await _db.Database.CommitTransactionAsync();
             }
             catch (Exception)
             {
-                _db.Database.RollbackTransaction();
+                await _db.Database.RollbackTransactionAsync();
                 throw;
             }
         }
 
-        public IEnumerable<Client> GetClients(long productID)
+        public async Task<List<Client>> GetClients(long productID)
         {
-            return _db.ClientProducts.Where(x => x.ProductID == productID && x.Client.IsActive).Include(x => x.Client).ThenInclude(x => x.Dealer).Select(x => x.Client);
+            return await _db
+                .ClientProducts
+                .Where(x => x.ProductID == productID && x.Client.IsActive)
+                .Include(x => x.Client)
+                    .ThenInclude(x => x.Dealer)
+                .Select(x => x.Client)
+                .ToListAsync();
         }
 
-        public int[] GetAnnualSales(ProductType productType, DateTime year)
+        public async Task<int[]> GetAnnualSales(ProductType productType, DateTime year)
         {
-            var salesByMonth = _db.CartProducts
+            var salesByMonth = await _db
+                .CartProducts
                 .Where(x => x.Type == productType && x.CreatedAt.Year == year.Year)
                 .GroupBy(x => x.CreatedAt.Month)
                 .Select(x => new
                 {
                     Month = x.Key,
                     Total = x.Sum(x => x.Quantity)
-                });
+                })
+                .ToListAsync();
             
             int[] sales = new int[12];
 
@@ -81,14 +100,20 @@ namespace AguasNico.Data.Repository
             return sales;
         }
 
-        public int GetClientStock(long productID)
+        public async Task<int> GetClientStock(long productID)
         {
-            return _db.ClientProducts.Where(x => x.ProductID == productID && x.Client.IsActive).Sum(x => x.Stock);
+            return await _db
+                .ClientProducts
+                .Where(x => x.ProductID == productID && x.Client.IsActive)
+                .SumAsync(x => x.Stock);
         }
 
-        public decimal GetTotalSold(ProductType productType, DateTime year)
+        public async Task<decimal> GetTotalSold(ProductType productType, DateTime year)
         {
-            return _db.CartProducts.Where(x => x.Type == productType && x.CreatedAt.Year == year.Year).Sum(x => x.Quantity * x.SettedPrice);
+            return await _db
+                .CartProducts
+                .Where(x => x.Type == productType && x.CreatedAt.Year == year.Year)
+                .SumAsync(x => x.Quantity * x.SettedPrice);
         }
     }
 }

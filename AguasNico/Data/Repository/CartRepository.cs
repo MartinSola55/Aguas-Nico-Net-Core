@@ -13,39 +13,50 @@ namespace AguasNico.Data.Repository
     {
         private readonly ApplicationDbContext _db = db;
 
-        public void Update(Cart cart)
+        public async Task Update(Cart cart)
         {
             try
             {
-                _db.Database.BeginTransaction();
-                
-                this.SoftDelete(cart.ID);
-                Client client = _db.Clients.Include(x => x.Products).ThenInclude(x => x.Product).Where(x => x.ID == cart.ClientID).First() ?? throw new Exception("No se ha encontrado el cliente");
+                await _db.Database.BeginTransactionAsync();
+                await SoftDelete(cart.ID);
+
+                var client = await _db
+                .Clients
+                .Include(x => x.Products)
+                    .ThenInclude(x => x.Product)
+                .Where(x => x.ID == cart.ClientID)
+                .FirstAsync() ?? throw new Exception("No se ha encontrado el cliente");
 
                 if (cart.Products is not null)
                 {
-                    foreach(CartProduct product in cart.Products)
+                    foreach(var product in cart.Products)
                     {
-                        if (product.Quantity <= 0) continue;
-                        ClientProduct clientProduct = client.Products.First(x => x.Product.Type == product.Type);
+                        if (product.Quantity <= 0)
+                            continue;
+
+                        var clientProduct = client.Products.First(x => x.Product.Type == product.Type);
                         clientProduct.Stock += product.Quantity;
                         client.Debt += product.Quantity * clientProduct.Product.Price;
 
                         //Ignorar los filtros globales
-                        CartProduct? existingProduct = _db.CartProducts.IgnoreQueryFilters().Where(x => x.CartID == cart.ID && x.Type == product.Type).FirstOrDefault();
+                        var existingProduct = await _db
+                            .CartProducts
+                            .IgnoreQueryFilters()
+                            .Where(x => x.CartID == cart.ID && x.Type == product.Type)
+                            .FirstOrDefaultAsync();
+
                         if (existingProduct is not null)
                         {
                             existingProduct.Quantity = product.Quantity;
                             existingProduct.SettedPrice = clientProduct.Product.Price;
                             existingProduct.UpdatedAt = DateTime.UtcNow.AddHours(-3);
                             existingProduct.DeletedAt = null;
-                            _db.SaveChanges();
                         }
                         else
                         {
-                            _db.CartProducts.Add(new()
+                            await _db.CartProducts.AddAsync(new()
                             {
-                                CartID = cart.ID,
+                                Cart = cart,
                                 Type = product.Type,
                                 Quantity = product.Quantity,
                                 SettedPrice = clientProduct.Product.Price,
@@ -56,25 +67,28 @@ namespace AguasNico.Data.Repository
 
                 if (cart.AbonoProducts is not null)
                 {
-                    foreach (CartAbonoProduct product in cart.AbonoProducts)
+                    foreach (var product in cart.AbonoProducts)
                     {
-                        if (product.Quantity <= 0) continue;
-                        ClientProduct clientProduct = client.Products.First(x => x.Product.Type == product.Type);
+                        if (product.Quantity <= 0)
+                            continue;
+
+                        var clientProduct = client.Products.First(x => x.Product.Type == product.Type);
                         clientProduct.Stock += product.Quantity;
 
-                        List<AbonoRenewalProduct> abonoProducts =
-                        [
-                            .. _db.AbonoRenewalProducts.Where(x =>
-                                x.AbonoRenewal.ClientID == cart.ClientID &&
-                                x.CreatedAt.Month == cart.CreatedAt.Month &&
-                                x.CreatedAt.Year == cart.CreatedAt.Year &&
-                                x.Type == product.Type),
-                        ];
+                    var abonoProducts = await _db
+                        .AbonoRenewalProducts
+                        .Where(x =>
+                            x.AbonoRenewal.ClientID == cart.ClientID &&
+                            x.CreatedAt.Month == cart.CreatedAt.Month &&
+                            x.CreatedAt.Year == cart.CreatedAt.Year &&
+                            x.Type == product.Type)
+                        .ToListAsync();
 
-                        if (abonoProducts.Sum(x => x.Available) < product.Quantity) throw new Exception("El cliente no posee suficientes " + product.Type.GetDisplayName() + " disponibles en sus abonos");
+                        if (abonoProducts.Sum(x => x.Available) < product.Quantity)
+                            throw new Exception("El cliente no posee suficientes " + product.Type.GetDisplayName() + " disponibles en sus abonos");
 
                         int quantity = product.Quantity;
-                        foreach (AbonoRenewalProduct abonoProduct in abonoProducts)
+                        foreach (var abonoProduct in abonoProducts)
                         {
                             if (abonoProduct.Available >= quantity)
                             {
@@ -89,19 +103,23 @@ namespace AguasNico.Data.Repository
                         }
 
                         //Ignorar los filtros globales
-                        CartAbonoProduct? existingProduct = _db.CartAbonoProducts.IgnoreQueryFilters().Where(x => x.CartID == cart.ID && x.Type == product.Type).FirstOrDefault();
+                        var existingProduct = await _db
+                            .CartAbonoProducts
+                            .IgnoreQueryFilters()
+                            .Where(x => x.CartID == cart.ID && x.Type == product.Type)
+                            .FirstOrDefaultAsync();
+
                         if (existingProduct is not null)
                         {
                             existingProduct.Quantity = product.Quantity;
                             existingProduct.UpdatedAt = DateTime.UtcNow.AddHours(-3);
                             existingProduct.DeletedAt = null;
-                            _db.SaveChanges();
                         }
                         else
                         {
-                            _db.CartAbonoProducts.Add(new()
+                            await _db.CartAbonoProducts.AddAsync(new()
                             {
-                                CartID = cart.ID,
+                                Cart = cart,
                                 Type = product.Type,
                                 Quantity = product.Quantity,
                             });
@@ -111,26 +129,33 @@ namespace AguasNico.Data.Repository
 
                 if (cart.ReturnedProducts is not null)
                 {
-                    foreach (ReturnedProduct product in cart.ReturnedProducts)
+                    foreach (var product in cart.ReturnedProducts)
                     {
-                        ClientProduct clientProduct = client.Products.First(x => x.Product.Type == product.Type);
-                        if (clientProduct.Stock < product.Quantity) throw new Exception("El cliente no posee stock suficiente de: " + product.Type.GetDisplayName());
+                        var clientProduct = client.Products.First(x => x.Product.Type == product.Type);
+
+                        if (clientProduct.Stock < product.Quantity)
+                            throw new Exception("El cliente no posee stock suficiente de: " + product.Type.GetDisplayName());
+
                         clientProduct.Stock -= product.Quantity;
 
                         //Ignorar los filtros globales
-                        ReturnedProduct? existingProduct = _db.ReturnedProducts.IgnoreQueryFilters().Where(x => x.CartID == cart.ID && x.Type == product.Type).FirstOrDefault();
+                        var existingProduct = await _db
+                            .ReturnedProducts
+                            .IgnoreQueryFilters()
+                            .Where(x => x.CartID == cart.ID && x.Type == product.Type)
+                            .FirstOrDefaultAsync();
+
                         if (existingProduct is not null)
                         {
                             existingProduct.Quantity = product.Quantity;
                             existingProduct.UpdatedAt = DateTime.UtcNow.AddHours(-3);
                             existingProduct.DeletedAt = null;
-                            _db.SaveChanges();
                         }
                         else
                         {
-                            _db.ReturnedProducts.Add(new()
+                            await _db.ReturnedProducts.AddAsync(new()
                             {
-                                CartID = cart.ID,
+                                Cart = cart,
                                 Type = product.Type,
                                 Quantity = product.Quantity,
                             });
@@ -140,22 +165,26 @@ namespace AguasNico.Data.Repository
 
                 if (cart.PaymentMethods is not null)
                 {
-                    foreach (CartPaymentMethod paymentMethod in cart.PaymentMethods)
+                    foreach (var paymentMethod in cart.PaymentMethods)
                     {
                         client.Debt -= paymentMethod.Amount;
 
                         //Ignorar los filtros globales
-                        CartPaymentMethod? existingMethod = _db.CartPaymentMethods.IgnoreQueryFilters().Where(x => x.CartID == cart.ID && x.PaymentMethodID == paymentMethod.PaymentMethodID).FirstOrDefault();
+                        var existingMethod = await _db
+                            .CartPaymentMethods
+                            .IgnoreQueryFilters()
+                            .Where(x => x.CartID == cart.ID && x.PaymentMethodID == paymentMethod.PaymentMethodID)
+                            .FirstOrDefaultAsync();
+
                         if (existingMethod is not null)
                         {
                             existingMethod.Amount = paymentMethod.Amount;
                             existingMethod.UpdatedAt = DateTime.UtcNow.AddHours(-3);
                             existingMethod.DeletedAt = null;
-                            _db.SaveChanges();
                         }
                         else
                         {
-                            _db.CartPaymentMethods.Add(new()
+                            await _db.CartPaymentMethods.AddAsync(new()
                             {
                                 CartID = cart.ID,
                                 PaymentMethodID = paymentMethod.PaymentMethodID,
@@ -165,351 +194,441 @@ namespace AguasNico.Data.Repository
                     }
                 }
 
-                Cart updatedCart = _db.Carts.Find(cart.ID) ?? throw new Exception("No se ha encontrado la bajada");
+                var updatedCart = await _db
+                    .Carts
+                    .IgnoreQueryFilters()
+                    .FirstOrDefaultAsync(x => x.ID == cart.ID) ?? throw new Exception("No se ha encontrado la bajada");
+
                 updatedCart.DeletedAt = null;
                 updatedCart.UpdatedAt = DateTime.UtcNow.AddHours(-3);
-                _db.SaveChanges();
-                _db.Database.CommitTransaction();
+
+                await _db.SaveChangesAsync();
+                await _db.Database.CommitTransactionAsync();
             }
             catch (Exception)
             {
-                _db.Database.RollbackTransaction();
+                await _db.Database.RollbackTransactionAsync();
                 throw;
             }
         }
 
-        public void SoftDelete(long id)
+        public async Task SoftDelete(long id)
         {
-            try
+            var cart = await _db
+                .Carts
+                .Include(x => x.Client)
+                .Include(x => x.Products)
+                .Include(x => x.AbonoProducts)
+                .Include(x => x.ReturnedProducts)
+                .Include(x => x.PaymentMethods)
+                .FirstOrDefaultAsync(x => x.ID == id) ?? throw new Exception("No se ha encontrado la bajada");
+
+            // Productos de la bajada
+            if (cart.Products is not null)
             {
-                bool isInTransaction = _db.Database.CurrentTransaction is not null;
-                if (!isInTransaction) _db.Database.BeginTransaction();
-                Cart cart = _db.Carts
-                    .Where(x => x.ID == id)
-                    .Include(x => x.Client)
-                    .Include(x => x.Products)
-                    .Include(x => x.AbonoProducts)
-                    .Include(x => x.ReturnedProducts)
-                    .Include(x => x.PaymentMethods)
-                    .FirstOrDefault() ?? throw new Exception("No se ha encontrado la bajada");
-
-                if (cart.Products is not null)
+                foreach (var product in cart.Products)
                 {
-                    foreach (CartProduct product in cart.Products)
-                    {
-                        ClientProduct clientProduct = _db.ClientProducts.Where(x => x.ClientID == cart.ClientID && x.Product.Type == product.Type).FirstOrDefault() ?? throw new Exception("No se ha encontrado un producto del cliente");
-                        clientProduct.Stock -= product.Quantity;
-                        cart.Client.Debt -= product.Quantity * product.SettedPrice;
-                        product.DeletedAt = DateTime.UtcNow.AddHours(-3);
-                        _db.SaveChanges();
-                    }
+                    var clientProduct = await _db
+                        .ClientProducts
+                        .Where(x => x.ClientID == cart.ClientID && x.Product.Type == product.Type)
+                        .FirstOrDefaultAsync() ?? throw new Exception("No se ha encontrado un producto del cliente");
+
+                    clientProduct.Stock -= product.Quantity;
+                    cart.Client.Debt -= product.Quantity * product.SettedPrice;
+                    product.DeletedAt = DateTime.UtcNow.AddHours(-3);
                 }
+            }
 
-                if (cart.AbonoProducts is not null)
+            // Productos de abonos de la bajada
+
+            if (cart.AbonoProducts is not null)
+            {
+                foreach (var abonoProductInCart in cart.AbonoProducts)
                 {
-                    foreach (CartAbonoProduct abonoProductInCart in cart.AbonoProducts)
-                    {
-                        AbonoRenewalProduct abonoProduct = _db.AbonoRenewalProducts.Where(x =>
+                    var abonoProduct = await _db
+                        .AbonoRenewalProducts
+                        .Where(x =>
                             x.AbonoRenewal.ClientID == cart.ClientID &&
                             x.CreatedAt.Month == cart.CreatedAt.Month &&
                             x.CreatedAt.Year == cart.CreatedAt.Year &&
-                            x.Type == abonoProductInCart.Type).FirstOrDefault() ?? throw new Exception("No se ha encontrado un producto del abono del cliente");
+                            x.Type == abonoProductInCart.Type)
+                        .FirstOrDefaultAsync() ?? throw new Exception("No se ha encontrado un producto del abono del cliente");
 
-                        abonoProduct.Available += abonoProductInCart.Quantity;
+                    abonoProduct.Available += abonoProductInCart.Quantity;
 
-                        ClientProduct clientProduct = _db.ClientProducts.Where(x => x.ClientID == cart.ClientID && x.Product.Type == abonoProductInCart.Type).FirstOrDefault() ?? throw new Exception("No se ha encontrado un producto del cliente");
-                        clientProduct.Stock -= abonoProductInCart.Quantity;
-                        abonoProductInCart.DeletedAt = DateTime.UtcNow.AddHours(-3);
-                        _db.SaveChanges();
-                    }
+                    var clientProduct = await _db
+                        .ClientProducts
+                        .Where(x => x.ClientID == cart.ClientID && x.Product.Type == abonoProductInCart.Type)
+                        .FirstOrDefaultAsync() ?? throw new Exception("No se ha encontrado un producto del cliente");
+
+                    clientProduct.Stock -= abonoProductInCart.Quantity;
+                    abonoProductInCart.DeletedAt = DateTime.UtcNow.AddHours(-3);
                 }
+            }
 
-                if (cart.ReturnedProducts is not null)
+            // Productos devueltos de la bajada
+            if (cart.ReturnedProducts is not null)
+            {
+                foreach (var product in cart.ReturnedProducts)
                 {
-                    foreach (ReturnedProduct product in cart.ReturnedProducts)
-                    {
-                        ClientProduct clientProduct = _db.ClientProducts.Where(x => x.ClientID == cart.ClientID && x.Product.Type == product.Type).FirstOrDefault() ?? throw new Exception("No se ha encontrado un producto del cliente");
-                        clientProduct.Stock += product.Quantity;
-                        product.DeletedAt = DateTime.UtcNow.AddHours(-3);
-                        _db.SaveChanges();
-                    }
-                }
+                    var clientProduct = await _db
+                        .ClientProducts
+                        .Where(x => x.ClientID == cart.ClientID && x.Product.Type == product.Type)
+                        .FirstOrDefaultAsync() ?? throw new Exception("No se ha encontrado un producto del cliente");
 
-                if (cart.PaymentMethods is not null)
+                    clientProduct.Stock += product.Quantity;
+                    product.DeletedAt = DateTime.UtcNow.AddHours(-3);
+                }
+            }
+
+            // Metodos de pago de la bajada
+            if (cart.PaymentMethods is not null)
+            {
+                foreach (var paymentMethod in cart.PaymentMethods)
                 {
-                    foreach (CartPaymentMethod paymentMethod in cart.PaymentMethods)
-                    {
-                        cart.Client.Debt += paymentMethod.Amount;
-                        paymentMethod.DeletedAt = DateTime.UtcNow.AddHours(-3);
-                        _db.SaveChanges();
-                    }
+                    cart.Client.Debt += paymentMethod.Amount;
+                    paymentMethod.DeletedAt = DateTime.UtcNow.AddHours(-3);
                 }
+            }
 
-                cart.DeletedAt = DateTime.UtcNow.AddHours(-3);
+            cart.DeletedAt = DateTime.UtcNow.AddHours(-3);
+            try
+            {
+                bool isInTransaction = _db.Database.CurrentTransaction is not null;
 
-                _db.SaveChanges();
-                if (!isInTransaction) _db.Database.CommitTransaction();
+                if (!isInTransaction) await _db.Database.BeginTransactionAsync();
+                
+                await _db.SaveChangesAsync();
+
+                if (!isInTransaction) await _db.Database.CommitTransactionAsync();
             }
             catch (Exception)
             {
-                _db.Database.RollbackTransaction();
+                await _db.Database.RollbackTransactionAsync();
                 throw;
             }
         }
 
-        public IEnumerable<Cart> GetLastTen(long clientID)
+        public async Task<List<Cart>> GetLastTen(long clientID)
         {
-            return _db.Carts
+            return await _db.Carts
                 .Where(x => x.ClientID == clientID && !x.IsStatic && x.State != State.Pending)
                 .OrderByDescending(x => x.CreatedAt)
                 .Take(10)
                 .Include(x => x.Products)
                 .Include(x => x.PaymentMethods)
-                    .ThenInclude(x => x.PaymentMethod);
+                    .ThenInclude(x => x.PaymentMethod)
+                .ToListAsync();
         }
 
-        public void Confirm(Cart cart)
+        public async Task Confirm(Cart cart)
         {
-            try
+            var today = DateTime.UtcNow.AddHours(-3);
+            var client = await _db
+                .Clients
+                .FindAsync(cart.ClientID) ?? throw new Exception("No se ha encontrado el cliente");
+
+            var returnedProducts = new List<ReturnedProduct>();
+            foreach (var type in new ConstantsMethods().GetProductTypes())
             {
-                _db.Database.BeginTransaction();
-                DateTime today = DateTime.UtcNow.AddHours(-3);
-                Client client = _db.Clients.Find(cart.ClientID) ?? throw new Exception("No se ha encontrado el cliente");
-                List<ReturnedProduct> returnedProducts = [];
-                foreach (ProductType type in Enum.GetValues(typeof(ProductType)))
+                returnedProducts.Add(new()
                 {
-                    returnedProducts.Add(new()
-                    {
-                        CartID = cart.ID,
-                        Type = type,
-                        Quantity = 0,
-                    });
-                }
+                    CartID = cart.ID,
+                    Type = type,
+                    Quantity = 0,
+                });
+            }
 
-                decimal total = 0;
-                if (cart.Products is not null)
+            decimal total = 0;
+            if (cart.Products is not null)
+            {
+                foreach (var product in cart.Products)
                 {
-                    foreach (CartProduct product in cart.Products)
+                    if (product.Quantity <= 0)
+                            continue;
+                    var clientProduct = await _db
+                        .ClientProducts
+                        .Where(x => x.ClientID == cart.ClientID && x.Product.Type == product.Type)
+                        .Include(x => x.Product)
+                        .FirstOrDefaultAsync() ?? throw new Exception("No se ha encontrado un producto del cliente");
+
+                    clientProduct.Stock += product.Quantity;
+                    product.SettedPrice = clientProduct.Product.Price;
+                    product.CartID = cart.ID;
+                    total += product.Quantity * product.SettedPrice;
+                    
+                    await _db.CartProducts.AddAsync(product);
+
+                    if (returnedProducts.Any(x => x.Type == product.Type))
                     {
-                        if (product.Quantity <= 0) continue;
-                        ClientProduct clientProduct = _db.ClientProducts.Where(x => x.ClientID == cart.ClientID && x.Product.Type == product.Type).Include(x => x.Product).FirstOrDefault() ?? throw new Exception("No se ha encontrado un producto del cliente");
-                        clientProduct.Stock += product.Quantity;
-                        product.SettedPrice = clientProduct.Product.Price;
-                        product.CartID = cart.ID;
-                        total += product.Quantity * product.SettedPrice;
-                        _db.CartProducts.Add(product);
-                        if (returnedProducts.Any(x => x.Type == product.Type))
-                        {
-                            ReturnedProduct returnedProduct = returnedProducts.First(x => x.Type == product.Type);
-                            returnedProduct.Quantity += product.Quantity;
-                        }
+                        var returnedProduct = returnedProducts.First(x => x.Type == product.Type);
+                        returnedProduct.Quantity += product.Quantity;
                     }
-                    client.Debt += total;
                 }
+                client.Debt += total;
+            }
 
-                if (cart.AbonoProducts is not null)
+            if (cart.AbonoProducts is not null)
+            {
+                foreach (var abonoProduct in cart.AbonoProducts)
                 {
-                    foreach (CartAbonoProduct abonoProduct in cart.AbonoProducts)
-                    {
-                        if (abonoProduct.Quantity <= 0) continue;
+                    if (abonoProduct.Quantity <= 0) continue;
 
-                        List<AbonoRenewalProduct> abonoProductsList =
-                        [
-                            .. _db.AbonoRenewalProducts.Where(x => 
+                    var abonoProductsList = await _db
+                        .AbonoRenewalProducts
+                        .Where(x =>
                             x.AbonoRenewal.ClientID == cart.ClientID &&
                             x.CreatedAt.Month == today.Month &&
                             x.CreatedAt.Year == today.Year &&
                             x.Type == abonoProduct.Type)
-                        ];
+                        .ToListAsync();
 
-                        if (abonoProductsList.Count == 0) throw new Exception("No se ha encontrado un producto del abono del cliente");
-                        if (abonoProductsList.Sum(x => x.Available) < abonoProduct.Quantity) throw new Exception("El cliente no posee stock suficiente de: " + abonoProduct.Type.GetDisplayName());
+                    if (abonoProductsList.Count == 0)
+                            throw new Exception("No se ha encontrado un producto del abono del cliente");
+
+                    if (abonoProductsList.Sum(x => x.Available) < abonoProduct.Quantity)
+                            throw new Exception("El cliente no posee stock suficiente de: " + abonoProduct.Type.GetDisplayName());
                         
-                        int quantity = abonoProduct.Quantity;
-                        foreach (AbonoRenewalProduct abonoProductList in abonoProductsList)
-                        {
-                            if (abonoProductList.Available >= quantity)
-                            {
-                                abonoProductList.Available -= quantity;
-                                break;
-                            }
-                            else
-                            {
-                                quantity -= abonoProductList.Available;
-                                abonoProductList.Available = 0;
-                            }
-                        }
-
-                        ClientProduct clientProduct = _db.ClientProducts.Where(x => x.ClientID == cart.ClientID && x.Product.Type == abonoProduct.Type).Include(x => x.Product).FirstOrDefault() ?? throw new Exception("No se ha encontrado un producto del cliente");
-                        clientProduct.Stock += abonoProduct.Quantity;
-
-                        abonoProduct.CartID = cart.ID;
-                        _db.CartAbonoProducts.Add(abonoProduct);
-
-                        if (returnedProducts.Any(x => x.Type == abonoProduct.Type))
-                        {
-                            ReturnedProduct returnedProduct = returnedProducts.First(x => x.Type == abonoProduct.Type);
-                            returnedProduct.Quantity += abonoProduct.Quantity;
-                        }
-                    }
-                }
-
-                total = 0;
-                if (cart.PaymentMethods is not null)
-                {
-                    foreach (CartPaymentMethod paymentMethod in cart.PaymentMethods)
+                    int quantity = abonoProduct.Quantity;
+                    foreach (var abonoProductList in abonoProductsList)
                     {
-                        paymentMethod.CartID = cart.ID;
-                        total += paymentMethod.Amount;
-                        _db.CartPaymentMethods.Add(paymentMethod);
+                        if (abonoProductList.Available >= quantity)
+                        {
+                            abonoProductList.Available -= quantity;
+                            break;
+                        }
+                        else
+                        {
+                            quantity -= abonoProductList.Available;
+                            abonoProductList.Available = 0;
+                        }
                     }
-                    client.Debt -= total;
-                }
 
-                foreach (ReturnedProduct product in returnedProducts)
+                    var clientProduct = await _db
+                        .ClientProducts
+                        .Where(x => x.ClientID == cart.ClientID && x.Product.Type == abonoProduct.Type)
+                        .Include(x => x.Product)
+                        .FirstOrDefaultAsync() ?? throw new Exception("No se ha encontrado un producto del cliente");
+                    clientProduct.Stock += abonoProduct.Quantity;
+
+                    abonoProduct.CartID = cart.ID;
+                    await _db.CartAbonoProducts.AddAsync(abonoProduct);
+
+                    if (returnedProducts.Any(x => x.Type == abonoProduct.Type))
+                    {
+                        var returnedProduct = returnedProducts.First(x => x.Type == abonoProduct.Type);
+                        returnedProduct.Quantity += abonoProduct.Quantity;
+                    }
+                }
+            }
+
+            total = 0;
+            if (cart.PaymentMethods is not null)
+            {
+                foreach (var paymentMethod in cart.PaymentMethods)
                 {
-                    if (product.Quantity <= 0) continue;
-                    ClientProduct clientProduct = _db.ClientProducts.Where(x => x.ClientID == cart.ClientID && x.Product.Type == product.Type).FirstOrDefault() ?? throw new Exception("No se ha encontrado un producto del cliente");
-                    clientProduct.Stock -= product.Quantity;
-                    _db.ReturnedProducts.Add(product);
+                    paymentMethod.CartID = cart.ID;
+                    total += paymentMethod.Amount;
+                    await _db.CartPaymentMethods.AddAsync(paymentMethod);
                 }
+                client.Debt -= total;
+            }
 
-                Cart updatedCart = _db.Carts.Find(cart.ID) ?? throw new Exception("No se ha encontrado la bajada");
-                updatedCart.State = State.Confirmed;
-                updatedCart.UpdatedAt = DateTime.UtcNow.AddHours(-3);
-                _db.SaveChanges();
-                _db.Database.CommitTransaction();
+            foreach (var product in returnedProducts)
+            {
+                if (product.Quantity <= 0) continue;
+                var clientProduct = await _db
+                    .ClientProducts
+                    .Where(x => x.ClientID == cart.ClientID && x.Product.Type == product.Type)
+                    .FirstOrDefaultAsync() ?? throw new Exception("No se ha encontrado un producto del cliente");
+
+                clientProduct.Stock -= product.Quantity;
+                await _db.ReturnedProducts.AddAsync(product);
+            }
+
+            var cartToUpdate = await _db
+                .Carts
+                .FindAsync(cart.ID) ?? throw new Exception("No se ha encontrado la bajada");
+
+            cartToUpdate.State = State.Confirmed;
+            cartToUpdate.UpdatedAt = DateTime.UtcNow.AddHours(-3);
+
+            try
+            {
+                await _db.Database.BeginTransactionAsync();
+                await _db.SaveChangesAsync();
+                await _db.Database.CommitTransactionAsync();
             }
             catch (Exception)
             {
-                _db.Database.RollbackTransaction();
+                await _db.Database.RollbackTransactionAsync();
                 throw;
             }
         }
 
-        public void CreateManual(Cart cart)
+        public async Task CreateManual(Cart cart)
         {
-            try
+            cart.State = State.Confirmed;
+            cart.IsStatic = false;
+            cart.Priority = await _db
+                .Carts
+                .Where(x => x.RouteID == cart.RouteID)
+                .MaxAsync(x => x.Priority) + 1;
+
+            await _db.Carts.AddAsync(cart);
+
+            var today = DateTime.UtcNow.AddHours(-3);
+            var client = await _db
+                .Clients
+                .FindAsync(cart.ClientID) ?? throw new Exception("No se ha encontrado el cliente");
+
+            var returnedProducts = new List<ReturnedProduct>();
+            foreach (ProductType type in new ConstantsMethods().GetProductTypes())
             {
-                _db.Database.BeginTransaction();
-                cart.State = State.Confirmed;
-                cart.IsStatic = false;
-                cart.Priority = _db.Carts.Where(x => x.RouteID == cart.RouteID).Max(x => x.Priority) + 1;
-                _db.Carts.Add(cart);
-                _db.SaveChanges();
-
-                DateTime today = DateTime.UtcNow.AddHours(-3);
-                Client client = _db.Clients.Find(cart.ClientID) ?? throw new Exception("No se ha encontrado el cliente");
-
-                List<ReturnedProduct> returnedProducts = [];
-                foreach (ProductType type in Enum.GetValues(typeof(ProductType)))
+                returnedProducts.Add(new()
                 {
-                    returnedProducts.Add(new()
-                    {
-                        CartID = cart.ID,
-                        Type = type,
-                        Quantity = 0,
-                    });
-                }
+                    Cart = cart,
+                    Type = type,
+                    Quantity = 0,
+                });
+            }
 
-                decimal total = 0;
-                if (cart.Products is not null)
+            decimal total = 0;
+            if (cart.Products is not null)
+            {
+                foreach (var product in cart.Products)
                 {
-                    foreach (CartProduct product in cart.Products)
+                    if (product.Quantity <= 0)
+                            continue;
+
+                    var clientProduct = await _db
+                        .ClientProducts
+                        .Where(x => x.ClientID == cart.ClientID && x.Product.Type == product.Type)
+                        .Include(x => x.Product)
+                        .FirstOrDefaultAsync() ?? throw new Exception("No se ha encontrado un producto del cliente");
+
+                    clientProduct.Stock += product.Quantity;
+                    product.SettedPrice = clientProduct.Product.Price;
+                    total += product.Quantity * product.SettedPrice;
+
+                    if (returnedProducts.Any(x => x.Type == product.Type))
                     {
-                        if (product.Quantity <= 0) continue;
-                        ClientProduct clientProduct = _db.ClientProducts.Where(x => x.ClientID == cart.ClientID && x.Product.Type == product.Type).Include(x => x.Product).FirstOrDefault() ?? throw new Exception("No se ha encontrado un producto del cliente");
-                        clientProduct.Stock += product.Quantity;
-                        product.SettedPrice = clientProduct.Product.Price;
-                        total += product.Quantity * product.SettedPrice;
-                        if (returnedProducts.Any(x => x.Type == product.Type))
-                        {
-                            ReturnedProduct returnedProduct = returnedProducts.First(x => x.Type == product.Type);
-                            returnedProduct.Quantity += product.Quantity;
-                        }
+                        var returnedProduct = returnedProducts.First(x => x.Type == product.Type);
+                        returnedProduct.Quantity += product.Quantity;
                     }
-                    client.Debt += total;
                 }
+                client.Debt += total;
+            }
 
-                if (cart.AbonoProducts is not null)
+            if (cart.AbonoProducts is not null)
+            {
+                foreach (var abonoProduct in cart.AbonoProducts)
                 {
-                    foreach (CartAbonoProduct abonoProduct in cart.AbonoProducts)
-                    {
-                        if (abonoProduct.Quantity <= 0) continue;
+                    if (abonoProduct.Quantity <= 0)
+                        continue;
 
-                        List<AbonoRenewalProduct> abonoProductsList =
-                        [
-                            .. _db.AbonoRenewalProducts.Where(x =>
+                    var abonoProductsList = await _db
+                        .AbonoRenewalProducts
+                        .Where(x =>
                             x.AbonoRenewal.ClientID == cart.ClientID &&
                             x.CreatedAt.Month == today.Month &&
                             x.CreatedAt.Year == today.Year &&
                             x.Type == abonoProduct.Type)
-                        ];
+                        .ToListAsync();
 
-                        if (abonoProductsList.Count == 0) throw new Exception("No se ha encontrado un producto del abono del cliente");
-                        if (abonoProductsList.Sum(x => x.Available) < abonoProduct.Quantity) throw new Exception("El cliente no posee stock suficiente de: " + abonoProduct.Type.GetDisplayName());
+                    if (abonoProductsList.Count == 0)
+                        throw new Exception("No se ha encontrado un producto del abono del cliente");
 
-                        int quantity = abonoProduct.Quantity;
-                        foreach (AbonoRenewalProduct abonoProductList in abonoProductsList)
-                        {
-                            if (abonoProductList.Available >= quantity)
-                            {
-                                abonoProductList.Available -= quantity;
-                                break;
-                            }
-                            else
-                            {
-                                quantity -= abonoProductList.Available;
-                                abonoProductList.Available = 0;
-                            }
-                        }
+                    if (abonoProductsList.Sum(x => x.Available) < abonoProduct.Quantity)
+                        throw new Exception("El cliente no posee stock suficiente de: " + abonoProduct.Type.GetDisplayName());
 
-                        ClientProduct clientProduct = _db.ClientProducts.Where(x => x.ClientID == cart.ClientID && x.Product.Type == abonoProduct.Type).Include(x => x.Product).FirstOrDefault() ?? throw new Exception("No se ha encontrado un producto del cliente");
-                        clientProduct.Stock += abonoProduct.Quantity;
-
-                        if (returnedProducts.Any(x => x.Type == abonoProduct.Type))
-                        {
-                            ReturnedProduct returnedProduct = returnedProducts.First(x => x.Type == abonoProduct.Type);
-                            returnedProduct.Quantity += abonoProduct.Quantity;
-                        }
-                    }
-                }
-
-                total = 0;
-                if (cart.PaymentMethods is not null)
-                {
-                    foreach (CartPaymentMethod paymentMethod in cart.PaymentMethods)
+                    int quantity = abonoProduct.Quantity;
+                    foreach (var abonoProductList in abonoProductsList)
                     {
-                        paymentMethod.CartID = cart.ID;
-                        total += paymentMethod.Amount;
+                        if (abonoProductList.Available >= quantity)
+                        {
+                            abonoProductList.Available -= quantity;
+                            break;
+                        }
+                        else
+                        {
+                            quantity -= abonoProductList.Available;
+                            abonoProductList.Available = 0;
+                        }
                     }
-                    client.Debt -= total;
-                }
 
-                foreach (ReturnedProduct product in returnedProducts)
+                    var clientProduct = await _db
+                        .ClientProducts
+                        .Where(x => x.ClientID == cart.ClientID && x.Product.Type == abonoProduct.Type)
+                        .Include(x => x.Product)
+                        .FirstOrDefaultAsync() ?? throw new Exception("No se ha encontrado un producto del cliente");
+
+                    clientProduct.Stock += abonoProduct.Quantity;
+
+                    if (returnedProducts.Any(x => x.Type == abonoProduct.Type))
+                    {
+                        var returnedProduct = returnedProducts.First(x => x.Type == abonoProduct.Type);
+                        returnedProduct.Quantity += abonoProduct.Quantity;
+                    }
+                }
+            }
+
+            total = 0;
+            if (cart.PaymentMethods is not null)
+            {
+                foreach (var paymentMethod in cart.PaymentMethods)
                 {
-                    if (product.Quantity <= 0) continue;
-                    ClientProduct clientProduct = _db.ClientProducts.Where(x => x.ClientID == cart.ClientID && x.Product.Type == product.Type).FirstOrDefault() ?? throw new Exception("No se ha encontrado un producto del cliente");
-                    clientProduct.Stock -= product.Quantity;
-                    _db.ReturnedProducts.Add(product);
+                    paymentMethod.Cart = cart;
+                    total += paymentMethod.Amount;
                 }
+                client.Debt -= total;
+            }
 
-                _db.SaveChanges();
-                _db.Database.CommitTransaction();
+            foreach (var product in returnedProducts)
+            {
+                if (product.Quantity <= 0)
+                    continue;
+
+                var clientProduct = await _db
+                    .ClientProducts
+                    .Where(x => x.ClientID == cart.ClientID && x.Product.Type == product.Type)
+                    .FirstOrDefaultAsync() ?? throw new Exception("No se ha encontrado un producto del cliente");
+
+                clientProduct.Stock -= product.Quantity;
+                await _db.ReturnedProducts.AddAsync(product);
+            }
+            try
+            {
+                await _db.Database.BeginTransactionAsync();
+                await _db.SaveChangesAsync();
+                await _db.Database.CommitTransactionAsync();
             }
             catch (Exception)
             {
-                _db.Database.RollbackTransaction();
+                await _db.Database.RollbackTransactionAsync();
                 throw;
             }
         }
 
-        public List<ReturnedProduct> GetReturnedProducts(long cartID)
+        public async Task<List<ReturnedProduct>> GetReturnedProducts(long cartID)
         {
-            Cart cart = _db.Carts.Find(cartID) ?? throw new Exception("No se ha encontrado la bajada");
-            List<ReturnedProduct> returnedProducts = _db.ReturnedProducts.Where(x => x.CartID == cartID).ToList();
-            List<ReturnedProduct> products = [];
-            foreach (ClientProduct product in _db.ClientProducts.Where(x => x.ClientID == cart.ClientID).Include(x => x.Product))
+            var cart = await _db
+                .Carts
+                .FindAsync(cartID) ?? throw new Exception("No se ha encontrado la bajada");
+
+            var returnedProducts = await _db
+                .ReturnedProducts
+                .Where(x => x.CartID == cartID)
+                .ToListAsync();
+
+            var products = new List<ReturnedProduct>();
+            var clientProducts = await _db
+                .ClientProducts
+                .Where(x => x.ClientID == cart.ClientID)
+                .Include(x => x.Product)
+                .ToListAsync();
+
+            foreach (var product in clientProducts)
             {
                 if (returnedProducts.Any(x => x.Type == product.Product.Type))
                 {
@@ -527,56 +646,75 @@ namespace AguasNico.Data.Repository
             return products;
         }
 
-        public void ReturnProducts(long cartID, List<ReturnedProduct> products)
+        public async Task ReturnProducts(long cartID, List<ReturnedProduct> products)
         {
+            var cart = await _db
+                .Carts
+                .Include(x => x.ReturnedProducts)
+                .Where(x => x.ID == cartID)
+                .FirstAsync() ?? throw new Exception("No se ha encontrado la bajada");
+
+            var client = await _db
+                .Clients
+                .Include(x => x.Products)
+                    .ThenInclude(x => x.Product)
+                .Where(x => x.ID == cart.ClientID)
+                .FirstAsync() ?? throw new Exception("No se ha encontrado el cliente");
+                
+            foreach (var product in cart.ReturnedProducts)
+            {
+                var clientProduct = client.Products.First(x => x.Product.Type == product.Type);
+                clientProduct.Stock += product.Quantity;
+                product.DeletedAt = DateTime.UtcNow.AddHours(-3);
+            }
+
+            foreach (var product in products)
+            {
+                if (product.Quantity <= 0)
+                    continue;
+
+                var clientProduct = client.Products.First(x => x.Product.Type == product.Type);
+
+                if (clientProduct.Stock < product.Quantity)
+                    throw new Exception("El cliente no posee stock suficiente de: " + product.Type.GetDisplayName());
+
+                clientProduct.Stock -= product.Quantity;
+
+                //Ignorar los filtros globales
+                var existingReturnedProducts = await _db
+                    .ReturnedProducts
+                    .IgnoreQueryFilters()
+                    .Where(x => x.CartID == cart.ID && x.Type == product.Type)
+                    .FirstOrDefaultAsync();
+
+                if (existingReturnedProducts is not null)
+                {
+                    existingReturnedProducts.Quantity = product.Quantity;
+                    existingReturnedProducts.UpdatedAt = DateTime.UtcNow.AddHours(-3);
+                    existingReturnedProducts.DeletedAt = null;
+                }
+                else
+                {
+                    await _db.ReturnedProducts.AddAsync(new()
+                    {
+                        Cart = cart,
+                        Type = clientProduct.Product.Type,
+                        Quantity = product.Quantity,
+                    });
+                }
+            }
+                
+            cart.UpdatedAt = DateTime.UtcNow.AddHours(-3);
+
             try
             {
-                _db.Database.BeginTransaction();
-                Cart cart = _db.Carts.Include(x => x.ReturnedProducts).Where(x => x.ID == cartID).First() ?? throw new Exception("No se ha encontrado la bajada");
-                Client client = _db.Clients.Include(x => x.Products).ThenInclude(x => x.Product).Where(x => x.ID == cart.ClientID).First() ?? throw new Exception("No se ha encontrado el cliente");
-                
-                foreach (ReturnedProduct product in cart.ReturnedProducts)
-                {
-                    ClientProduct clientProduct = client.Products.First(x => x.Product.Type == product.Type);
-                    clientProduct.Stock += product.Quantity;
-                    product.DeletedAt = DateTime.UtcNow.AddHours(-3);
-                    _db.SaveChanges();
-                }
-
-                foreach (ReturnedProduct product in products)
-                {
-                    if (product.Quantity <= 0) continue;
-                    ClientProduct clientProduct = client.Products.First(x => x.Product.Type == product.Type);
-                    if (clientProduct.Stock < product.Quantity) throw new Exception("El cliente no posee stock suficiente de: " + product.Type.GetDisplayName());
-                    clientProduct.Stock -= product.Quantity;
-
-                    //Ignorar los filtros globales
-                    ReturnedProduct? existingReturnedProducts = _db.ReturnedProducts.IgnoreQueryFilters().Where(x => x.CartID == cart.ID && x.Type == product.Type).FirstOrDefault();
-                    if (existingReturnedProducts is not null)
-                    {
-                        existingReturnedProducts.Quantity = product.Quantity;
-                        existingReturnedProducts.UpdatedAt = DateTime.UtcNow.AddHours(-3);
-                        existingReturnedProducts.DeletedAt = null;
-                        _db.SaveChanges();
-                    }
-                    else
-                    {
-                        _db.ReturnedProducts.Add(new()
-                        {
-                            CartID = cart.ID,
-                            Type = clientProduct.Product.Type,
-                            Quantity = product.Quantity,
-                        });
-                    }
-                }
-                
-                cart.UpdatedAt = DateTime.UtcNow.AddHours(-3);
-                _db.SaveChanges();
-                _db.Database.CommitTransaction();
+                await _db.Database.BeginTransactionAsync();
+                await _db.SaveChangesAsync();
+                await _db.Database.CommitTransactionAsync();
             }
             catch (Exception)
             {
-                _db.Database.RollbackTransaction();
+                await _db.Database.RollbackTransactionAsync();
                 throw;
             }
         }

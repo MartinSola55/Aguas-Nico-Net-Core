@@ -4,23 +4,24 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using AguasNico.Models;
+using AguasNico.Models.ViewModels.Routes.Details;
 
 namespace AguasNico.Data.Repository.IRepository
 {
     public interface IRouteRepository : IRepository<Models.Route>
     {
-        IEnumerable<SelectListItem> GetYears();
-        void Update(Models.Route route);
-        void SoftDelete(long id);
-        decimal GetTotalSold(DateTime date);
-        decimal GetTotalSoldByRoute(long routeID);
-        void UpdateClients(long routeID, List<Client> clients);
-        void UpdateDispatched(long routeID, List<DispatchedProduct> products);
-        IEnumerable<Models.Route> GetStaticsByDay(Day day);
-        IEnumerable<Models.Route> GetStaticsByDealer(string dealerID);
-        List<CartPaymentMethod> GetTotalCollected(long routeID);
-        List<Client> ClientsInRoute (long routeID);
-        List<Client> ClientsNotInRoute (long routeID);
-        long CreateByDealer (long routeID);
+        Task<List<SelectListItem>> GetYears();
+        Task Update(Models.Route route);
+        Task SoftDelete(long id);
+        Task<decimal> GetTotalSold(DateTime date);
+        Task<decimal> GetTotalSoldByRoute(long routeID);
+        Task UpdateClients(long routeID, List<Client> clients);
+        Task UpdateDispatched(long routeID, List<DispatchedProduct> products);
+        Task<List<Models.Route>> GetStaticsByDay(Day day);
+        Task<List<Models.Route>> GetStaticsByDealer(string dealerID);
+        Task<List<CartPaymentMethod>> GetTotalCollected(long routeID);
+        Task<List<Client>> ClientsInRoute (long routeID);
+        Task<List<Client>> ClientsNotInRoute (long routeID);
+        Task<long> CreateByDealer (long routeID);
     }
 }

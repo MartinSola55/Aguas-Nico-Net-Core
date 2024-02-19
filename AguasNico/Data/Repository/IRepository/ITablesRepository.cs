@@ -10,9 +10,9 @@ namespace AguasNico.Data.Repository.IRepository
 {
     public interface ITablesRepository
     {
-        List<SoldProductsTable> GetSoldProductsByDate(DateTime date);
-        List<SoldProductsTable> GetSoldProductsByRoute(long routeID);
-        List<SoldProductsTable> GetSoldProductsByDateAndRoute(DateTime date, long routeID);
+        Task<List<SoldProductsTable>> GetSoldProductsByDate(DateTime date);
+        Task<List<SoldProductsTable>> GetSoldProductsByRoute(long routeID);
+        Task<List<SoldProductsTable>> GetSoldProductsByDateAndRoute(DateTime date, long routeID);
         Task<List<InvoiceTable>> GetInvoicesByDates(DateTime startDate, DateTime endDate, Day invoiceDay, string invoiceDealer);
     }
 }

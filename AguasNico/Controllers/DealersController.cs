@@ -22,15 +22,17 @@ namespace AguasNico.Controllers
             });
         }
 
+        #region Views
+
         [HttpGet]
-        [ActionName("Index")]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             try
             {
+                var dealers = await _workContainer.ApplicationUser.GetDealers();
                 IndexViewModel viewModel = new()
                 {
-                    Dealers = _workContainer.ApplicationUser.GetDealers().OrderByDescending(x => x.UserName)
+                    Dealers = [.. dealers.OrderByDescending(x => x.UserName) ]
                 };
 
                 return View(viewModel);
@@ -42,18 +44,17 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        [ActionName("Details")]
-        public IActionResult Details(string id)
+        public async Task<IActionResult> Details(string id)
         {
             try
             {
-                ApplicationUser dealer = _workContainer.ApplicationUser.GetFirstOrDefault(x => x.Id == id) ?? throw new Exception("No se ha encontrado el usuario");
+                var dealer = await _workContainer.ApplicationUser.GetFirstOrDefaultAsync(x => x.Id == id) ?? throw new Exception("No se ha encontrado el usuario");
                 DetailsViewModel viewModel = new()
                 {
                     Dealer = dealer,
-                    TotalCarts = _workContainer.Dealer.GetTotalCarts(dealer.Id, DateTime.UtcNow.AddHours(-3)),
-                    CompletedCarts = _workContainer.Dealer.GetTotalCompletedCarts(dealer.Id, DateTime.UtcNow.AddHours(-3)),
-                    PendingCarts = _workContainer.Dealer.GetTotalPendingCarts(dealer.Id, DateTime.UtcNow.AddHours(-3)),
+                    TotalCarts = await _workContainer.Dealer.GetTotalCarts(dealer.Id, DateTime.UtcNow.AddHours(-3)),
+                    CompletedCarts = await _workContainer.Dealer.GetTotalCompletedCarts(dealer.Id, DateTime.UtcNow.AddHours(-3)),
+                    PendingCarts = await _workContainer.Dealer.GetTotalPendingCarts(dealer.Id, DateTime.UtcNow.AddHours(-3)),
                 };
 
                 return View(viewModel);
@@ -64,14 +65,15 @@ namespace AguasNico.Controllers
             }
         }
 
-        #region Pegadas AJAX
+        #endregion
+
+        #region AJAX
         [HttpGet]
-        [ActionName("GetClientsByDay")]
-        public IActionResult GetClientsByDay(Day day)
+        public async Task<IActionResult> GetClientsByDay(Day day)
         {
             try
             {
-                IEnumerable<Client> clients = _workContainer.Client.GetAll(x => x.DeliveryDay == day);
+                var clients = await _workContainer.Client.GetAllAsync(x => x.DeliveryDay == day);
 
                 return Json(new
                 {
@@ -91,15 +93,16 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        [ActionName("GetClientsNotVisited")]
-        public IActionResult GetClientsNotVisited(string dateFromString, string dateToString, string dealerID)
+        public async Task<IActionResult> GetClientsNotVisited(string dateFromString, string dateToString, string dealerID)
         {
             try
             {
-                ApplicationUser dealer = _workContainer.ApplicationUser.GetFirstOrDefault(x => x.Id == dealerID) ?? throw new Exception("No se ha encontrado el repartidor");
-                DateTime dateFrom = DateTime.Parse(dateFromString);
-                DateTime dateTo = DateTime.Parse(dateToString);
-                IEnumerable<Client> clients = _workContainer.Client.GetNotVisited(dateFrom, dateTo, dealer.Id);
+                var dealer = await _workContainer.ApplicationUser.GetFirstOrDefaultAsync(x => x.Id == dealerID) ?? throw new Exception("No se ha encontrado el repartidor");
+                
+                var dateFrom = DateTime.Parse(dateFromString);
+                var dateTo = DateTime.Parse(dateToString);
+
+                var clients = await _workContainer.Client.GetNotVisited(dateFrom, dateTo, dealer.Id);
 
                 return Json(new
                 {

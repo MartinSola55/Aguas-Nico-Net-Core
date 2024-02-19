@@ -5,8 +5,8 @@ namespace AguasNico.Models.ViewModels.Expenses
     public class IndexViewModel
     {
         public ApplicationUser User = new();
-        public IEnumerable<Expense> Expenses { get; set; } = new List<Expense>();
-        public IEnumerable<SelectListItem> Dealers { get; set; } = new List<SelectListItem>();
+        public List<Expense> Expenses { get; set; } = [];
+        public List<SelectListItem> Dealers { get; set; } = [];
         public Expense CreateViewModel { get; set; } = new();
     }
 }

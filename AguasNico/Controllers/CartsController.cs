@@ -11,10 +11,9 @@ using Microsoft.AspNetCore.Authorization;
 namespace AguasNico.Controllers
 {
     [Authorize]
-    public class CartsController(IWorkContainer workContainer, SignInManager<ApplicationUser> signInManager) : Controller
+    public class CartsController(IWorkContainer workContainer) : Controller
     {
         private readonly IWorkContainer _workContainer = workContainer;
-        private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
         private BadRequestObjectResult CustomBadRequest(string title, string message, string? error = null)
         {
             return BadRequest(new
@@ -26,19 +25,28 @@ namespace AguasNico.Controllers
             });
         }
 
+        #region Views
+
         [HttpGet]
-        [ActionName("Edit")]
-        public IActionResult Edit(long id)
+        public async Task<IActionResult> Edit(long id)
         {
             try
             {
-                Cart cart = _workContainer.Cart.GetFirstOrDefault(x => x.ID == id, includeProperties: "Route.User, Products, AbonoProducts, Client, Client.Abonos, Client.Abonos.Abono.Products, Client.Products.Product, ReturnedProducts, PaymentMethods") ?? throw new Exception("No se ha encontrado la bajada solicitada");
-                if (cart.State != State.Confirmed) throw new Exception("No se puede editar una bajada que no esté confirmada");
+                var cart = await _workContainer
+                    .Cart
+                    .GetFirstOrDefaultAsync(x => 
+                    x.ID == id,
+                    includeProperties: "Route.User, Products, AbonoProducts, Client, Client.Abonos, Client.Abonos.Abono.Products, Client.Products.Product, ReturnedProducts, PaymentMethods")
+                    ?? throw new Exception("No se ha encontrado la bajada solicitada");
 
-                List<CartProduct> cartProducts = [];
-                List<CartAbonoProduct> abonoProducts = [];
-                List<ReturnedProduct> returnedProducts = [];
-                foreach (ClientProduct clientProduct in cart.Client.Products)
+                if (cart.State != State.Confirmed)
+                    throw new Exception("No se puede editar una bajada que no esté confirmada");
+
+                var cartProducts = new List<CartProduct>();
+                var abonoProducts = new List<CartAbonoProduct>();
+                var returnedProducts = new List<ReturnedProduct>();
+
+                foreach (var clientProduct in cart.Client.Products)
                 {
                     if (clientProduct.Product.Type == ProductType.Máquina) continue;
                     cartProducts.Add(new()
@@ -54,10 +62,14 @@ namespace AguasNico.Controllers
                     });
                 }
 
-                foreach (AbonoProduct product in cart.Client.Abonos.SelectMany(x => x.Abono.Products).Distinct())
+                foreach (var product in cart.Client.Abonos.SelectMany(x => x.Abono.Products).Distinct())
                 {
-                    if (product.Type == ProductType.Máquina) continue;
-                    if (abonoProducts.Any(x => x.Type == product.Type)) continue;
+                    if (product.Type == ProductType.Máquina)
+                        continue;
+
+                    if (abonoProducts.Any(x => x.Type == product.Type))
+                        continue;
+
                     abonoProducts.Add(new()
                     {
                         Type = product.Type,
@@ -65,20 +77,22 @@ namespace AguasNico.Controllers
                     });
                 }
 
-                IEnumerable<SelectListItem> methods = _workContainer.PaymentMethod.GetAll().OrderBy(x => x.ID).Select(i => new SelectListItem()
+                var methods = await _workContainer.PaymentMethod.GetAllAsync();
+
+                var methodsOrdered = methods.OrderBy(x => x.ID).Select(i => new SelectListItem()
                 {
                     Text = i.Name,
                     Value = i.ID.ToString(),
                     Selected = cart.PaymentMethods.Any(x => x.PaymentMethodID == i.ID),
-                });
+                }).ToList();
 
-                EditViewModel editViewModel = new()
+                var editViewModel = new EditViewModel()
                 {
                     Cart = cart,
                     Products = cartProducts,
                     AbonoProducts = abonoProducts,
                     ReturnedProducts = returnedProducts,
-                    PaymentMethodsDropDown = methods,
+                    PaymentMethodsDropDown = methodsOrdered,
                 };
 
                 return View(editViewModel);
@@ -89,20 +103,22 @@ namespace AguasNico.Controllers
             }
         }
 
+        #endregion
+
+        #region Actions
+
         [HttpPost]
-        [ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Cart cart)
+        public async Task<IActionResult> Edit(Cart cart)
         {
             try
             {
-                _workContainer.Cart.Update(cart);
-                long routeID = _workContainer.Cart.GetFirstOrDefault(x => x.ID == cart.ID).RouteID;
+                await _workContainer.Cart.Update(cart);
                 return Json(new
                 {
                     success = true,
                     message = "Se ha editado la bajada correctamente",
-                    data = routeID,
+                    data = cart.RouteID,
                 });
             }
             catch (Exception e)
@@ -112,19 +128,16 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("Confirm")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Constants.Dealer)]
-        public IActionResult Confirm(Cart cart)
+        public async Task<IActionResult> Confirm(Cart cart)
         {
             try
             {
-                if (_workContainer.Cart.GetFirstOrDefault(c => c.ID == cart.ID) is null)
-                {
+                if (await _workContainer.Cart.GetFirstOrDefaultAsync(c => c.ID == cart.ID) is null)
                     return CustomBadRequest("Error", "No se ha encontrado el cliente solicitado");
-                }
 
-                _workContainer.Cart.Confirm(cart);
+                await _workContainer.Cart.Confirm(cart);
                 return Json(new
                 {
                     success = true,
@@ -139,13 +152,12 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("ConfirmManual")]
         [ValidateAntiForgeryToken]
-        public IActionResult ConfirmManual(Cart cart)
+        public async Task<IActionResult> ConfirmManual(Cart cart)
         {
             try
             {
-                _workContainer.Cart.CreateManual(cart);
+                await _workContainer.Cart.CreateManual(cart);
                 return Json(new
                 {
                     success = true,
@@ -161,16 +173,15 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("SetState")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Constants.Dealer)]
-        public IActionResult SetState(long cartID, State state)
+        public async Task<IActionResult> SetState(long cartID, State state)
         {
             try
             {
-                Cart cart = _workContainer.Cart.GetOne(cartID) ?? throw new Exception("No se ha encontrado la bajada solicitada");
+                var cart = await _workContainer.Cart.GetOneAsync(cartID) ?? throw new Exception("No se ha encontrado la bajada solicitada");
                 cart.State = state;
-                _workContainer.Save();
+                await _workContainer.SaveAsync();
 
                 return Json(new
                 {
@@ -186,16 +197,15 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("ResetState")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Constants.Dealer)]
-        public IActionResult ResetState(long cartID)
+        public async Task<IActionResult> ResetState(long cartID)
         {
             try
             {
-                Cart cart = _workContainer.Cart.GetOne(cartID) ?? throw new Exception("No se ha encontrado la bajada solicitada");
+                var cart = await _workContainer.Cart.GetOneAsync(cartID) ?? throw new Exception("No se ha encontrado la bajada solicitada");
                 cart.State = State.Pending;
-                _workContainer.Save();
+                await _workContainer.SaveAsync();
 
                 return Json(new
                 {
@@ -211,17 +221,17 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        [ActionName("GetReturnedProducts")]
-        public IActionResult GetReturnedProducts(long cartID)
+        public async Task<IActionResult> GetReturnedProducts(long cartID)
         {
             try
             {
-                Cart cart = _workContainer.Cart.GetOne(cartID) ?? throw new Exception("No se ha encontrado la bajada solicitada");
+                var cart = await _workContainer.Cart.GetOneAsync(cartID) ?? throw new Exception("No se ha encontrado la bajada solicitada");
 
+                var returnedProducts = await _workContainer.Cart.GetReturnedProducts(cartID);
                 return Json(new
                 {
                     success = true,
-                    data = _workContainer.Cart.GetReturnedProducts(cartID).Select(x => new
+                    data = returnedProducts.Select(x => new
                     {
                         type = x.Type,
                         name = x.Type.GetDisplayName(),
@@ -236,14 +246,13 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("ReturnProducts")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Constants.Dealer)]
-        public IActionResult ReturnProducts(long cartID, List<ReturnedProduct> products)
+        public async Task<IActionResult> ReturnProducts(long cartID, List<ReturnedProduct> products)
         {
             try
             {
-                _workContainer.Cart.ReturnProducts(cartID, products);
+                await _workContainer.Cart.ReturnProducts(cartID, products);
                 return Json(new
                 {
                     success = true,
@@ -258,14 +267,13 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("SoftDelete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult SoftDelete(long cartID)
+        public async Task<IActionResult> SoftDelete(long cartID)
         {
             try
             {
-                _workContainer.Cart.SoftDelete(cartID);
+                await _workContainer.Cart.SoftDelete(cartID);
 
                 return Json(new
                 {
@@ -279,5 +287,7 @@ namespace AguasNico.Controllers
                 return CustomBadRequest(title: "Error", message: "No se ha podido eliminar la bajada", error: e.Message);
             }
         }
+
+        #endregion
     }
 }

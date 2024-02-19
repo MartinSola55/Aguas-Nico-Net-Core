@@ -9,6 +9,6 @@ namespace AguasNico.Models.ViewModels.Carts
         public List<CartProduct> Products { get; set; } = [];
         public List<CartAbonoProduct> AbonoProducts { get; set; } = [];
         public List<ReturnedProduct> ReturnedProducts { get; set; } = [];
-        public IEnumerable<SelectListItem> PaymentMethodsDropDown { get; set; } = [];
+        public List<SelectListItem> PaymentMethodsDropDown { get; set; } = [];
     }
 }

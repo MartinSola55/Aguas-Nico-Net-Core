@@ -23,16 +23,18 @@ namespace AguasNico.Controllers
             });
         }
 
+        #region Views
+
         [HttpGet]
-        [ActionName("Index")]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             try
             {
+                var expenses = await _workContainer.Expense.GetAllAsync(x => x.CreatedAt.Date == DateTime.UtcNow.AddHours(-3).Date, includeProperties: "User");
                 IndexViewModel viewModel = new()
                 {
-                    Expenses = _workContainer.Expense.GetAll(x => x.CreatedAt.Date == DateTime.UtcNow.AddHours(-3).Date, includeProperties: "User").OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Amount),
-                    Dealers = _workContainer.ApplicationUser.GetDealersDropDownList(),
+                    Expenses = [.. expenses.OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Amount) ],
+                    Dealers = await _workContainer.ApplicationUser.GetDealersDropDownList(),
                     CreateViewModel = new Expense()
                 };
 
@@ -44,21 +46,24 @@ namespace AguasNico.Controllers
             }
         }
 
+        #endregion
+
+        #region Actions
+
         [HttpPost]
-        [ActionName("Create")]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(IndexViewModel viewModel)
+        public async Task<IActionResult> Create(IndexViewModel viewModel)
         {
             ModelState.Remove("CreateViewModel.User");
             if (ModelState.IsValid)
             {
                 try
                 {
-                    Expense expense = viewModel.CreateViewModel;
-                    _workContainer.Expense.Add(expense);
-                    _workContainer.Save();
+                    var expense = viewModel.CreateViewModel;
+                    await _workContainer.Expense.AddAsync(expense);
+                    await _workContainer.SaveAsync();
 
-                    Expense newExpense = _workContainer.Expense.GetOne(expense.ID);
+                    var newExpense = await _workContainer.Expense.GetOneAsync(expense.ID);
                     return Json(new
                     {
                         success = true,
@@ -75,21 +80,19 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("Edit")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult Edit(IndexViewModel viewModel)
+        public async Task<IActionResult> Edit(IndexViewModel viewModel)
         {
             ModelState.Remove("CreateViewModel.User");
             if (ModelState.IsValid)
             {
                 try
                 {
-                    Expense expense = viewModel.CreateViewModel;
-                    _workContainer.Expense.Update(expense);
-                    _workContainer.Save();
+                    var expense = viewModel.CreateViewModel;
+                    await _workContainer.Expense.Update(expense);
 
-                    Expense newExpense = _workContainer.Expense.GetOne(expense.ID);
+                    var newExpense = await _workContainer.Expense.GetOneAsync(expense.ID);
                     return Json(new
                     {
                         success = true,
@@ -106,16 +109,14 @@ namespace AguasNico.Controllers
         }
 
         [HttpPost]
-        [ActionName("SoftDelete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult SoftDelete(long id)
+        public async Task<IActionResult> SoftDelete(long id)
         {
             try
             {
-                Expense expense = _workContainer.Expense.GetOne(id) ?? throw new Exception("No se encontró el gasto");
-                _workContainer.Expense.SoftDelete(id);
-                _workContainer.Save();
+                var expense = await _workContainer.Expense.GetOneAsync(id) ?? throw new Exception("No se encontró el gasto");
+                await _workContainer.Expense.SoftDelete(id);
 
                 return Json(new
                 {
@@ -130,21 +131,24 @@ namespace AguasNico.Controllers
             }
         }
 
+        #endregion
+
+        #region AJAX
+
         [HttpGet]
-        [ActionName("SearchBetweenDates")]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult SearchBetweenDates(string dateFrom, string dateTo)
+        public async Task<IActionResult> SearchBetweenDates(string dateFrom, string dateTo)
         {
             try
             {
-                DateTime dateFromParsed = DateTime.Parse(dateFrom);
-                DateTime dateToParsed = DateTime.Parse(dateTo);
-                Expression<Func<Expense, bool>> filter = entity => entity.CreatedAt >= dateFromParsed && entity.CreatedAt <= dateToParsed;
-                IEnumerable<Expense> expenses = _workContainer.Expense.GetAll(filter, includeProperties: "User").OrderByDescending(x => x.Amount);
+                var dateFromParsed = DateTime.Parse(dateFrom);
+                var dateToParsed = DateTime.Parse(dateTo);
+
+                var expenses = await _workContainer.Expense.GetAllAsync(x => x.CreatedAt >= dateFromParsed && x.CreatedAt <= dateToParsed, includeProperties: "User");
                 return Json(new
                 {
                     success = true,
-                    data = expenses,
+                    data = expenses.OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Amount),
                 });
             }
             catch (Exception e)
@@ -154,19 +158,18 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        [ActionName("SearchByDate")]
         [Authorize(Roles = Constants.Admin)]
-        public IActionResult SearchByDate(string dateString)
+        public async Task<IActionResult> SearchByDate(string dateString)
         {
             try
             {
-                DateTime date = DateTime.Parse(dateString);
-                IEnumerable<Expense> expenses = _workContainer.Expense.GetAll(x => x.CreatedAt.Date == date.Date, includeProperties: "User").OrderByDescending(x => x.Amount);
+                var date = DateTime.Parse(dateString);
+                var expenses = await _workContainer.Expense.GetAllAsync(x => x.CreatedAt.Date == date.Date, includeProperties: "User");
 
                 return Json(new
                 {
                     success = true,
-                    data = expenses.Select(x => new
+                    data = expenses.OrderByDescending(x => x.Amount).Select(x => new
                     {
                         dealer = x.User.UserName,
                         description = x.Description,
@@ -179,5 +182,7 @@ namespace AguasNico.Controllers
                 return CustomBadRequest(title: "No se encontraron planillas", message: "Intente nuevamente o comuníquese para soporte");
             }
         }
+
+        #endregion
     }
 }
