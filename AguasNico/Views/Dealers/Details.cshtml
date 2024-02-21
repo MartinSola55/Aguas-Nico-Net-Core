@@ -26,8 +26,13 @@
                 <li class="breadcrumb-item active">Detalles</li>
             </ol>
         </div>
+        <div class="col-md-7 col-5 align-self-center">
+            <div class="d-flex m-t-10 justify-content-end">
+                <a asp-area="" asp-controller="Dealers" asp-action="PrintSheet" asp-route-id="@Model.Dealer.Id" class="btn btn-info waves-effect waves-light">Ver planillas</a>
+            </div>
+        </div>
     </div>
-    <h1 class="text-center">@Html.DisplayFor(x => Model.Dealer.UserName) - @(Model.Dealer.TruckNumber != null ? "Camión " + Model.Dealer.TruckNumber.Value : "Sin camión asignado")</h1>
+    <h1 class="text-center">@Html.DisplayFor(x => Model.Dealer.Name) - @(Model.Dealer.TruckNumber != null ? "Camión " + Model.Dealer.TruckNumber.Value : "Sin camión asignado")</h1>
     <hr />
 
     <div class="row">

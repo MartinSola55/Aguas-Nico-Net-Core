@@ -45,4 +45,28 @@ namespace AguasNico.Models.ViewModels.Tables
         [DisplayFormat(DataFormatString = "{0:#,##0}", ApplyFormatInEditMode = true)]
         public decimal AbonoPrice { get; set; } = 0;
     }
+
+    public class DealerSheet
+    {
+        public string ClientName { get; set; } = "";
+        public string ClientPhone { get; set; } = "";
+        public string ClientAddress { get; set; } = "";
+        public decimal ClientDebt { get; set; }
+        public List<Product> Products { get; set; } = [];
+        public List<AbonoProduct> AbonoProducts { get; set; } = [];
+
+        public class Product
+        {
+            public ProductType Type { get; set; }
+
+            [DisplayFormat(DataFormatString = "${0:#,##0}")]
+            public decimal Price { get; set; }
+            public int Stock { get; set; }
+        }
+        public class AbonoProduct
+        {
+            public ProductType Type { get; set; }
+            public int Available { get; set; }
+        }
+    }
 }
