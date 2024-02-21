@@ -103,6 +103,7 @@ namespace AguasNico.Data.Repository
                     clientProducts.Add(new()
                     {
                         ClientID = clientID,
+                        ProductID = product.ID,
                         Product = product,
                         Stock = -1,
                     });
