@@ -321,7 +321,7 @@ namespace AguasNico.Controllers
         {
             try
             {
-                var clients = await _workContainer.Client.GetAllAsync(x => x.Name.Contains(name) && x.IsActive, includeProperties: "Dealer");
+                var clients = await _workContainer.Client.GetAllAsync(x => (x.Name.Contains(name) || x.Address.Contains(name)) && x.IsActive, includeProperties: "Dealer");
                 var clientsList = new List<object>();
                 foreach (var client in clients.OrderBy(x => x.Name))
                 {
