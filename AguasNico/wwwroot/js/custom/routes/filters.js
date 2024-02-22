@@ -2,7 +2,7 @@ $(document).ready(function () {
     $("#searchInput").on("input", function () {
         resetProductAndTypeSelect();
         let searchText = $(this).val().toLowerCase();
-        $(".timeline > li").each(function () {
+        $(".col-timeline > .card").each(function () {
             let nameElement = $(this).find(".name-element");
             let addressElement = $(this).find(".address-element");
 
@@ -18,7 +18,7 @@ $(document).ready(function () {
     $("#estadoSelect").on("change", function () {
         resetProductAndTypeSelect();
         let searchText =  $(this).find("option:selected").val().toLowerCase();
-        $(".timeline > li").each(function () {
+        $(".col-timeline > .card").each(function () {
             let nameAndStateElement = $(this).find(".name-element");
 
             if (nameAndStateElement.text().toLowerCase().includes(searchText) || searchText === "") {
@@ -32,7 +32,7 @@ $(document).ready(function () {
     $("#paymentMethodSelect").on("change", function () {
         resetProductAndTypeSelect();
         let searchPaymentMethod = $(this).find("option:selected").val().toLowerCase();
-        $(".timeline > li").each(function () {
+        $(".col-timeline > .card").each(function () {
             let paymentMethodElement = $(this).find(".paymentMethod-element");
 
             if (paymentMethodElement.text().toLowerCase().includes(searchPaymentMethod) || searchPaymentMethod === "") {
@@ -49,7 +49,7 @@ $(document).ready(function () {
         let productText = $("#productSelect").val().toLowerCase();
         let typeText = $("#typeSelect").val().toLowerCase();
 
-        $(".timeline > li").each(function () {
+        $(".col-timeline > .card").each(function () {
             let productElement = $(this).find(".product-element");
             let typeElement = $(this).find(".type-element");
 
