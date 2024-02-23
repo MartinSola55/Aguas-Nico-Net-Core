@@ -1,7 +1,7 @@
 function renewByRoute() {
     Swal.fire({
-        title: "Esta acción no se puede revertir",
-        html: '¿Seguro deseas renovar <b>TODOS</b> los abonos? Esto sólo incluye los clientes de esta planilla.</br>Si un abono ya se renovó, no se volverá a renovar',
+        title: "Esta acciÃ³n no se puede revertir",
+        html: 'Â¿Seguro deseas renovar <b>TODOS</b> los abonos? Esto sÃ³lo incluye los clientes de esta planilla.</br>Si un abono ya se renovÃ³, no se volverÃ¡ a renovar',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Confirmar',

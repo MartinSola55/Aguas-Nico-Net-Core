@@ -139,18 +139,18 @@ namespace AguasNico.Data.Repository
 
                 var abonoRenewal = new AbonoRenewal()
                 {
-                    Abono = clientAbono.Abono,
-                    Client = clientAbono.Client,
-                    SettedPrice = clientAbono.Abono.Price
+                    AbonoID = clientAbono.Abono.ID,
+                    ClientID = clientAbono.Client.ID,
+                    SettedPrice = clientAbono.Abono.Price,
+                    ProductsAvailables = []
                 };
 
                 await _db.AbonoRenewals.AddAsync(abonoRenewal);
 
                 foreach (var abonoRenewalProduct in clientAbono.Abono.Products)
                 {
-                    await _db.AbonoRenewalProducts.AddAsync(new()
+                    abonoRenewal.ProductsAvailables.Add(new()
                     {
-                        AbonoRenewal = abonoRenewal,
                         Type = abonoRenewalProduct.Type,
                         Available = abonoRenewalProduct.Quantity
                     });
