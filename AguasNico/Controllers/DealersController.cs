@@ -48,13 +48,37 @@ namespace AguasNico.Controllers
         {
             try
             {
-                var dealer = await _workContainer.ApplicationUser.GetFirstOrDefaultAsync(x => x.Id == id) ?? throw new Exception("No se ha encontrado el usuario");
+                var dealer = await _workContainer.ApplicationUser.GetFirstOrDefaultAsync(x => x.Id == id) ?? throw new Exception("No se ha encontrado el repartidor");
                 DetailsViewModel viewModel = new()
                 {
                     Dealer = dealer,
                     TotalCarts = await _workContainer.Dealer.GetTotalCarts(dealer.Id, DateTime.UtcNow.AddHours(-3)),
                     CompletedCarts = await _workContainer.Dealer.GetTotalCompletedCarts(dealer.Id, DateTime.UtcNow.AddHours(-3)),
                     PendingCarts = await _workContainer.Dealer.GetTotalPendingCarts(dealer.Id, DateTime.UtcNow.AddHours(-3)),
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception)
+            {
+                return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PrintSheet(string id)
+        {
+            try
+            {
+                var dealer = await _workContainer.ApplicationUser.GetFirstOrDefaultAsync(x => x.Id == id) ?? throw new Exception("No se ha encontrado el repartidor");
+                PrintSheetViewModel viewModel = new()
+                {
+                    Dealer = dealer,
+                    MondaySheets = await _workContainer.Dealer.GetDealerSheet(dealer.Id, Day.Lunes),
+                    TuesdaySheets = await _workContainer.Dealer.GetDealerSheet(dealer.Id, Day.Martes),
+                    WednesdaySheets = await _workContainer.Dealer.GetDealerSheet(dealer.Id, Day.Miércoles),
+                    ThursdaySheets = await _workContainer.Dealer.GetDealerSheet(dealer.Id, Day.Jueves),
+                    FridaySheets = await _workContainer.Dealer.GetDealerSheet(dealer.Id, Day.Viernes),
                 };
 
                 return View(viewModel);

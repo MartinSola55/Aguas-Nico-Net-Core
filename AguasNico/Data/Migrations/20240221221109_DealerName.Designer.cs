@@ -4,6 +4,7 @@ using AguasNico.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AguasNico.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240221221109_DealerName")]
+    partial class DealerName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -337,7 +340,7 @@ namespace AguasNico.Migrations
                             ID = 1L,
                             Address = "Rivadavia 1097",
                             CUIT = "20123123127",
-                            CreatedAt = new DateTime(2024, 1, 12, 17, 31, 57, 570, DateTimeKind.Utc).AddTicks(3925),
+                            CreatedAt = new DateTime(2024, 2, 21, 19, 11, 9, 10, DateTimeKind.Utc).AddTicks(8318),
                             Debt = 1500m,
                             HasInvoice = true,
                             InvoiceType = 2,
@@ -346,19 +349,19 @@ namespace AguasNico.Migrations
                             Observations = "Cuidado con el perro",
                             Phone = "3404123123",
                             TaxCondition = 2,
-                            UpdatedAt = new DateTime(2024, 1, 12, 17, 31, 57, 570, DateTimeKind.Utc).AddTicks(3925)
+                            UpdatedAt = new DateTime(2024, 2, 21, 19, 11, 9, 10, DateTimeKind.Utc).AddTicks(8318)
                         },
                         new
                         {
                             ID = 2L,
                             Address = "A la vuelta de la cristalería",
-                            CreatedAt = new DateTime(2024, 1, 12, 17, 31, 57, 570, DateTimeKind.Utc).AddTicks(3934),
+                            CreatedAt = new DateTime(2024, 2, 21, 19, 11, 9, 10, DateTimeKind.Utc).AddTicks(8329),
                             Debt = 0m,
                             HasInvoice = false,
                             IsActive = true,
                             Name = "Agustín Bettig",
                             Phone = "3404123123",
-                            UpdatedAt = new DateTime(2024, 1, 12, 17, 31, 57, 570, DateTimeKind.Utc).AddTicks(3935)
+                            UpdatedAt = new DateTime(2024, 2, 21, 19, 11, 9, 10, DateTimeKind.Utc).AddTicks(8329)
                         });
                 });
 

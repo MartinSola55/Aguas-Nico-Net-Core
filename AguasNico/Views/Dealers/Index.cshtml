@@ -38,7 +38,7 @@
                                 @foreach (ApplicationUser dealer in Model.Dealers)
                                 {
                                     <tr>
-                                        <td><a asp-area="" asp-controller="Dealers" asp-action="Details" asp-route-id="@dealer.Id">@Html.DisplayFor(c => dealer.UserName)</a></td>
+                                        <td><a asp-area="" asp-controller="Dealers" asp-action="Details" asp-route-id="@dealer.Id">@Html.DisplayFor(c => dealer.Name)</a></td>
                                         <td>@Html.DisplayFor(c => dealer.TruckNumber)</td>
                                         <td>@Html.DisplayFor(c => dealer.Email)</td>
                                     </tr>
