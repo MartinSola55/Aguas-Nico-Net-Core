@@ -95,7 +95,7 @@ function confirmCart() {
             Swal.fire({
                 icon: 'warning',
                 title: "Error",
-                text: "No se puede bajar m�s productos del abono de los que dispone",
+                text: "No se puede bajar más productos del abono de los que dispone",
                 confirmButtonColor: '#1e88e5',
             });
             return false;
@@ -192,12 +192,12 @@ $(document).ready(function () {
             "sInfo": "Mostrando _START_ a _END_ de _TOTAL_ clientes",
             "sInfoEmpty": "Mostrando 0 a 0 de 0 clientes",
             "sInfoFiltered": "(filtrado de _MAX_ clientes en total)",
-            "emptyTable": 'No hay clientes que coincidan con la b�squeda',
+            "emptyTable": 'No hay clientes que coincidan con la búsqueda',
             "sLengthMenu": "Mostrar _MENU_ clientes",
             "sSearch": "Buscar:",
             "oPaginate": {
                 "sFirst": "Primero",
-                "sLast": "�ltimo",
+                "sLast": "Último",
                 "sNext": "Siguiente",
                 "sPrevious": "Anterior",
             },

@@ -8,12 +8,12 @@ $(document).ready(function () {
             "sInfo": "Mostrando _START_ a _END_ de _TOTAL_ clientes",
             "sInfoEmpty": "Mostrando 0 a 0 de 0 clientes",
             "sInfoFiltered": "(filtrado de _MAX_ clientes en total)",
-            "emptyTable": 'No hay clientes que coincidan con la búsqueda',
+            "emptyTable": 'No hay clientes que coincidan con la bÃºsqueda',
             "sLengthMenu": "Mostrar _MENU_ clientes",
             "sSearch": "Buscar:",
             "oPaginate": {
                 "sFirst": "Primero",
-                "sLast": "Último",
+                "sLast": "Ãšltimo",
                 "sNext": "Siguiente",
                 "sPrevious": "Anterior",
             },
@@ -73,7 +73,7 @@ function errorRow() {
     $('#DataTable tbody').empty();
     let row = `
     <tr>
-        <td><h6 class="text-danger">No se pudo cargar la información</h6></td>
+        <td><h6 class="text-danger">No se pudo cargar la informaciÃ³n</h6></td>
         <td></td>
         <td></td>
         <td></td>
@@ -101,7 +101,7 @@ function emptyTable() {
     $('#DataTable tbody').empty();
     let row = `
     <tr>
-        <td colspan="5"><h6>No hay clientes que coincidan con la búsqueda</h6></td>
+        <td colspan="5"><h6>No hay clientes que coincidan con la bÃºsqueda</h6></td>
     </tr>`;
     $('#DataTable tbody').append($(row));
 }

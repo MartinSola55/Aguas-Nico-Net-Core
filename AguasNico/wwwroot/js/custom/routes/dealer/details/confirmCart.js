@@ -20,7 +20,7 @@ function confirmCart(id) {
            Swal.fire({
                icon: 'warning',
                title: "Error",
-               text: "No se puede bajar m�s productos del abono de los que dispone",
+               text: "No se puede bajar más productos del abono de los que dispone",
                confirmButtonColor: '#1e88e5',
            });
            return false;
