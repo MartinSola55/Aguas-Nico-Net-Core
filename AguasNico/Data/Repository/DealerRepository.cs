@@ -76,12 +76,6 @@ namespace AguasNico.Data.Repository
                     ClientPhone = cart.Client.Phone,
                     ClientAddress = cart.Client.Address,
                     ClientDebt = cart.Client.Debt,
-                    Products = cart.Client.Products.Select(x => new DealerSheet.Product
-                    {
-                        Type = x.Product.Type,
-                        Price = x.Product.Price,
-                        Stock = x.Stock,
-                    }).ToList(),
                     AbonoProducts = cart.Client.AbonosRenewed
                     .Where(x => x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year)
                     .SelectMany(x => x.ProductsAvailables)
@@ -89,7 +83,18 @@ namespace AguasNico.Data.Repository
                     {
                         Type = x.Type,
                         Available = x.Available,
+                        Stock = cart.Client.Products.FirstOrDefault(y => y.Product.Type == x.Type) != null ? cart.Client.Products.First(y => y.Product.Type == x.Type).Stock : 0,
                     }).ToList()
+                };
+
+                if (!cart.Client.OnlyAbonos)
+                {
+                    dealerSheet.Products = cart.Client.Products.Select(x => new DealerSheet.Product
+                    {
+                        Type = x.Product.Type,
+                        Price = x.Product.Price,
+                        Stock = x.Stock,
+                    }).ToList();
                 };
 
                 sheets.Add(dealerSheet);

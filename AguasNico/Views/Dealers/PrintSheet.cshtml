@@ -38,8 +38,11 @@
             continue;
         }
         <div class="printableArea px-1">
-            <h3 class="text-center">@day</h3>
             <div class="row bg-white">
+                <div class="col-12 d-flex justify-content-between">
+                    <h4 class="text-center p-2 m-0">Planilla @day</h4>
+                    <h4 class="text-center p-2 m-0">@Model.Dealer.Name</h4>
+                </div>
                 @foreach (var item in Model.Sheets.Where(x => x.Day == day))
                 {
                     <div class="col-12 d-flex justify-content-between py-1 border">
@@ -57,66 +60,69 @@
                     </div>
                     <div class="col-8 px-0">
                         <div class="row">
-                            <div class="col-12">
-                                <table class="table table-bordered border-top-0 mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th class="py-0">BAJADA</th>
-                                            <th class="py-0">S1</th>
-                                            <th class="py-0">S2</th>
-                                            <th class="py-0">S3</th>
-                                            <th class="py-0">S4</th>
-                                            <th class="py-0">S5</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var product in item.Products)
-                                        {
-                                        <tr>
-                                            <td class="py-1">
-                                                @product.Type.GetDisplayName() @Html.DisplayFor(x => product.Price)  (Stock: @product.Stock u.)
-                                            </td>   
-                                            <td class="py-1"></td> 
-                                            <td class="py-1"></td> 
-                                            <td class="py-1"></td> 
-                                            <td class="py-1"></td> 
-                                            <td class="py-1"></td> 
-                                        </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
-                            @if (item != null && item.AbonoProducts != null && item.AbonoProducts.Any())
+                            @if (item.Products.Any())
                             {
-                            <div class="col-12">
-                                <table class="table table-bordered border-top-0 mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th class="py-0">ABONO</th>
-                                            <th class="py-0">S1</th>
-                                            <th class="py-0">S2</th>
-                                            <th class="py-0">S3</th>
-                                            <th class="py-0">S4</th>
-                                            <th class="py-0">S5</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var product in item.AbonoProducts)
-                                        {
-                                        <tr>
-                                            <td class="py-1">
-                                                @product.Type.GetDisplayName() - @product.Available disponibles
-                                            </td>   
-                                            <td class="py-1"></td> 
-                                            <td class="py-1"></td> 
-                                            <td class="py-1"></td> 
-                                            <td class="py-1"></td> 
-                                            <td class="py-1"></td> 
-                                        </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
+                                <div class="col-12">
+                                    <table class="table table-bordered border-top-0 mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th class="py-0">BAJADA</th>
+                                                <th class="py-0">S1</th>
+                                                <th class="py-0">S2</th>
+                                                <th class="py-0">S3</th>
+                                                <th class="py-0">S4</th>
+                                                <th class="py-0">S5</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var product in item.Products)
+                                            {
+                                            <tr>
+                                                <td class="py-1">
+                                                    @product.Type.GetDisplayName() @Html.DisplayFor(x => product.Price)  (Stock: @product.Stock u.)
+                                                </td>   
+                                                <td class="py-1"></td> 
+                                                <td class="py-1"></td> 
+                                                <td class="py-1"></td> 
+                                                <td class="py-1"></td> 
+                                                <td class="py-1"></td> 
+                                            </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            @if (item.AbonoProducts.Any())
+                            {
+                                <div class="col-12">
+                                    <table class="table table-bordered border-top-0 mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th class="py-0">ABONO</th>
+                                                <th class="py-0">S1</th>
+                                                <th class="py-0">S2</th>
+                                                <th class="py-0">S3</th>
+                                                <th class="py-0">S4</th>
+                                                <th class="py-0">S5</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var product in item.AbonoProducts)
+                                            {
+                                            <tr>
+                                                <td class="py-1">
+                                                    @product.Type.GetDisplayName() - @product.Available disponibles @(!item.Products.Any() ? $" (Stock: {product.Stock} u.)" : "")
+                                                </td>   
+                                                <td class="py-1"></td> 
+                                                <td class="py-1"></td> 
+                                                <td class="py-1"></td> 
+                                                <td class="py-1"></td> 
+                                                <td class="py-1"></td> 
+                                            </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
                             }
                             <div class="col-12">
                                 <p class="text-monospace text-black ml-3 my-2">
