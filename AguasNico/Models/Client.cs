@@ -43,6 +43,10 @@ namespace AguasNico.Models
         [DefaultValue(false)]
         public bool HasInvoice { get; set; } = false;
 
+        [Display(Name = "¿Sólo imprimir abonos?")]
+        [DefaultValue(false)]
+        public bool OnlyAbonos { get; set; } = false;
+
         [Display(Name = "Tipo de factura")]
         public InvoiceType? InvoiceType { get; set; } = null!;
 

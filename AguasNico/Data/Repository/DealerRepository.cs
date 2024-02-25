@@ -46,7 +46,7 @@ namespace AguasNico.Data.Repository
                 .CountAsync();
         }
 
-        public async Task<List<DealerSheet>> GetDealerSheet(string dealerID, Day day)
+        public async Task<List<DealerSheet>> GetDealerSheets(string dealerID)
         {
             var dealer = await _db.User
                 .AsNoTracking()
@@ -54,13 +54,15 @@ namespace AguasNico.Data.Repository
 
             var staticCarts = await _db
                 .Carts
+                .Include(x => x.Route)
                 .Include(x => x.Client)
                     .ThenInclude(x => x.Products)
                         .ThenInclude(x => x.Product)
                 .Include(x => x.Client)
                     .ThenInclude(x => x.AbonosRenewed)
                         .ThenInclude(x => x.ProductsAvailables)
-                .Where(x => x.Route.UserID == dealerID && x.IsStatic && x.Route.DayOfWeek == day)
+                .Where(x => x.Route.UserID == dealerID && x.IsStatic)
+                .OrderBy(x => x.Priority)
                 .ToListAsync();
 
             var sheets = new List<DealerSheet>();
@@ -69,16 +71,11 @@ namespace AguasNico.Data.Repository
             {
                 var dealerSheet = new DealerSheet
                 {
+                    Day = cart.Route.DayOfWeek,
                     ClientName = cart.Client.Name,
                     ClientPhone = cart.Client.Phone,
                     ClientAddress = cart.Client.Address,
                     ClientDebt = cart.Client.Debt,
-                    Products = cart.Client.Products.Select(x => new DealerSheet.Product
-                    {
-                        Type = x.Product.Type,
-                        Price = x.Product.Price,
-                        Stock = x.Stock,
-                    }).ToList(),
                     AbonoProducts = cart.Client.AbonosRenewed
                     .Where(x => x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year)
                     .SelectMany(x => x.ProductsAvailables)
@@ -86,7 +83,18 @@ namespace AguasNico.Data.Repository
                     {
                         Type = x.Type,
                         Available = x.Available,
+                        Stock = cart.Client.Products.FirstOrDefault(y => y.Product.Type == x.Type) != null ? cart.Client.Products.First(y => y.Product.Type == x.Type).Stock : 0,
                     }).ToList()
+                };
+
+                if (!cart.Client.OnlyAbonos)
+                {
+                    dealerSheet.Products = cart.Client.Products.Select(x => new DealerSheet.Product
+                    {
+                        Type = x.Product.Type,
+                        Price = x.Product.Price,
+                        Stock = x.Stock,
+                    }).ToList();
                 };
 
                 sheets.Add(dealerSheet);

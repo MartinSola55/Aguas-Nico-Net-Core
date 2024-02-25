@@ -74,11 +74,7 @@ namespace AguasNico.Controllers
                 PrintSheetViewModel viewModel = new()
                 {
                     Dealer = dealer,
-                    MondaySheets = await _workContainer.Dealer.GetDealerSheet(dealer.Id, Day.Lunes),
-                    TuesdaySheets = await _workContainer.Dealer.GetDealerSheet(dealer.Id, Day.Martes),
-                    WednesdaySheets = await _workContainer.Dealer.GetDealerSheet(dealer.Id, Day.Miércoles),
-                    ThursdaySheets = await _workContainer.Dealer.GetDealerSheet(dealer.Id, Day.Jueves),
-                    FridaySheets = await _workContainer.Dealer.GetDealerSheet(dealer.Id, Day.Viernes),
+                    Sheets = await _workContainer.Dealer.GetDealerSheets(dealer.Id),
                 };
 
                 return View(viewModel);

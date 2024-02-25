@@ -66,10 +66,10 @@ $(document).ready(function () {
 
     function resetProductAndTypeSelect() {
         if ($("#productSelect").val() === "" && $("#typeSelect").val() === "") {
-            return; // No restablecer si los selectores de producto y tipo ya est�n vac�os
+            return; // No restablecer si los selectores de producto y tipo ya estén vacíos
         }
 
         $("#productSelect, #typeSelect").val(""); // Establece el valor de los selectores en blanco
-        applyFilters(); // Aplica los filtros despu�s de restablecer los selectores
+        applyFilters(); // Aplica los filtros después de restablecer los selectores
     }
 });

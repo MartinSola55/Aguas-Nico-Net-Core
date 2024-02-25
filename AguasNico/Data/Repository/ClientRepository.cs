@@ -28,6 +28,7 @@ namespace AguasNico.Data.Repository
             oldClient.Observations = client.Observations;
             oldClient.Debt = client.Debt;
             oldClient.HasInvoice = client.HasInvoice;
+            oldClient.OnlyAbonos = client.OnlyAbonos;
             oldClient.UpdatedAt = DateTime.UtcNow.AddHours(-3);
 
             if (oldClient.DealerID != client.DealerID || oldClient.DeliveryDay != client.DeliveryDay)
