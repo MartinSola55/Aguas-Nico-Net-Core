@@ -48,9 +48,11 @@ namespace AguasNico.Models.ViewModels.Tables
 
     public class DealerSheet
     {
+        public Day Day { get; set; }
         public string ClientName { get; set; } = "";
         public string ClientPhone { get; set; } = "";
         public string ClientAddress { get; set; } = "";
+        [DisplayFormat(DataFormatString = "${0:#,##0}")]
         public decimal ClientDebt { get; set; }
         public List<Product> Products { get; set; } = [];
         public List<AbonoProduct> AbonoProducts { get; set; } = [];
