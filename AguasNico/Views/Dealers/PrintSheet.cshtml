@@ -40,20 +40,20 @@
         <div class="printableArea px-1">
             <div class="row bg-white">
                 <div class="col-12 d-flex justify-content-between">
-                    <h4 class="text-center p-2 m-0">Planilla @day</h4>
-                    <h4 class="text-center p-2 m-0">@Model.Dealer.Name</h4>
+                    <h4 class="text-center p-2 m-0 text-dark">Planilla @day</h4>
+                    <h4 class="text-center p-2 m-0 text-dark">@Model.Dealer.Name</h4>
                 </div>
                 @foreach (var item in Model.Sheets.Where(x => x.Day == day))
                 {
                     <div class="col-12 d-flex justify-content-between py-1 border">
-                        <strong class="text-monospace text-black mb-0">
-                            @item.ClientName 
+                        <strong class="text-monospace text-dark mb-0">
+                            <li>@item.ClientName</li>
                         </strong>
                         <div class="d-flex mr-4">
-                            <p class="text-monospace text-black mx-5 mb-0">
+                            <p class="text-monospace mx-5 mb-0 text-dark">
                                 <i class="bi bi-geo-alt pr-1"></i >@item.ClientAddress 
                             </p>
-                            <p class="text-monospace text-black mb-0">
+                            <p class="text-monospace mb-0 text-dark">
                                 <i class="bi bi-telephone-fill pr-1"></i> @item.ClientPhone
                             </p>
                         </div>
@@ -66,7 +66,7 @@
                                     <table class="table table-bordered border-top-0 mb-0">
                                         <thead>
                                             <tr>
-                                                <th class="py-0">BAJADA</th>
+                                                <th class="py-0 text-dark">BAJADA</th>
                                                 <th class="py-0">S1</th>
                                                 <th class="py-0">S2</th>
                                                 <th class="py-0">S3</th>
@@ -78,7 +78,7 @@
                                             @foreach (var product in item.Products)
                                             {
                                             <tr>
-                                                <td class="py-1">
+                                                <td class="py-1 text-dark font-italic">
                                                     @product.Type.GetDisplayName() @Html.DisplayFor(x => product.Price)  (Stock: @product.Stock u.)
                                                 </td>   
                                                 <td class="py-1"></td> 
@@ -98,7 +98,7 @@
                                     <table class="table table-bordered border-top-0 mb-0">
                                         <thead>
                                             <tr>
-                                                <th class="py-0">ABONO</th>
+                                                <th class="py-0 text-dark">ABONO</th>
                                                 <th class="py-0">S1</th>
                                                 <th class="py-0">S2</th>
                                                 <th class="py-0">S3</th>
@@ -110,7 +110,7 @@
                                             @foreach (var product in item.AbonoProducts)
                                             {
                                             <tr>
-                                                <td class="py-1">
+                                                <td class="py-1 text-dark font-italic">
                                                     @product.Type.GetDisplayName() - @product.Available disponibles @(!item.Products.Any() ? $" (Stock: {product.Stock} u.)" : "")
                                                 </td>   
                                                 <td class="py-1"></td> 
