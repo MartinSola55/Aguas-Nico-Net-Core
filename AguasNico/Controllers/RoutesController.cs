@@ -106,6 +106,13 @@ namespace AguasNico.Controllers
                 {
                     clientData.Add(await GetProductsAndAbono(clientID));
                 }
+                var states = new List<State>();
+                foreach (var state in new ConstantsMethods().GetStates())
+                {
+                    if (state == State.Pending || state == State.Confirmed)
+                        continue;
+                    states.Add(state);
+                }
 
                 switch (role)
                 {
@@ -125,8 +132,9 @@ namespace AguasNico.Controllers
                             Payments = await _workContainer.Route.GetTotalCollected(route.ID),
                             Transfers = await _workContainer.Transfer.GetAllAsync(x => x.UserID == route.UserID && x.Date.Date == route.CreatedAt.Date),
                             PaymentTypes = await _workContainer.PaymentMethod.GetFilterDropDownList(),
+                            States = states,
                         };
-                        return View("~/Views/Routes/Admin/Details.cshtml", adminViewModel);
+                        return View($"~/Views/Routes/Admin/{(route.IsStatic ? "StaticDetails" : "Details")}.cshtml", adminViewModel);
 
                     case Constants.Dealer:
 
@@ -136,15 +144,8 @@ namespace AguasNico.Controllers
                             Clients = clientData,
                             PaymentMethods = await _workContainer.PaymentMethod.GetDropDownList(),
                             PaymentTypes = await _workContainer.PaymentMethod.GetFilterDropDownList(),
+                            States = states,
                         };
-
-                        foreach (var state in new ConstantsMethods().GetStates())
-                        {
-                            if (state == State.Pending || state == State.Confirmed)
-                                continue;
-
-                            dealerViewModel.States.Add(state);
-                        }
 
                         return View("~/Views/Routes/Dealer/Details.cshtml", dealerViewModel);
 

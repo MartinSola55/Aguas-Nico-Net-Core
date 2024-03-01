@@ -2,9 +2,9 @@ function getClientHistory(clientID, clientName) {
     let form = $("#form-searchClientHistory");
     form.find("input[name='id']").val(clientID);
     $.ajax({
-        url: $(form).attr('action'), // Utiliza la ruta del formulario
-        method: $(form).attr('method'), // Utiliza el metodo del formulario
-        data: $(form).serialize(), // Utiliza los datos del formulario
+        url: $(form).attr('action'),
+        method: $(form).attr('method'),
+        data: $(form).serialize(),
         success: function (response) {
             let table = `
             <table class="table table-bordered table-striped">
@@ -20,7 +20,6 @@ function getClientHistory(clientID, clientName) {
             `;
 
             //Crear las filas
-
             response.data.forEach(function (item) {
                 table += `
                 <tr>

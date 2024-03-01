@@ -1,0 +1,253 @@
+﻿@model AguasNico.Models.ViewModels.Routes.Details.AdminViewModel
+@using System.Globalization
+@using AguasNico.Models.ViewModels.Tables
+
+@{
+    ViewData["Title"] = "Planillas";
+    int contador = 0;
+}
+<link href="~/lib/datatables/media/css/dataTables.bootstrap4.css" rel="stylesheet">
+
+<script src="~/lib/datatables/datatables.min.js"></script>
+<script src="~/js/custom/routes/dealer/details/clientHistory.js"></script>
+<script src="~/js/custom/routes/admin/details/dispatchedProducts.js"></script>
+<script src="~/js/custom/routes/admin/deleteCart.js"></script>
+<script src="~/js/custom/routes/admin/deleteRoute.js"></script>
+<script src="~/js/custom/routes/admin/details/renewAbonos.js"></script>
+<script src="~/js/custom/routes/filters.js"></script>
+
+
+<div class="container-fluid">
+    <div class="row page-titles">
+        <div class="col-md-5 col-8 align-self-center">
+            <h3 class="text-themecolor m-b-0 m-t-0">Planillas</h3>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">Inicio</a></li>
+                <li class="breadcrumb-item"><a asp-area="" asp-controller="Routes" asp-action="Index">Planillas</a></li>
+                <li class="breadcrumb-item active">Detalles</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex flex-column flex-md-row justify-content-start">
+                        <button type="button" class="btn btn-info waves-effect waves-light" onclick="renewByRoute()">Renovar abonos de esta planilla</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 px-0">
+            <div class="card shadow">
+                <div class="card-header mx-0 d-flex row justify-content-between">
+                    <div class="col-12 col-md-8 col-lg-6 mb-3 mb-md-0">
+                        <h4 class="mb-0">Repartos de <b>@Model.Route.User.UserName</b> para el <b>@Model.Route.DayOfWeek</b></h4>
+                    </div>
+                    <hr>
+                    <a class="btn btn-info btn-rounded float-right" asp-area="" asp-controller="Invoice" asp-action="GenerateInvoice" asp-route-id="@Model.Route.ID">Ver facturación</a>
+                </div>
+                <div class="card-body pl-0 pr-1">
+                    <div class="d-flex flex-row justify-content-end mr-2 mb-2">
+                        <a class="btn btn-info btn-rounded float-right" asp-area="" asp-controller="Routes" asp-action="Edit" asp-route-id="@Model.Route.ID">Editar planilla</a>
+                    </div>
+
+                    <!-- TIMELINE DE CLIENTES -->
+                    <ul class="timeline">
+                        @foreach (Cart cart in Model.Route.Carts.OrderBy(x => x.Priority))
+                        {
+                            <li class="@(contador++ % 2 != 0 ? "timeline-inverted" : "")">
+                            @if (cart.State == State.Confirmed) 
+                            {
+                                <div class="timeline-badge" style="background-color: #30d577"><i class="bi bi-truck"></i></div>
+                            }
+                            else if (cart.State == State.Ausent ||cart.State == State.NotNeeded ||cart.State == State.Holidays) 
+                            { 
+                                <div class="timeline-badge" style="background-color: #ffc107"><i class="bi bi-truck"></i></div>
+                            }
+                            else
+                            {
+                                <div class="timeline-badge" style="background-color: #6c757d"><i class="bi bi-truck"></i></div>
+                            }
+                            <div class="timeline-panel">
+                                <div class="timeline-heading">
+                                    <div class="row justify-content-between">
+                                        @if (cart.State == State.Confirmed)
+                                        {
+                                            <h4 class="timeline-title name-element col-8" style="color: #30d577">@Html.DisplayFor(x => cart.Client.Name) - @Html.DisplayFor(x => cart.State)</h4>
+                                        }
+                                        else if (cart.State == State.Ausent ||cart.State == State.NotNeeded ||cart.State == State.Holidays) 
+                                        {
+                                            <h4 class="timeline-title name-element col-8" style="color: #ffc107">@Html.DisplayFor(x => cart.Client.Name) - @Html.DisplayFor(x => cart.State)</h4>
+                                        }
+                                        else if (cart.State == State.Pending)
+                                        {
+                                            <h4 class="timeline-title name-element col-8" style="color: #6c757d">@Html.DisplayFor(x => cart.Client.Name) - @Html.DisplayFor(x => cart.State)</h4>
+                                        }
+                                        else
+                                        {
+                                            <h4 class="timeline-title name-element col-8" style="color: #6c757d">@Html.DisplayFor(x => cart.Client.Name)</h4>
+                                        }
+                                        <button class="btn btn-info h-100 rounded-circle mr-2" onclick="getClientHistory(@cart.ClientID,'@cart.Client.Name')"><i class="bi bi-clipboard"></i></button>
+                                    </div>
+                                    <p class="m-0"><small class="text-muted">Bajada #@cart.ID</small></p>
+                                    <p class="m-0"><small class="text-muted">Creada: @cart.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small></p>
+                                    <p class="m-0"><small class="text-muted">Últ. modif: @cart.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</small></p>
+
+                                    <!-- Mostrar las duedas de cada cliente -->
+                                    @if (cart.Client.Debt == 0)
+                                    {
+                                        <p class="m-0"><small class="text-muted">Sin deuda</small></p>
+                                    }
+                                    else if (cart.Client.Debt > 0)
+                                    {
+                                        <p class="m-0"><small class="text-danger">Deuda: $@Html.DisplayFor(x => cart.Client.Debt)</small></p>
+                                    }
+                                    else
+                                    {
+                                        <p class="m-0"><small class="text-success">A favor: $@((cart.Client.Debt * -1).ToString("#,##"))</small></p>
+                                    }
+
+                                    <p class="mb-0"><small class="text-muted address-element"><i class="bi bi-house-door"></i> @Html.DisplayFor(x => cart.Client.Address)&nbsp;&nbsp;-&nbsp;&nbsp;<i class="bi bi-telephone"></i> @Html.DisplayFor(x => cart.Client.Phone)</small></p>
+                                </div>
+                                <div class="timeline-body">
+                                    @if (cart.State == State.Confirmed)
+                                    {
+                                        @if (cart.Products.Any())
+                                        {
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <hr />
+                                                    <h3 class="text-center type-element text-muted mb-0">Bajada</h3>
+                                                    <div class="table-responsive">
+                                                        <table class="table">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Cantidad</th>
+                                                                    <th>Producto</th>
+                                                                    <th>Precio</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            @foreach (CartProduct product in cart.Products)
+                                                            {
+                                                                <tr>
+                                                                    <td>@Html.DisplayFor(x => product.Quantity)</td>
+                                                                    <td class="product-element">@product.Type.GetDisplayName()</td>
+                                                                    <td>@Html.DisplayFor(x => product.SettedPrice)</td>
+                                                                </tr>
+                                                            }
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        @if (cart.AbonoProducts.Any())
+                                        {
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <hr />
+                                                    <h3 class="text-center type-element text-muted mb-0">Abonos</h3>
+                                                    <div class="table-responsive">
+                                                        <table class="table">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Cantidad</th>
+                                                                    <th>Producto</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach (CartAbonoProduct product in cart.AbonoProducts)
+                                                                {
+                                                                    <tr>
+                                                                        <td>@Html.DisplayFor(x => product.Quantity)</td>
+                                                                        <td class="product-element">@product.Type.GetDisplayName()</td>
+                                                                    </tr>
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        @if (cart.ReturnedProducts.Any())
+                                        {
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <hr />
+                                                    <h3 class="text-center type-element text-muted mb-0">Devoluciones</h3>
+                                                    <div class="table-responsive">
+                                                        <table class="table">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Cantidad</th>
+                                                                    <th>Producto</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            @foreach (ReturnedProduct product in cart.ReturnedProducts)
+                                                            {
+                                                                <tr>
+                                                                    <td>@Html.DisplayFor(x => product.Quantity)</td>
+                                                                    <td class="product-element">@product.Type.GetDisplayName()</td>
+                                                                </tr>
+                                                            }
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+
+                                        <div class="d-flex flex-md-row flex-column justify-content-end">
+                                            <a asp-area="" asp-controller="Carts" asp-action="Edit" asp-route-id="@cart.ID" class="btn btn-sm btn-info btn-rounded px-3 ml-auto ml-md-2">Editar Bajada</a>
+                                        </div>
+                                        <hr>
+                                        <div class="d-flex flex-row justify-content-start">
+                                            <ul>
+                                                @foreach (CartPaymentMethod paymentMethod in cart.PaymentMethods)
+                                                {
+                                                    <li class="paymentMethod-element">@Html.DisplayFor(x => paymentMethod.PaymentMethod.Name): $@Html.DisplayFor(x => paymentMethod.Amount)</li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    }
+                                    @if (!cart.IsStatic)
+                                    {
+                                        <hr>
+                                        <div class="d-flex flex-row justify-content-end">
+                                            <button name="btnDeleteCart" type="button" class="btn btn-sm btn-danger btn-rounded px-3" onclick="deleteCart(@cart.ID)">Eliminar</button>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form id="form-deleteCart" method="post" asp-area="" asp-controller="Carts" asp-action="SoftDelete">
+        @Html.AntiForgeryToken()
+        @Html.Hidden("cartID", "")
+    </form>
+
+    <form id="form-searchClientHistory" method="get" asp-area="" asp-controller="Clients" asp-action="GetProductsHistory">
+        @Html.Hidden("id", "")
+    </form>
+
+    <form id="form-deleteRoute" method="post" asp-area="" asp-controller="Routes" asp-action="SoftDelete">
+        @Html.HiddenFor(x => Model.Route.ID)
+    </form>
+
+    <form id="form-renewByRoute" method="post" asp-area="" asp-controller="Abonos" asp-action="RenewByRoute" asp-route-routeID="@Model.Route.ID">
+        @Html.AntiForgeryToken()
+    </form>
+</div>

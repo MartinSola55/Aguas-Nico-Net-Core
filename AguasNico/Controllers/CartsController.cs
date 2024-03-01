@@ -129,7 +129,6 @@ namespace AguasNico.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = Constants.Dealer)]
         public async Task<IActionResult> Confirm(Cart cart)
         {
             try
@@ -174,7 +173,6 @@ namespace AguasNico.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = Constants.Dealer)]
         public async Task<IActionResult> SetState(long cartID, State state)
         {
             try
@@ -198,7 +196,6 @@ namespace AguasNico.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = Constants.Dealer)]
         public async Task<IActionResult> ResetState(long cartID)
         {
             try
