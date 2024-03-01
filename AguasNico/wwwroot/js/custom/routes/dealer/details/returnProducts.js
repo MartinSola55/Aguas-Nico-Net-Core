@@ -1,5 +1,5 @@
 function getReturnedProducts(clientID, clientName, cartID) {
-    $("#returnModalTitle").text("Devolución de productos de " + clientName);
+    $("#returnModalTitle").text("DevoluciÃ³n de productos de " + clientName);
 
     let form = $("#form-getReturnedProducts");
     let formConfirm = $("#form-returnProducts");
