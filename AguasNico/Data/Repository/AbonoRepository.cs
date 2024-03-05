@@ -66,7 +66,6 @@ namespace AguasNico.Data.Repository
                 .Include(x => x.Abono)
                     .ThenInclude(x => x.Products)
                 .Include(x => x.Client)
-                .AsNoTracking()
                 .ToListAsync();
 
             foreach (var clientAbono in clientAbonos)
@@ -127,7 +126,6 @@ namespace AguasNico.Data.Repository
                 .Include(x => x.Abono)
                     .ThenInclude(x => x.Products)
                 .Include(x => x.Client)
-                .AsNoTracking()
                 .ToListAsync();
 
             foreach (var clientAbono in clientAbonos)
