@@ -360,6 +360,12 @@
                                     </p>
 
                                     <p class="mb-0"><small class="text-muted address-element"><i class="bi bi-house-door"></i> @Html.DisplayFor(x => cart.Client.Address)&nbsp;&nbsp;-&nbsp;&nbsp;<i class="bi bi-telephone"></i> @Html.DisplayFor(x => cart.Client.Phone)</small></p>
+                                    <ul class="pl-4">
+                                        @foreach (var product in cart.Client.Products)
+                                        {
+                                            <li><small>@product.Product.Type.GetDisplayName() - Stock: @product.Stock</small></li>
+                                        }
+                                    </ul>
 
                                     <!--Bajada confirmada -->
                                     @if (cart.State == State.Confirmed)
