@@ -297,7 +297,6 @@ namespace AguasNico.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = Constants.Dealer)]
         public async Task<IActionResult> CreateByDealer(long routeID)
         {
             try
