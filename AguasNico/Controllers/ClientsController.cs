@@ -351,6 +351,41 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> SearchByID(long id)
+        {
+            try
+            {
+                var client = await _workContainer.Client.GetFirstOrDefaultAsync(x => x.ID == id && x.IsActive, includeProperties: "Dealer");
+                if (client is null)
+                    return CustomBadRequest(title: "Error al obtener el cliente", message: "El cliente no existe");
+
+                var clientsList = new List<object>();
+
+                var dealer = client.Dealer is not null ? client.Dealer.UserName : "Sin repartidor asignado";
+                var day = client.DeliveryDay is not null ? client.DeliveryDay.ToString() : "Sin día asignado";
+                var debt = client.Debt >= 0 ? client.Debt.ToString("#,##") : (client.Debt * -1).ToString("#,##") + " a favor";
+                clientsList.Add(new
+                {
+                    id = client.ID,
+                    name = client.Name,
+                    address = client.Address,
+                    phone = client.Phone,
+                    dealer = dealer + " - " + day,
+                    debt = debt != "" ? debt : "0",
+                });
+                return Json(new
+                {
+                    success = true,
+                    data = clientsList,
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al obtener los clientes", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
+        }
+
+        [HttpGet]
         public async Task<IActionResult> GetProductsAndAbono(long id)
         {
             try

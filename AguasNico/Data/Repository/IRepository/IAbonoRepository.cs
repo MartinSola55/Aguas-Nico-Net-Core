@@ -13,7 +13,7 @@ namespace AguasNico.Data.Repository.IRepository
         Task SoftDelete(long id);
         Task RenewAll();
         Task RenewByRoute(long routeID);
-        Task<List<Abono>> GetLastTen(long clientID);
+        Task<List<AbonoRenewal>> GetLastTen(long clientID);
         Task<List<Client>> GetClients(long abonoID);
     }
 }

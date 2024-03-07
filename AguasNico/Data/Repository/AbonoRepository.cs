@@ -169,14 +169,14 @@ namespace AguasNico.Data.Repository
             }
         }
 
-        public async Task<List<Abono>> GetLastTen(long clientID)
+        public async Task<List<AbonoRenewal>> GetLastTen(long clientID)
         {
             return await _db
                 .AbonoRenewals
                 .Where(x => x.ClientID == clientID)
                 .OrderByDescending(x => x.CreatedAt)
                 .Take(10)
-                .Select(x => x.Abono)
+                .Include(x => x.Abono)
                 .ToListAsync();
         }
 

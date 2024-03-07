@@ -323,19 +323,19 @@
                                     <div class="d-flex flex-row justify-content-between align-items-center">
                                         @if (cart.State == State.Confirmed)
                                         {
-                                            <h4 class="card-title mb-0 name-element" style="color: #30d577">@Html.DisplayFor(x => cart.Client.Name) - @Html.DisplayFor(x => cart.State)</h4>
+                                            <h4 class="card-title mb-0 name-element" style="color: #30d577">@Html.DisplayFor(x => cart.Client.Name) #@Html.DisplayFor(x => cart.Client.ID) - @Html.DisplayFor(x => cart.State)</h4>
                                         }
                                         else if (cart.State == State.Ausent || cart.State == State.NotNeeded || cart.State == State.Holidays)
                                         {
-                                            <h4 class="card-title mb-0 name-element" style="color: #ffc107">@Html.DisplayFor(x => cart.Client.Name) - @Html.DisplayFor(x => cart.State)</h4>
+                                            <h4 class="card-title mb-0 name-element" style="color: #ffc107">@Html.DisplayFor(x => cart.Client.Name) #@Html.DisplayFor(x => cart.Client.ID) - @Html.DisplayFor(x => cart.State)</h4>
                                         }
                                         else if (cart.State == State.Pending)
                                         {
-                                            <h4 class="card-title mb-0 name-element" style="color: #6c757d">@Html.DisplayFor(x => cart.Client.Name) - @Html.DisplayFor(x => cart.State)</h4>
+                                            <h4 class="card-title mb-0 name-element" style="color: #6c757d">@Html.DisplayFor(x => cart.Client.Name) #@Html.DisplayFor(x => cart.Client.ID) - @Html.DisplayFor(x => cart.State)</h4>
                                         }
                                         else
                                         {
-                                            <h4 class="card-title mb-0 name-element" style="color: #6c757d">@Html.DisplayFor(x => cart.Client.Name)</h4>
+                                            <h4 class="card-title mb-0 name-element" style="color: #6c757d">@Html.DisplayFor(x => cart.Client.Name) #@Html.DisplayFor(x => cart.Client.ID)</h4>
                                         }
                                         <button class="btn btn-info rounded-circle mr-2 h-100" tabindex="-1" onclick="getClientHistory(@cart.ClientID, '@cart.Client.Name')"><i class="bi bi-clipboard"></i></button>
                                     </div>
@@ -372,6 +372,31 @@
                                     {
                                         <hr />
                                         <div class="row justify-content-between">
+                                            @if (cart.AbonoProducts.Any())
+                                            {
+                                                <div class="col-12 col-md-6 col-lg-4 p-2">
+                                                    <h3 class="type-element text-muted mb-0">Abonos</h3>
+                                                    <div class="table-responsive">
+                                                        <table class="table">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Cantidad</th>
+                                                                    <th>Producto</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach (CartAbonoProduct product in cart.AbonoProducts)
+                                                                {
+                                                                    <tr>
+                                                                        <td>@Html.DisplayFor(x => product.Quantity)</td>
+                                                                        <td class="product-element">@product.Type.GetDisplayName()</td>
+                                                                    </tr>
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            }
                                             @if (cart.Products.Any())
                                             {
                                                 <div class="col-12 col-md-6 col-lg-4 p-2">
@@ -392,31 +417,6 @@
                                                                         <td>@Html.DisplayFor(x => product.Quantity)</td>
                                                                         <td class="product-element">@product.Type.GetDisplayName()</td>
                                                                         <td>@Html.DisplayFor(x => product.SettedPrice)</td>
-                                                                    </tr>
-                                                                }
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            }
-                                            @if (cart.AbonoProducts.Any())
-                                            {
-                                                <div class="col-12 col-md-6 col-lg-4 p-2">
-                                                    <h3 class="type-element text-muted mb-0">Abonos</h3>
-                                                    <div class="table-responsive">
-                                                        <table class="table">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Cantidad</th>
-                                                                    <th>Producto</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                @foreach (CartAbonoProduct product in cart.AbonoProducts)
-                                                                {
-                                                                    <tr>
-                                                                        <td>@Html.DisplayFor(x => product.Quantity)</td>
-                                                                        <td class="product-element">@product.Type.GetDisplayName()</td>
                                                                     </tr>
                                                                 }
                                                             </tbody>
@@ -484,30 +484,6 @@
                                         <form method="post" asp-controller="Carts" asp-action="Confirm" asp-route-Cart.ID="@cart.ID" asp-route-Cart.ClientID="@cart.ClientID" id="form-confirmCart_@cart.ID">
                                             @Html.AntiForgeryToken()
                                             <div class="row">
-                                                @if (Model.Clients.First(x => x.ClientID == cart.ClientID).Products.Count > 0)
-                                                {
-                                                    <div class="col-lg-4 col-md-4 col-sm-12">
-                                                        <h3>Bajada</h3>
-                                                        <table class="table" data-name="tableProducts" data-cart-id="@cart.ID">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th class="col-4">Producto</th>
-                                                                    <th class="col-4">Bajó</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                @foreach (var product in Model.Clients.First(x => x.ClientID == cart.ClientID).Products)
-                                                                {
-                                                                    <tr data-type="@((int)product.Type)">
-                                                                        <td>@product.Name - <i class="price"> @Html.DisplayFor(x => product.Price)</i></td>
-                                                                        <td><input type="number" class="form-control" name="quantity" value="" min="1" /></td>
-                                                                    </tr>
-                                                                }
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                }
-
                                                 @if (Model.Clients.First(x => x.ClientID == cart.ClientID).AbonoProducts.Count > 0)
                                                 {
                                                     <div class="col-lg-4 col-md-4 col-sm-12">
@@ -525,6 +501,29 @@
                                                                     <tr data-type="@((int)product.Type)">
                                                                         <td>@product.Type.GetDisplayName() - Dispone: @product.Available</td>
                                                                         <td><input type="number" name="quantity" class="form-control" value="" min="1" max="@product.Available" /></td>
+                                                                    </tr>
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                }
+                                                @if (Model.Clients.First(x => x.ClientID == cart.ClientID).Products.Count > 0)
+                                                {
+                                                    <div class="col-lg-4 col-md-4 col-sm-12">
+                                                        <h3>Bajada</h3>
+                                                        <table class="table" data-name="tableProducts" data-cart-id="@cart.ID">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th class="col-4">Producto</th>
+                                                                    <th class="col-4">Bajó</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach (var product in Model.Clients.First(x => x.ClientID == cart.ClientID).Products)
+                                                                {
+                                                                    <tr data-type="@((int)product.Type)">
+                                                                        <td>@product.Name - <i class="price"> @Html.DisplayFor(x => product.Price)</i></td>
+                                                                        <td><input type="number" class="form-control" name="quantity" value="" min="1" /></td>
                                                                     </tr>
                                                                 }
                                                             </tbody>

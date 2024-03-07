@@ -216,6 +216,8 @@ namespace AguasNico.Data.Repository
             return await _db
                 .Clients
                 .Where(x => x.IsActive && !x.Carts.Any(x => x.Route.ID == routeID))
+                .Include(x => x.Dealer)
+                .OrderBy(x => x.Dealer.TruckNumber)
                 .ToListAsync();
         }
 
