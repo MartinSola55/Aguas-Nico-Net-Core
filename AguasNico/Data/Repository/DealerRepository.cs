@@ -72,7 +72,7 @@ namespace AguasNico.Data.Repository
                 var dealerSheet = new DealerSheet
                 {
                     Day = cart.Route.DayOfWeek,
-                    ClientID = cart.ClientID.ToString(),
+                    ClientID = cart.ClientID,
                     ClientName = cart.Client.Name,
                     ClientPhone = cart.Client.Phone,
                     ClientAddress = cart.Client.Address,
@@ -80,6 +80,7 @@ namespace AguasNico.Data.Repository
                     AbonoProducts = cart.Client.AbonosRenewed
                     .Where(x => x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year)
                     .SelectMany(x => x.ProductsAvailables)
+                    .Where(x => x.Type != ProductType.Máquina)
                     .Select(x => new DealerSheet.AbonoProduct
                     {
                         Type = x.Type,
@@ -90,7 +91,9 @@ namespace AguasNico.Data.Repository
 
                 if (!cart.Client.OnlyAbonos)
                 {
-                    dealerSheet.Products = cart.Client.Products.Select(x => new DealerSheet.Product
+                    dealerSheet.Products = cart.Client.Products
+                    .Where(x => x.Product.Type != ProductType.Máquina)
+                    .Select(x => new DealerSheet.Product
                     {
                         Type = x.Product.Type,
                         Price = x.Product.Price,

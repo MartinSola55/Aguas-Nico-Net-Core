@@ -49,7 +49,7 @@ namespace AguasNico.Models.ViewModels.Tables
     public class DealerSheet
     {
         public Day Day { get; set; }
-        public string ClientID { get; set; } = "";
+        public long ClientID { get; set; }
         public string ClientName { get; set; } = "";
         public string ClientPhone { get; set; } = "";
         public string ClientAddress { get; set; } = "";
