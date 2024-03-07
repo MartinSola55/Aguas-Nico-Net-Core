@@ -7,3 +7,14 @@ function print() {
     };
     $("div.printableArea").printArea(options);
 }
+
+function changeDay(control) {
+    const value = control.value;
+    if (value) {
+        // hide divs not belongint to the selected day
+        $(".printableArea").hide();
+        $(`#${value}_section`).show();
+    } else {
+        $(".printableArea").show();
+    }
+}

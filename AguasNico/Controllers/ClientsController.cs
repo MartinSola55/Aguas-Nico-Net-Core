@@ -148,7 +148,7 @@ namespace AguasNico.Controllers
                             var cart = new Cart
                             {
                                 RouteID = route.ID,
-                                ClientID = client.ID,
+                                Client = client,
                                 Priority = priority,
                                 State = State.Pending,
                                 IsStatic = true,

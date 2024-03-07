@@ -165,7 +165,7 @@ namespace AguasNico.Data.Repository
                 .Where(x => x.IsStatic && x.DayOfWeek == day)
                 .Include(x => x.User)
                 .Include(x => x.Carts)
-                .OrderBy(x => x.User.UserName)
+                .OrderBy(x => x.User.TruckNumber)
                 .ToListAsync();
         }
 
