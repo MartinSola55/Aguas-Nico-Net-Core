@@ -20,10 +20,16 @@ $(document).ready(function () {
         },
     });
 
-    let timeoutId;
+    let timeoutName;
     $('#clientName').on('input', function () {
+        clearTimeout(timeoutName);
+        timeoutName = setTimeout(searchByName, 1000);
+    });
+
+    let timeoutId;
+    $('#clientID').on('input', function () {
         clearTimeout(timeoutId);
-        timeoutId = setTimeout(searchByName, 1000);
+        timeoutId = setTimeout(searchByID, 1000);
     });
 });
 
@@ -35,6 +41,28 @@ function searchByName() {
 
     loadingRow();
     const form = $('#form-searchByName');
+    $.ajax({
+        url: $(form).attr('action'),
+        method: $(form).attr('method'),
+        data: $(form).serialize(),
+        success: function (response) {
+            if (response.data.length === 0) {
+                emptyTable();
+                return;
+            }
+            fillTable(response.data)
+        },
+        error: function () {
+            errorRow();
+        }
+    });
+}
+
+function searchByID() {
+    const id = $('#clientID').val();
+
+    loadingRow();
+    const form = $('#form-searchByID');
     $.ajax({
         url: $(form).attr('action'),
         method: $(form).attr('method'),

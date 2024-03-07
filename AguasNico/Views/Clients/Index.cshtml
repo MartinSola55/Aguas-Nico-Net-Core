@@ -31,16 +31,27 @@
                 <div class="card-body">
                     <h2 class="card-title">Listado de clientes</h2>
                     <hr />
-                    <form id="form-searchByName" method="get" asp-area="" asp-controller="Clients" asp-action="SearchByName" class="form-material">
-                        <div class="row">
-                            <div class="form-group col-12 col-sm-6 col-md-4">
+                    <div class="row justify-content-between">
+                        <div class="form-group col-12 col-sm-6 col-md-4">
+                            <form id="form-searchByName" method="get" asp-area="" asp-controller="Clients" asp-action="SearchByName" class="form-material">
                                 <input id="clientName" name="name" type="text" class="form-control form-control-line">
                                 <span class="help-block text-muted">
                                     <small>Nombre del cliente</small>
                                 </span>
-                            </div>
+                            </form>
                         </div>
-                    </form>
+                        <div class="form-group col-12 col-sm-6 col-md-4">
+                            <form id="form-searchByID" method="get" asp-area="" asp-controller="Clients" asp-action="SearchByID" class="form-material">
+                                <div class="d-flex flex-row">
+                                    <span class="mt-auto mb-1 mr-1">#</span>
+                                    <input id="clientID" name="id" type="number" class="form-control form-control-line">
+                                </div>
+                                <span class="help-block text-muted">
+                                    <small>Código del cliente</small>
+                                </span>
+                            </form>
+                        </div>
+                    </div>
                     <div class="table-responsive">
                         <table id="DataTable" class="table table-bordered table-striped">
                             <thead>
