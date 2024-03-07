@@ -130,7 +130,7 @@ namespace AguasNico.Controllers
                             PendingCarts = pendingCarts.Count(),
                             SoldProducts = await _workContainer.Tables.GetSoldProductsByRoute(id),
                             Payments = await _workContainer.Route.GetTotalCollected(route.ID),
-                            Transfers = await _workContainer.Transfer.GetAllAsync(x => x.UserID == route.UserID && x.Date.Date == route.CreatedAt.Date),
+                            Transfers = await _workContainer.Transfer.GetAllAsync(x => x.UserID == route.UserID && x.Date.Date == route.CreatedAt.Date, includeProperties: "Client"),
                             PaymentTypes = await _workContainer.PaymentMethod.GetFilterDropDownList(),
                             States = states,
                         };

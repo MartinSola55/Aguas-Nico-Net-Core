@@ -104,7 +104,7 @@ namespace AguasNico.Data.Repository
                 + 
                 await _db
                 .Transfers
-                .Where(x => x.Date.Date == route.CreatedAt.Date)
+                .Where(x => x.Date.Date == route.CreatedAt.Date && x.UserID == route.UserID)
                 .SumAsync(x => x.Amount);
         }
 
