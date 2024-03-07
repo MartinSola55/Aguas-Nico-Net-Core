@@ -402,8 +402,8 @@ namespace AguasNico.Data.Repository
                 {
                     Date = abono.CreatedAt,
                     Type = CartsTransfersType.Abono,
-                    AbonoName = abono.Name,
-                    AbonoPrice = abono.Price,
+                    AbonoName = abono.Abono.Name,
+                    AbonoPrice = abono.Abono.Price,
                 });
             }
 
