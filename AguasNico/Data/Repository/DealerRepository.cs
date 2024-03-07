@@ -72,6 +72,7 @@ namespace AguasNico.Data.Repository
                 var dealerSheet = new DealerSheet
                 {
                     Day = cart.Route.DayOfWeek,
+                    ClientID = cart.ClientID.ToString(),
                     ClientName = cart.Client.Name,
                     ClientPhone = cart.Client.Phone,
                     ClientAddress = cart.Client.Address,

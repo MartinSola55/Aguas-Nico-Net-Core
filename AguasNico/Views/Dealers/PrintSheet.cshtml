@@ -39,14 +39,17 @@
         }
         <div class="printableArea px-1">
             <div class="row bg-white">
-                <div class="col-12 d-flex justify-content-between">
-                    <h4 class="text-center p-2 m-0 text-dark">Planilla @day</h4>
-                    <h4 class="text-center p-2 m-0 text-dark">@Model.Dealer.Name</h4>
+                <div class="col-12 my-2 d-flex justify-content-between">
+                    <h4 class="text-center p-2 m-0 text-dark"><strong>Planilla @day</strong></h4>
+                    <h4 class="text-center p-2 m-0 text-dark"><strong>Fecha: @DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")</strong></h4>
+                </div>
+                <div class="col-12 mb-2 d-flex justify-content-between">
+                    <h4 class="text-center p-2 m-0 text-dark"><strong>@Model.Dealer.Name</strong></h4>
                 </div>
                 @foreach (var item in Model.Sheets.Where(x => x.Day == day))
                 {
                     <div class="col-12 d-flex justify-content-between py-1 border border-dark">
-                        <h5 class="mb-0 d-flex align-items-center"><li class="text-dark mb-0"><strong>@item.ClientName</strong></li></h5>
+                        <h5 class="mb-0 d-flex align-items-center"><li class="text-dark mb-0"><strong>@item.ClientName</strong> #@item.ClientID</li></h5>
                         <div class="d-flex mr-4">
                             <p class="text-monospace mx-5 mb-0 text-dark">
                                 <i class="bi bi-geo-alt pr-1"></i >@item.ClientAddress 
@@ -64,12 +67,12 @@
                                     <table class="table table-bordered border-top-0 mb-0">
                                         <thead>
                                             <tr>
-                                                <th class="py-0 text-dark">BAJADA</th>
-                                                <th class="py-0">S1</th>
-                                                <th class="py-0">S2</th>
-                                                <th class="py-0">S3</th>
-                                                <th class="py-0">S4</th>
-                                                <th class="py-0">S5</th>
+                                                <th class="py-0 text-dark" style="width: 50%;">BAJADA</th>
+                                                <th class="py-0 text-center" style="width: 10%;">S1</th>
+                                                <th class="py-0 text-center" style="width: 10%;">S2</th>
+                                                <th class="py-0 text-center" style="width: 10%;">S3</th>
+                                                <th class="py-0 text-center" style="width: 10%;">S4</th>
+                                                <th class="py-0 text-center" style="width: 10%;">S5</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -96,12 +99,12 @@
                                     <table class="table table-bordered border-top-0 mb-0">
                                         <thead>
                                             <tr>
-                                                <th class="py-0 text-dark">ABONO</th>
-                                                <th class="py-0">S1</th>
-                                                <th class="py-0">S2</th>
-                                                <th class="py-0">S3</th>
-                                                <th class="py-0">S4</th>
-                                                <th class="py-0">S5</th>
+                                                <th class="py-0 text-dark" style="width: 50%;">ABONO</th>
+                                                <th class="py-0 text-center" style="width: 10%;">S1</th>
+                                                <th class="py-0 text-center" style="width: 10%;">S2</th>
+                                                <th class="py-0 text-center" style="width: 10%;">S3</th>
+                                                <th class="py-0 text-center" style="width: 10%;">S4</th>
+                                                <th class="py-0 text-center" style="width: 10%;">S5</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -109,7 +112,7 @@
                                             {
                                             <tr>
                                                 <td class="py-1 text-dark font-italic">
-                                                    @product.Type.GetDisplayName() - @product.Available disponibles @(!item.Products.Any() ? $" (Stock: {product.Stock} u.)" : "")
+                                                    @product.Type.GetDisplayName() - (Stock: @product.Stock u.)
                                                 </td>   
                                                 <td class="py-1"></td> 
                                                 <td class="py-1"></td> 
@@ -141,10 +144,10 @@
                     </div>
                     <div class="col-4 row">
                         <div class="col-6">
-                            <p class="text-monospace mb-2 flex-grow-1 align-self-stretchs">Saldo anterior: @(item.ClientDebt > 0 ? @Html.DisplayFor(x => item.ClientDebt) : $"${(item.ClientDebt * -1).ToString("#,##")} (A favor)")</p>
+                            <p class="text-monospace mb-2 flex-grow-1 align-self-stretchs"><small>Saldo anterior: </small> @(item.ClientDebt > 0 ? @Html.DisplayFor(x => item.ClientDebt) : " ")</p>
                         </div>
                         <div class="col-6 border-left border-dark">
-                            <p class="text-monospace mb-2 flex-grow-1 align-self-stretch">Entrega:</p>
+                            <p class="text-monospace mb-2 flex-grow-1 align-self-stretch"><small>Entrega:</small></p>
                         </div>
                     </div>
                 }
