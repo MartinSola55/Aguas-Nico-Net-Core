@@ -41,7 +41,7 @@ namespace AguasNico.Models.ViewModels.Tables
 
         [DisplayFormat(DataFormatString = "{0:#,##0}", ApplyFormatInEditMode = true)]
         public decimal TransferAmount { get; set; } = 0;
-        
+
         [DisplayFormat(DataFormatString = "{0:#,##0}", ApplyFormatInEditMode = true)]
         public decimal AbonoPrice { get; set; } = 0;
     }
@@ -57,6 +57,7 @@ namespace AguasNico.Models.ViewModels.Tables
         public decimal ClientDebt { get; set; }
         public List<Product> Products { get; set; } = [];
         public List<AbonoProduct> AbonoProducts { get; set; } = [];
+        public List<AbonoRenewal> Abonos { get; set; } = [];
 
         public class Product
         {
@@ -68,6 +69,7 @@ namespace AguasNico.Models.ViewModels.Tables
         }
         public class AbonoProduct
         {
+            public long AbonoID { get; set; }
             public ProductType Type { get; set; }
             public int Available { get; set; }
             public int Stock { get; set; }
