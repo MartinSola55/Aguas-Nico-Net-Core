@@ -55,7 +55,7 @@
             <div class="row bg-white">
                 <div class="col-12 my-2 d-flex justify-content-between">
                     <h4 class="text-center p-2 m-0 text-dark"><strong>Planilla @day</strong></h4>
-                    <h4 class="text-center p-2 m-0 text-dark"><strong>Fecha: @DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")</strong></h4>
+                    <h4 class="text-center p-2 m-0 text-dark"><strong>Fecha: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</strong></h4>
                 </div>
                 <div class="col-12 mb-2 d-flex justify-content-between">
                     <h4 class="text-center p-2 m-0 text-dark"><strong>@Model.Dealer.Name</strong></h4>
@@ -81,21 +81,23 @@
                                     <table class="table table-bordered border-top-0 mb-0">
                                         <thead>
                                             <tr>
-                                                <th class="py-0 text-dark" style="width: 50%;">BAJADA</th>
+                                                <th class="py-0 text-dark" style="width: 40%;">BAJADA</th>
                                                 <th class="py-0 text-center" style="width: 10%;">S1</th>
                                                 <th class="py-0 text-center" style="width: 10%;">S2</th>
                                                 <th class="py-0 text-center" style="width: 10%;">S3</th>
                                                 <th class="py-0 text-center" style="width: 10%;">S4</th>
                                                 <th class="py-0 text-center" style="width: 10%;">S5</th>
+                                                <th class="py-0 text-center" style="width: 10%;"><i class="bi bi-plus-slash-minus"></i></th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach (var product in item.Products)
+                                            @foreach (var product in item.Products.Where(x => x.Type != ProductType.Máquina))
                                             {
                                             <tr>
                                                 <td class="py-1 text-dark font-italic">
                                                     @product.Type.GetDisplayName() @Html.DisplayFor(x => product.Price)  (Stock: @product.Stock u.)
                                                 </td>   
+                                                <td class="py-1"></td> 
                                                 <td class="py-1"></td> 
                                                 <td class="py-1"></td> 
                                                 <td class="py-1"></td> 
@@ -113,12 +115,13 @@
                                     <table class="table table-bordered border-top-0 mb-0">
                                         <thead>
                                             <tr>
-                                                <th class="py-0 text-dark" style="width: 50%;">@abono.Abono.Name</th>
+                                                <th class="py-0 text-dark" style="width: 40%;">@abono.Abono.Name - @Html.DisplayFor(x => abono.SettedPrice)</th>
                                                 <th class="py-0 text-center" style="width: 10%;">S1</th>
                                                 <th class="py-0 text-center" style="width: 10%;">S2</th>
                                                 <th class="py-0 text-center" style="width: 10%;">S3</th>
                                                 <th class="py-0 text-center" style="width: 10%;">S4</th>
                                                 <th class="py-0 text-center" style="width: 10%;">S5</th>
+                                                <th class="py-0 text-center" style="width: 10%;"><i class="bi bi-plus-slash-minus"></i></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -133,26 +136,30 @@
                                                 <td class="py-1"></td> 
                                                 <td class="py-1"></td> 
                                                 <td class="py-1"></td> 
+                                                <td class="py-1"></td> 
                                             </tr>
                                             }
                                         </tbody>
                                     </table>
                                 </div>
                             }
-                            <div class="col-12">
-                                <div class="row">
-                                    <div class="col-2 d-flex align-items-center border-dark border-right">
-                                        <p class="text-dark my-1 ml-3">
-                                            Envases 
-                                        </p>
-                                    </div>
-                                    <div class="col-5 d-flex align-items-center border-dark border-right">
-                                        <i class="bi bi-plus-square-fill"></i>
-                                    </div>
-                                    <div class="col-5 d-flex align-items-center">
-                                        <i class="bi bi-dash-square-fill"></i>
-                                    </div>
-                                </div>
+                            <div class="col-12 px-0">
+                                <table class="table table-bordered border-top-0 mb-0">
+                                    <tbody>
+                                        <tr>
+                                            <td style="width: 40%;">
+                                                @if (item.Products.Any(x => x.Type == ProductType.Máquina))
+                                                {
+                                                    var product = item.Products.First(x => x.Type == ProductType.Máquina);
+                                                    <p class="text-muted mb-0">@($"{product.Type.GetDisplayName()} - (Stock: {product.Stock} u.)")</p>
+                                                }
+                                            </td>
+                                            <td style="width: 60%;">
+                                                <p class="text-monospace mb-0">Obs: @item.ClientObservations</p>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>

@@ -79,27 +79,27 @@ namespace AguasNico.Data.Repository
                     ClientName = cart.Client.Name,
                     ClientPhone = cart.Client.Phone,
                     ClientAddress = cart.Client.Address,
+                    ClientObservations = cart.Client.Observations,
                     ClientDebt = cart.Client.Debt,
                     Abonos = cart.Client.AbonosRenewed
-                    .Where(x => x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year)
-                    .ToList(),
+                        .Where(x => x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year)
+                        .ToList(),
                     AbonoProducts = cart.Client.AbonosRenewed
-                    .Where(x => x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year)
-                    .SelectMany(x => x.ProductsAvailables)
-                    .Where(x => x.Type != ProductType.Máquina)
-                    .Select(x => new DealerSheet.AbonoProduct
-                    {
-                        AbonoID = x.AbonoRenewalID,
-                        Type = x.Type,
-                        Available = x.Available,
-                        Stock = cart.Client.Products.FirstOrDefault(y => y.Product.Type == x.Type) != null ? cart.Client.Products.First(y => y.Product.Type == x.Type).Stock : 0,
-                    }).ToList(),
+                        .Where(x => x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year)
+                        .SelectMany(x => x.ProductsAvailables)
+                        .Where(x => x.Type != ProductType.Máquina)
+                        .Select(x => new DealerSheet.AbonoProduct
+                        {
+                            AbonoID = x.AbonoRenewalID,
+                            Type = x.Type,
+                            Available = x.Available,
+                            Stock = cart.Client.Products.FirstOrDefault(y => y.Product.Type == x.Type) != null ? cart.Client.Products.First(y => y.Product.Type == x.Type).Stock : 0,
+                        }).ToList(),
                 };
 
                 if (!cart.Client.OnlyAbonos)
                 {
                     dealerSheet.Products = cart.Client.Products
-                    .Where(x => x.Product.Type != ProductType.Máquina)
                     .Select(x => new DealerSheet.Product
                     {
                         Type = x.Product.Type,
