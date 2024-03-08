@@ -107,13 +107,13 @@
                                     </table>
                                 </div>
                             }
-                            @if (item.AbonoProducts.Any())
+                            @foreach (var abono in item.Abonos)
                             {
                                 <div class="col-12 px-0 border-dark border-bottom">
                                     <table class="table table-bordered border-top-0 mb-0">
                                         <thead>
                                             <tr>
-                                                <th class="py-0 text-dark" style="width: 50%;">ABONO</th>
+                                                <th class="py-0 text-dark" style="width: 50%;">@abono.Abono.Name</th>
                                                 <th class="py-0 text-center" style="width: 10%;">S1</th>
                                                 <th class="py-0 text-center" style="width: 10%;">S2</th>
                                                 <th class="py-0 text-center" style="width: 10%;">S3</th>
@@ -122,7 +122,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach (var product in item.AbonoProducts)
+                                            @foreach (var product in item.AbonoProducts.Where(x => x.AbonoID == abono.ID))
                                             {
                                             <tr>
                                                 <td class="py-1 text-dark font-italic">

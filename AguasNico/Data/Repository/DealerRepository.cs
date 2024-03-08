@@ -61,6 +61,9 @@ namespace AguasNico.Data.Repository
                 .Include(x => x.Client)
                     .ThenInclude(x => x.AbonosRenewed)
                         .ThenInclude(x => x.ProductsAvailables)
+                .Include(x => x.Client)
+                    .ThenInclude(x => x.AbonosRenewed)
+                        .ThenInclude(x => x.Abono)
                 .Where(x => x.Route.UserID == dealerID && x.IsStatic)
                 .OrderBy(x => x.Priority)
                 .ToListAsync();
@@ -77,22 +80,26 @@ namespace AguasNico.Data.Repository
                     ClientPhone = cart.Client.Phone,
                     ClientAddress = cart.Client.Address,
                     ClientDebt = cart.Client.Debt,
+                    Abonos = cart.Client.AbonosRenewed
+                    .Where(x => x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year)
+                    .ToList(),
                     AbonoProducts = cart.Client.AbonosRenewed
                     .Where(x => x.CreatedAt.Month == today.Month && x.CreatedAt.Year == today.Year)
                     .SelectMany(x => x.ProductsAvailables)
-                    .Where(x => x.Type != ProductType.Máquina)
+                    .Where(x => x.Type != ProductType.MÃ¡quina)
                     .Select(x => new DealerSheet.AbonoProduct
                     {
+                        AbonoID = x.AbonoRenewalID,
                         Type = x.Type,
                         Available = x.Available,
                         Stock = cart.Client.Products.FirstOrDefault(y => y.Product.Type == x.Type) != null ? cart.Client.Products.First(y => y.Product.Type == x.Type).Stock : 0,
-                    }).ToList()
+                    }).ToList(),
                 };
 
                 if (!cart.Client.OnlyAbonos)
                 {
                     dealerSheet.Products = cart.Client.Products
-                    .Where(x => x.Product.Type != ProductType.Máquina)
+                    .Where(x => x.Product.Type != ProductType.MÃ¡quina)
                     .Select(x => new DealerSheet.Product
                     {
                         Type = x.Product.Type,
