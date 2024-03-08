@@ -53,6 +53,8 @@ namespace AguasNico.Models.ViewModels.Tables
         public string ClientName { get; set; } = "";
         public string ClientPhone { get; set; } = "";
         public string ClientAddress { get; set; } = "";
+        public string ClientObservations { get; set; } = "";
+
         [DisplayFormat(DataFormatString = "${0:#,##0}")]
         public decimal ClientDebt { get; set; }
         public List<Product> Products { get; set; } = [];
