@@ -14,7 +14,9 @@ function changeDay(control) {
         // hide divs not belongint to the selected day
         $(".printableArea").hide();
         $(`#${value}_section`).show();
+        $('#emptySheets').show();
     } else {
         $(".printableArea").show();
+        $('#emptySheets').show();
     }
 }
