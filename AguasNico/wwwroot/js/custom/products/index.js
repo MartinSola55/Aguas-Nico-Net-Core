@@ -123,6 +123,7 @@ function editProduct(product) {
     $("#Product_Name").val(product.name);
     $("#Product_Price").val(product.price);
     $("#Product_Type").val(product.type);
+    $("#Product_SortOrder").val(product.sortOrder);
     $(".modal-title").text("Editar producto");
     $("#btnDeleteProduct").show();
     $("#form-product").attr("action", "/Products/Edit");
@@ -133,6 +134,7 @@ function createProduct() {
     $("#Product_Name").val("");
     $("#Product_Price").val("");
     $("#Product_Type").val("");
+    $("#Product_SortOrder").val("");
     $(".modal-title").text("Crear producto");
     $("#btnDeleteProduct").hide();
     $("#form-product").attr("action", "/Products/Create");
