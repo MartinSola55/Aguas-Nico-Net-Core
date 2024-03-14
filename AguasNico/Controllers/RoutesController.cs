@@ -373,7 +373,7 @@ namespace AguasNico.Controllers
                 return Json(new
                 {
                     success = true,
-                    routes = routes.Select(x => new
+                    routes = routes.OrderBy(x => x.User.TruckNumber).Select(x => new
                     {
                         id = x.ID,
                         dealer = x.User.UserName,
@@ -447,7 +447,7 @@ namespace AguasNico.Controllers
                         return Json(new
                         {
                             success = true,
-                            routes = routes.Select(x => new
+                            routes = routes.OrderBy(x => x.User.TruckNumber).Select(x => new
                             {
                                 id = x.ID,
                                 dealer = x.User.UserName,

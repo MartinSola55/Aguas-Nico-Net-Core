@@ -136,30 +136,10 @@ namespace AguasNico.Controllers
             {
                 try
                 {
-                    var client = viewModel.Client;
-                    await _workContainer.Client.AddAsync(client);
-                    
-                    if (client.DealerID is not null && client.DeliveryDay is not null)
-                    {
-                        var route = await _workContainer.Route.GetFirstOrDefaultAsync(x => x.UserID == client.DealerID && x.DayOfWeek == client.DeliveryDay, includeProperties: "Carts");
-                        if (route is not null)
-                        {
-                            int priority = route.Carts.Any() ? route.Carts.Max(x => x.Priority) + 1 : 1;
-                            var cart = new Cart
-                            {
-                                RouteID = route.ID,
-                                Client = client,
-                                Priority = priority,
-                                State = State.Pending,
-                                IsStatic = true,
-                            };
-                            await _workContainer.Cart.AddAsync(cart);
-                        }
-                    }
+                    var wasCreated = await _workContainer.Client.Create(viewModel.Client);
 
-                    await _workContainer.BeginTransactionAsync();
-                    await _workContainer.SaveAsync();
-                    await _workContainer.CommitAsync();
+                    if (!wasCreated)
+                        return CustomBadRequest(title: "Error al crear el cliente", message: "No se pueden agregar dos productos del mismo tipo");
 
                     return Json(new
                     {

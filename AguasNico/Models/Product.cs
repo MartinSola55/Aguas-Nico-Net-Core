@@ -25,6 +25,9 @@ namespace AguasNico.Models
         [Display(Name = "Tipo de producto")]
         public ProductType Type { get; set; }
 
+        [Display(Name = "Orden")]
+        public int SortOrder { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow.AddHours(-3);
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow.AddHours(-3);

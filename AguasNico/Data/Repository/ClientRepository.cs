@@ -16,6 +16,60 @@ namespace AguasNico.Data.Repository
     {
         private readonly ApplicationDbContext _db = db;
 
+        private bool ValidateProducts(List<Product> products)
+        {
+            foreach (var product in products)
+            {
+                if (products.Any(x => x.Type == product.Type && x.ID != product.ID))
+                    return false;
+            }
+            return true;
+        }
+
+        public async Task<bool> Create(Client client)
+        {
+            var products = await _db.Products.Where(x => client.Products.Select(y => y.ProductID).Contains(x.ID)).ToListAsync();
+            if (!ValidateProducts(products))
+                return false;
+
+            await _db.Clients.AddAsync(client);
+
+            if (client.DealerID is not null && client.DeliveryDay is not null)
+            {
+                var route = await _db
+                    .Routes
+                    .Include(x => x.Carts)
+                    .FirstOrDefaultAsync(x => x.UserID == client.DealerID && x.DayOfWeek == client.DeliveryDay);
+
+                if (route is not null)
+                {
+                    int priority = route.Carts.Any() ? route.Carts.Max(x => x.Priority) + 1 : 1;
+                    var cart = new Cart
+                    {
+                        RouteID = route.ID,
+                        Client = client,
+                        Priority = priority,
+                        State = State.Pending,
+                        IsStatic = true,
+                    };
+                    await _db.Carts.AddAsync(cart);
+                }
+            }
+
+            try
+            {
+                await _db.Database.BeginTransactionAsync();
+                await _db.SaveChangesAsync();
+                await _db.Database.CommitTransactionAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                await _db.Database.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
         public async Task Update(Client client)
         {
             var oldClient = await _db
@@ -110,7 +164,7 @@ namespace AguasNico.Data.Repository
                     });
                 }
             }
-            return clientProducts;
+            return clientProducts.OrderBy(x => x.Product.SortOrder).ThenBy(x => x.Product.Name).ThenBy(x => x.Product.Price).ToList();
         }
 
         public async Task<bool> IsDuplicated(Client client)

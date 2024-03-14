@@ -94,15 +94,15 @@
                                             @foreach (var product in item.Products.Where(x => x.Type != ProductType.Máquina))
                                             {
                                             <tr>
-                                                <td class="py-1 text-dark font-italic">
+                                                <td class="py-2 text-dark font-italic">
                                                     @product.Type.GetDisplayName() @Html.DisplayFor(x => product.Price)  (Stock: @product.Stock u.)
                                                 </td>   
-                                                <td class="py-1"></td> 
-                                                <td class="py-1"></td> 
-                                                <td class="py-1"></td> 
-                                                <td class="py-1"></td> 
-                                                <td class="py-1"></td> 
-                                                <td class="py-1"></td> 
+                                                <td class="py-2"></td> 
+                                                <td class="py-2"></td> 
+                                                <td class="py-2"></td> 
+                                                <td class="py-2"></td> 
+                                                <td class="py-2"></td> 
+                                                <td class="py-2"></td> 
                                             </tr>
                                             }
                                         </tbody>
@@ -128,15 +128,15 @@
                                             @foreach (var product in item.AbonoProducts.Where(x => x.AbonoID == abono.ID))
                                             {
                                             <tr>
-                                                <td class="py-1 text-dark font-italic">
+                                                <td class="py-2 text-dark font-italic">
                                                     @product.Type.GetDisplayName() - (Stock: @product.Stock u.)
                                                 </td>   
-                                                <td class="py-1"></td> 
-                                                <td class="py-1"></td> 
-                                                <td class="py-1"></td> 
-                                                <td class="py-1"></td> 
-                                                <td class="py-1"></td> 
-                                                <td class="py-1"></td> 
+                                                <td class="py-2"></td> 
+                                                <td class="py-2"></td> 
+                                                <td class="py-2"></td> 
+                                                <td class="py-2"></td> 
+                                                <td class="py-2"></td> 
+                                                <td class="py-2"></td> 
                                             </tr>
                                             }
                                         </tbody>

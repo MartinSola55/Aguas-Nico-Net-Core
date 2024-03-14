@@ -31,7 +31,7 @@ namespace AguasNico.Controllers
                 var products = await _workContainer.Product.GetAllAsync(x => x.IsActive);
                 IndexViewModel viewModel = new()
                 {
-                    Products = [.. products.OrderBy(x => x.Name).ThenBy(x => x.Price) ],
+                    Products = [.. products.OrderBy(x => x.SortOrder).ThenBy(x => x.Name).ThenBy(x => x.Price) ],
                     Product = new Product(),
                 };
 

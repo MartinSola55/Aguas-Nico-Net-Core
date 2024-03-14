@@ -56,7 +56,7 @@ namespace AguasNico.Data.Repository
                         {
                             await _db.CartProducts.AddAsync(new()
                             {
-                                Cart = cart,
+                                CartID = cart.ID,
                                 Type = product.Type,
                                 Quantity = product.Quantity,
                                 SettedPrice = clientProduct.Product.Price,
@@ -155,7 +155,7 @@ namespace AguasNico.Data.Repository
                         {
                             await _db.ReturnedProducts.AddAsync(new()
                             {
-                                Cart = cart,
+                                CartID = cart.ID,
                                 Type = product.Type,
                                 Quantity = product.Quantity,
                             });

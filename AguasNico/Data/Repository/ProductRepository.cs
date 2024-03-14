@@ -25,6 +25,7 @@ namespace AguasNico.Data.Repository
                 oldProduct.Name = product.Name;
                 oldProduct.Price = product.Price;
                 oldProduct.Type = product.Type;
+                oldProduct.SortOrder = product.SortOrder;
                 oldProduct.UpdatedAt = DateTime.UtcNow.AddHours(-3);
                 await _db.SaveChangesAsync();
             }

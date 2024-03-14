@@ -2,8 +2,8 @@ function deleteCart(cartID) {
     $("#form-deleteCart input[name='cartID']").val(cartID);
 
     Swal.fire({
-        title: "Esta acción no se puede revertir",
-        html: '¿Seguro deseas eliminar esta bajada?<br/>Esto restablecerá el stock y el saldo del cliente',
+        title: "Esta acciÃ³n no se puede revertir",
+        html: 'Â¿Seguro deseas eliminar esta bajada?<br/>Esto restablecerÃ¡ el stock y el saldo del cliente',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Eliminar',

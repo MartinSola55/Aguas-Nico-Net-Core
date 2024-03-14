@@ -183,6 +183,7 @@ namespace AguasNico.Data.Repository
         {
             var methods = await _db
                 .PaymentMethods
+                .Where(x => x.Name == "Efectivo")
                 .ToListAsync();
 
             var cartPaymentMethods = new List<CartPaymentMethod>();

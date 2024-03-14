@@ -11,6 +11,7 @@ namespace AguasNico.Data.Repository.IRepository
 {
     public interface IClientRepository : IRepository<Client>
     {
+        Task<bool> Create(Client client);
         Task Update(Client client);
         Task<bool> IsDuplicated(Client client);
 

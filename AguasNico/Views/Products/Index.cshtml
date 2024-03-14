@@ -66,6 +66,11 @@
                                         @Html.DropDownListFor(x => x.Product.Type, Model.ProductTypes, new { @class = "form-control" })
                                         <span asp-validation-for="Product.Type" class="text-danger"></span>
                                     </div>
+                                    <div class="col-12 mb-3">
+                                        <label asp-for="Product.SortOrder" class="mb-0"></label>
+                                        <input asp-for="Product.SortOrder" class="form-control" required />
+                                        <span asp-validation-for="Product.SortOrder" class="text-danger"></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -89,7 +94,7 @@
                 {
                     <div class="col-lg-4 col-md-8 col-xlg-3 col-xs-12">
                         <div class="ribbon-wrapper card shadow">
-                            <div class="ribbon ribbon-default ribbon-bookmark">@Html.DisplayFor(x => product.Name)</div>
+                            <div class="ribbon ribbon-default ribbon-bookmark">@Html.DisplayFor(x => product.Name) #@product.SortOrder</div>
                             <div class="my-2">
                                 <p class="ribbon-content">Precio: @Html.DisplayFor(x => product.Price)</p>
                             </div>
