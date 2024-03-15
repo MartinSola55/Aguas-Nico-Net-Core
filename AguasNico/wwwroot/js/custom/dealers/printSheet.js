@@ -11,7 +11,7 @@ function print() {
 function changeDay(control) {
     const value = control.value;
     if (value) {
-        // hide divs not belongint to the selected day
+        // hide divs not belonging to the selected day
         $(".printableArea").hide();
         $(`#${value}_section`).show();
         $('#emptySheets').show();
