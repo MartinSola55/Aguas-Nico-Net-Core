@@ -460,7 +460,7 @@
                                             <ul>
                                                 @foreach (CartPaymentMethod paymentMethod in cart.PaymentMethods)
                                                 {
-                                                    <li class="paymentMethod-element">@Html.DisplayFor(x => paymentMethod.PaymentMethod.Name): $@Html.DisplayFor(x => paymentMethod.Amount)</li>
+                                                    <li class="paymentMethod-element">@Html.DisplayFor(x => paymentMethod.PaymentMethod.Name): $<strong class="amount-value"> @Html.DisplayFor(x => paymentMethod.Amount)</strong></li>
                                                 }
                                             </ul>
                                         </div>
@@ -536,9 +536,9 @@
                                                 }
                                                 <div class="col-lg-4 col-md-4 col-sm-12" id="totalCartContainer_@cart.ID">
                                                     <div class="d-flex row justify-content-between">
-                                                        <strong class="col-12 align-items-center justify-content-end mb-0 totalCart">Total: $0</strong>
+                                                        <strong class="col-12 h4 align-items-center justify-content-end mb-0 totalCart">Total: $0</strong>
                                                     </div>
-                                                    <div class="col-12 py-3 d-flex justify-content-center align-items-center">
+                                                    @* <div class="col-12 py-3 d-flex justify-content-center align-items-center">
                                                         <div class="btn-group btn-group-toggle" data-toggle="buttons">
                                                             <label class="btn btn-secondary active">
                                                                 <input type="radio" name="cartPaymentMethodOption" id="cartPaymentMethod_@cart.ID" value="1" checked> Efectivo
@@ -550,8 +550,19 @@
                                                                 <input type="radio" name="cartPaymentMethodOption" id="cartPaymentMethod_@cart.ID" value="3"> Mercado pago
                                                             </label>
                                                         </div>
+                                                    </div> *@
+                                                    <div class="col-12 p-3">
+                                                        <small class="text-info">Sumador</small>
+                                                        <div class="input-group mb-2">
+                                                            <div class="input-group-prepend">
+                                                                <div class="input-group-text">$</div>
+                                                            </div>
+                                                            <input type="number" class="form-control" id="amount_add" min="0" placeholder="sumar" value="0">
+                                                            <button type="button" onclick="sumTotalCart($('#amount_add').val(), @cart.ID)" class="btn btn-primary"><i class="bi bi-plus-circle"></i></button>
+                                                        </div>
                                                     </div>
                                                     <div class="col-12 p-3" id="cartPaymentAmountContainer_@cart.ID">
+                                                        <small class="text-info">Entrega</small>
                                                         <div class="input-group mb-2">
                                                             <div class="input-group-prepend">
                                                                 <div class="input-group-text">$</div>

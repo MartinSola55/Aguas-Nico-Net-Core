@@ -59,8 +59,8 @@ function confirmCart(id) {
 
     let methods = [];
     const amount = $(`#cartPaymentAmount_${id}`).val();
-    const method = $(`input[id="cartPaymentMethod_${id}"]:checked`).val();
-
+    //const method = $(`input[id="cartPaymentMethod_${id}"]:checked`).val();
+    const method = 1;
     methods.push({
         PaymentMethodID: parseInt(method),
         Amount: isNaN(parseFloat(amount)) ? 0 : parseFloat(amount)
@@ -112,28 +112,35 @@ function confirmCart(id) {
     });
 }
 
+function sumTotalCart(amount, cart_id) {
+    let amountToAdd = parseFloat(amount);
+    let currentAmount = parseFloat($("#cartPaymentAmount_" + cart_id).val());
+    let newAmount = currentAmount + amountToAdd;
+    $("#cartPaymentAmount_" + cart_id).val(newAmount);
+}
+
 $(document).ready(function () {
-    $("#cartPaymentMethod").on("change", function () {
-        $("#cartPaymentAmountContainer").show();
-    });
+    // $("#cartPaymentMethod").on("change", function () {
+    //     $("#cartPaymentAmountContainer").show();
+    // });
 
     // Evento para detectar cambios en los métodos de pago y manejarlos por formulario
-    $('input[name="cartPaymentMethodOption"]').change(function () {
-        var cartId = $(this).closest('form').attr('id').split('_')[1];
-        var cartPaymentMethod = $(this).val();
-        manejarMetodoPago(cartId, cartPaymentMethod);
-    });
+    // $('input[name="cartPaymentMethodOption"]').change(function () {
+    //     var cartId = $(this).closest('form').attr('id').split('_')[1];
+    //     var cartPaymentMethod = $(this).val();
+    //     manejarMetodoPago(cartId, cartPaymentMethod);
+    // }); no se esta usando porque lo quisieron sacar
 
     // Función para manejar los métodos de pago por formulario
-    function manejarMetodoPago(cartId, cartPaymentMethod) {
-        if (cartPaymentMethod === "1") {
-            $("#cartPaymentAmountContainer_" + cartId).show();
-            $("#cartPaymentAmount_" + cartId).val("");
-        } else {
-            $("#cartPaymentAmountContainer_" + cartId).hide();
-            $("#cartPaymentAmount_" + cartId).val("0");
-        }
-    }
+    // function manejarMetodoPago(cartId, cartPaymentMethod) {
+    //     if (cartPaymentMethod === "1") {
+    //         $("#cartPaymentAmountContainer_" + cartId).show();
+    //         $("#cartPaymentAmount_" + cartId).val("");
+    //     } else {
+    //         $("#cartPaymentAmountContainer_" + cartId).hide();
+    //         $("#cartPaymentAmount_" + cartId).val("0");
+    //     }
+    // }
 
     // Evento para detectar cambios en las inputs y actualizar el total específico
     $('input[name="quantity"]').on('input', function () {
@@ -158,11 +165,11 @@ $(document).ready(function () {
         $('#totalCartContainer_' + cartId + ' .totalCart').text('Total: $' + total);
         
         // Verificar el método de pago seleccionado
-        const cartPaymentMethod = $('input[name="cartPaymentMethodOption"]:checked').val();
+        //const cartPaymentMethod = $('input[name="cartPaymentMethodOption"]:checked').val();
 
         // Si el método de pago es "1", actualizar el valor de la input #cartPaymentAmount_
-        if (cartPaymentMethod === "1") {
-            $("#cartPaymentAmount_" + cartId).val(total);
-        }
+        //if (cartPaymentMethod === "1") {
+        $("#cartPaymentAmount_" + cartId).val(total);
+        //}
     }
 });

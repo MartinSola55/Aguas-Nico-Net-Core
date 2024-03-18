@@ -34,12 +34,14 @@ $(document).ready(function () {
         let searchPaymentMethod = $(this).find("option:selected").val().toLowerCase();
         $(".col-timeline > .card").each(function () {
             let paymentMethodElement = $(this).find(".paymentMethod-element");
-
-            if (paymentMethodElement.text().toLowerCase().includes(searchPaymentMethod) || searchPaymentMethod === "") {
+            let amountElement = $(this).find(".amount-value").text();
+            let amountNumber = parseFloat(amountElement);
+            if ((paymentMethodElement.text().toLowerCase().includes(searchPaymentMethod) || searchPaymentMethod === "") && amountNumber > 0) {
                 $(this).show();
             } else {
                 $(this).hide();
             }
+            console.log(amountNumber);
         });
     });
 
