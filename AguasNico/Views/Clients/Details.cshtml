@@ -56,8 +56,8 @@
                                             }
                                             else if (item.Type == CartsTransfersType.Abono)
                                             {
-                                                <td>@Html.DisplayFor(x => item.AbonoName)</td>
-                                                <td>$@Html.DisplayFor(x => item.AbonoPrice)</td>
+                                                <td>@Html.DisplayFor(x => item.AbonoName) - $@Html.DisplayFor(x => item.AbonoPrice)</td>
+                                                <td>-</td>
                                             }
                                             else if (item.Type == CartsTransfersType.Cart)
                                             {
@@ -67,7 +67,7 @@
                                                     <td>-</td>
                                                     continue;
                                                 }
-                                                @if (item.Products.Count == 0)
+                                                @if (item.Products.Count == 0 && item.AbonoProducts.Count == 0)
                                                 {
                                                     <td>-</td>
                                                 }
@@ -78,6 +78,10 @@
                                                             @foreach (CartProduct product in item.Products)
                                                             {
                                                                 <li>@product.Type.GetDisplayName() x @product.Quantity u.</li>
+                                                            }
+                                                            @foreach (CartAbonoProduct product in item.AbonoProducts)
+                                                            {
+                                                                <li>@product.Type.GetDisplayName() x @product.Quantity u. (Abono)</li>
                                                             }
                                                         </ul>
                                                     </td>

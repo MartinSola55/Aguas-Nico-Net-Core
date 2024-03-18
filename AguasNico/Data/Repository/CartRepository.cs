@@ -119,7 +119,7 @@ namespace AguasNico.Data.Repository
                         {
                             await _db.CartAbonoProducts.AddAsync(new()
                             {
-                                Cart = cart,
+                                CartID = cart.ID,
                                 Type = product.Type,
                                 Quantity = product.Quantity,
                             });
@@ -316,6 +316,7 @@ namespace AguasNico.Data.Repository
                 .OrderByDescending(x => x.CreatedAt)
                 .Take(10)
                 .Include(x => x.Products)
+                .Include(x => x.AbonoProducts)
                 .Include(x => x.PaymentMethods)
                     .ThenInclude(x => x.PaymentMethod)
                 .ToListAsync();

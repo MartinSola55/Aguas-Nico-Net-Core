@@ -465,6 +465,7 @@ namespace AguasNico.Data.Repository
             {
                 var payments = cart.PaymentMethods.ToList();
                 var products = cart.Products.ToList();
+               var abonoProducts = cart.AbonoProducts.ToList();
 
                 cartsTransfersHistory.Add(new()
                 {
@@ -473,6 +474,7 @@ namespace AguasNico.Data.Repository
                     CartState = cart.State,
                     PaymentMethods = payments,
                     Products = products,
+                    AbonoProducts = abonoProducts,
                 });
             }
             return [.. cartsTransfersHistory.OrderByDescending(x => x.Date)];

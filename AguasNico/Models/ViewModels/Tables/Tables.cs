@@ -38,6 +38,7 @@ namespace AguasNico.Models.ViewModels.Tables
         public string AbonoName { get; set; } = null!;
         public List<CartPaymentMethod> PaymentMethods { get; set; } = [];
         public List<CartProduct> Products { get; set; } = [];
+        public List<CartAbonoProduct> AbonoProducts { get; set; } = [];
 
         [DisplayFormat(DataFormatString = "{0:#,##0}", ApplyFormatInEditMode = true)]
         public decimal TransferAmount { get; set; } = 0;
