@@ -172,7 +172,7 @@
                                                 <td>@Html.DisplayFor(x => product.Product.Name)</td>
                                                 <td>@Html.DisplayFor(x => product.Product.Price)</td>
                                                 <td>
-                                                    <input type="number" data-product-id="@product.ProductID" disabled class="form-control" value="@(product.Stock >= 0 ? product.Stock : "")" min="0" />
+                                                    <input type="number" data-product-id="@product.ProductID" onkeypress="detectEnter(event, 'btnSave')" disabled class="form-control" value="@(product.Stock >= 0 ? product.Stock : "")" min="0" />
                                                 </td>
                                             </tr>
                                         }
@@ -214,7 +214,7 @@
                                                 <td>@Html.DisplayFor(x => abono.Abono.Name)</td>
                                                 <td>$@Html.DisplayFor(x => abono.Abono.Price)</td>
                                                 <td class="text-center">
-                                                    <input id="abono_@abono.AbonoID" type="checkbox" disabled class="form-check" @(abono.ClientID != 0 ? "checked" : "") />
+                                                    <input id="abono_@abono.AbonoID" onkeypress="detectEnter(event, 'btnSaveAbonos')" type="checkbox" disabled class="form-check" @(abono.ClientID != 0 ? "checked" : "") />
                                                     <label for="abono_@abono.AbonoID" class="pl-3 mb-0"></label>
                                                 </td>
                                             </tr>

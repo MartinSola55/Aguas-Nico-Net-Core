@@ -69,4 +69,10 @@ $(document).ready(function () {
             }
         });
     });
+
 });
+function detectEnter(event, btnID) {
+    if (event.key === "Enter") {
+        $(`#${btnID}`).click();
+    }
+}
