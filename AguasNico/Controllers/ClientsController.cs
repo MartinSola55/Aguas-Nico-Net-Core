@@ -117,6 +117,19 @@ namespace AguasNico.Controllers
             }
         }
 
+        [HttpGet]
+        [Authorize(Roles = Constants.Admin)]
+        public async Task<IActionResult> Unassigned()
+        {
+            try
+            {
+                return View(await _workContainer.Client.GetUnassignedClients());
+            }
+            catch (Exception)
+            {
+                return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
+            }
+        }
         #endregion
 
         #region Actions
