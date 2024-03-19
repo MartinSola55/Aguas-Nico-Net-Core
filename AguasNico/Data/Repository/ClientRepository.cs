@@ -506,7 +506,7 @@ namespace AguasNico.Data.Repository
         {
             return await _db
                 .Clients
-                .Where(x => string.IsNullOrEmpty(x.DealerID) && x.DeliveryDay == null)
+                .Where(x => x.IsActive && string.IsNullOrEmpty(x.DealerID) && x.DeliveryDay == null)
                 .ToListAsync();
         }
     }
