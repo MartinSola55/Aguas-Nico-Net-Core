@@ -10,12 +10,13 @@ namespace AguasNico.Controllers
         {
             try
             {
-                if (_configuration["BlockPage"] == "true")
+                var blockPage = false;
+                if (blockPage)
                 {
                     filterContext.Result = new ViewResult { ViewName = "~/Views/PageBlocked.cshtml" };
                     return;
                 }
-                ViewBag.PaidPage = _configuration["PaidPage"] == "true" ? true : false;
+                ViewBag.PaidPage = false;
             }
             catch (Exception)
             {
