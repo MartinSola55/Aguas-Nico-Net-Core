@@ -8,12 +8,12 @@ namespace AguasNico.Controllers
         private readonly IConfiguration _configuration = configuration;
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            if (bool.Parse(_configuration["BlockPage"]))
+            if (_configuration["BlockPage"] == "true")
             {
                 filterContext.Result = new ViewResult { ViewName = "~/Views/PageBlocked.cshtml" };
                 return;
             }
-            ViewBag.PaidPage = _configuration["PaidPage"];
+            ViewBag.PaidPage = _configuration["PaidPage"] == "true" ? true : false;
         }
     }
 }
