@@ -115,7 +115,7 @@ $(document).ready(function () {
             update: true
         },
         columnDefs: [
-            { orderable: false, targets: [0] }
+            { orderable: false, targets: [0, 1, 2, 3]}
         ],
         scrollY: '50vh',
         scrollCollapse: true,
