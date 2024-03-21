@@ -112,11 +112,11 @@ function confirmCart(id) {
     });
 }
 
-function sumTotalCart(amount, cart_id) {
-    let amountToAdd = parseFloat(amount);
-    let currentAmount = parseFloat($("#cartPaymentAmount_" + cart_id).val());
-    let newAmount = currentAmount + amountToAdd;
-    $("#cartPaymentAmount_" + cart_id).val(newAmount);
+function sumTotalCart(cart_id) {
+    const amountToAdd = parseFloat($(`#amount_add_${cart_id}`).val());
+    const currentAmount = parseFloat($(`#cartPaymentAmount_${cart_id}`).val());
+    const newAmount = currentAmount + amountToAdd;
+    $(`#cartPaymentAmount_${cart_id}`).val(newAmount);
 }
 
 $(document).ready(function () {
