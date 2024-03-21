@@ -16,7 +16,7 @@ namespace AguasNico.Controllers
                     filterContext.Result = new ViewResult { ViewName = "~/Views/PageBlocked.cshtml" };
                     return;
                 }
-                ViewBag.PaidPage = false;
+                ViewBag.PaidPage = true;
             }
             catch (Exception)
             {
