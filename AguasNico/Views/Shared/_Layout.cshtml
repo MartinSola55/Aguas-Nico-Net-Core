@@ -81,7 +81,7 @@
             @if ((DateTime.UtcNow.AddHours(-3).Day == 20 || DateTime.UtcNow.AddHours(-3).Day == 21) && !paidPage)
             {
                 <div class="alert alert-danger mb-0 py-4">
-                    <b><u>RECORDATORIO</u>: Hoy es @DateTime.UtcNow.AddHours(-3).ToString("dd 'de' MMMM"), tienes hasta el 22 del mes para abonar la página. De lo contrario el servicio se verá anulado por fata de pago del servidor.</b>
+                    <b><u>RECORDATORIO</u>: Hoy es @DateTime.UtcNow.AddHours(-3).ToString("dd 'de' MMMM"), tienes hasta el 22 del mes para abonar la página. De lo contrario el servicio se verá anulado por falta de pago del servidor.</b>
                 </div>
             }
                 @RenderBody()
