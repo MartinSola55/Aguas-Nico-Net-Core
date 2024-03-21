@@ -5,13 +5,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Linq.Expressions;
 
 namespace AguasNico.Controllers
 {
     [Authorize]
-    public class ClientsController(IWorkContainer workContainer, SignInManager<ApplicationUser> signInManager) : Controller
+    public class ClientsController(IWorkContainer workContainer, SignInManager<ApplicationUser> signInManager, IConfiguration configuration) : BaseController(configuration)
     {
         private readonly IWorkContainer _workContainer = workContainer;
         private readonly SignInManager<ApplicationUser> _signInManager = signInManager;

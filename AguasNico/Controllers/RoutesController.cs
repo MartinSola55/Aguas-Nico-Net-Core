@@ -5,16 +5,11 @@ using AguasNico.Models.ViewModels.Routes.Details;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Routing;
-using NuGet.Common;
-using System.Globalization;
-using System.Linq.Expressions;
 
 namespace AguasNico.Controllers
 {
     [Authorize]
-    public class RoutesController(IWorkContainer workContainer, SignInManager<ApplicationUser> signInManager) : Controller
+    public class RoutesController(IWorkContainer workContainer, SignInManager<ApplicationUser> signInManager, IConfiguration configuration) : BaseController(configuration)
     {
         private readonly IWorkContainer _workContainer = workContainer;
         private readonly SignInManager<ApplicationUser> _signInManager = signInManager;

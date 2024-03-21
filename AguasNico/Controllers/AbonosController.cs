@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 namespace AguasNico.Controllers
 {
     [Authorize]
-    public class AbonosController(IWorkContainer workContainer) : Controller
+    public class AbonosController(IWorkContainer workContainer, IConfiguration configuration) : BaseController(configuration)
     {
         private readonly IWorkContainer _workContainer = workContainer;
         private BadRequestObjectResult CustomBadRequest(string title, string message, string? error = null)

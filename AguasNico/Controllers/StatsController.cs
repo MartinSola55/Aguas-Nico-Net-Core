@@ -2,15 +2,12 @@
 using AguasNico.Models;
 using AguasNico.Models.ViewModels.Stats;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq.Expressions;
 
 namespace AguasNico.Controllers
 {
     [Authorize(Roles = Constants.Admin)]
-    public class StatsController(IWorkContainer workContainer) : Controller
+    public class StatsController(IWorkContainer workContainer, IConfiguration configuration) : BaseController(configuration)
     {
         private readonly IWorkContainer _workContainer = workContainer;
         private BadRequestObjectResult CustomBadRequest(string title, string message, string? error = null)
