@@ -563,8 +563,8 @@
                                                             <div class="input-group-prepend">
                                                                 <div class="input-group-text">$</div>
                                                             </div>
-                                                            <input type="number" class="form-control" id="amount_add" min="0" placeholder="sumar" value="0">
-                                                            <button type="button" onclick="sumTotalCart($('#amount_add').val(), @cart.ID)" class="btn btn-primary"><i class="bi bi-plus-circle"></i></button>
+                                                            <input type="number" class="form-control" id="amount_add_@cart.ID" min="0" placeholder="sumar" value="0">
+                                                            <button type="button" onclick="sumTotalCart(@cart.ID)" class="btn btn-primary"><i class="bi bi-plus-circle"></i></button>
                                                         </div>
                                                     </div>
                                                     <div class="col-12 p-3" id="cartPaymentAmountContainer_@cart.ID">
@@ -579,7 +579,7 @@
                                                 </div>
                                             </div>
                                             <div class="d-flex align-items-center justify-content-end">
-                                                <button type="button" class="btn btn-info btn-rounded" onclick="confirmCart(@cart.ID)">Confirmar bajada</button>
+                                                <button type="button" class="btn btn-success btn-rounded" onfocus="setButtonStyle(this, true)" onblur="setButtonStyle(this, false)" onclick="confirmCart(@cart.ID)">Confirmar bajada</button>
                                             </div>
                                         </form>
                                     }
@@ -636,3 +636,15 @@
         @Html.Hidden("state", "")
     </form>
 </div>
+
+<script>
+    function setButtonStyle(button, isFocused) {
+        if (isFocused) {
+            button.style.backgroundColor = "limegreen";
+            button.style.borderColor = "lawngreen";
+        } else {
+            button.style.backgroundColor = "";
+            button.style.borderColor = "";
+        }
+    }
+</script>

@@ -5,13 +5,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Linq.Expressions;
 
 namespace AguasNico.Controllers
 {
     [Authorize]
-    public class ClientsController(IWorkContainer workContainer, SignInManager<ApplicationUser> signInManager) : Controller
+    public class ClientsController(IWorkContainer workContainer, SignInManager<ApplicationUser> signInManager, IConfiguration configuration) : BaseController(configuration)
     {
         private readonly IWorkContainer _workContainer = workContainer;
         private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
@@ -117,6 +115,19 @@ namespace AguasNico.Controllers
             }
         }
 
+        [HttpGet]
+        [Authorize(Roles = Constants.Admin)]
+        public async Task<IActionResult> Unassigned()
+        {
+            try
+            {
+                return View(await _workContainer.Client.GetUnassignedClients());
+            }
+            catch (Exception)
+            {
+                return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
+            }
+        }
         #endregion
 
         #region Actions

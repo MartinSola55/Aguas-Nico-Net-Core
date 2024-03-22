@@ -3,13 +3,11 @@ using AguasNico.Models.ViewModels.Invoices;
 using AguasNico.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using AguasNico.Models.ViewModels.Tables;
 
 namespace AguasNico.Controllers
 {
     [Authorize(Roles = Constants.Admin)]
-    public class InvoicesController(IWorkContainer workContainer) : Controller
+    public class InvoicesController(IWorkContainer workContainer, IConfiguration configuration) : BaseController(configuration)
     {
         private readonly IWorkContainer _workContainer = workContainer;
         private BadRequestObjectResult CustomBadRequest(string title, string message, string? error = null)

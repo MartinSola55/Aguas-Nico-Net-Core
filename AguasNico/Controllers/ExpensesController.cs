@@ -2,14 +2,12 @@
 using AguasNico.Models;
 using AguasNico.Models.ViewModels.Expenses;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq.Expressions;
 
 namespace AguasNico.Controllers
 {
     [Authorize]
-    public class ExpensesController(IWorkContainer workContainer) : Controller
+    public class ExpensesController(IWorkContainer workContainer, IConfiguration configuration) : BaseController(configuration)
     {
         private readonly IWorkContainer _workContainer = workContainer;
         private BadRequestObjectResult CustomBadRequest(string title, string message, string? error = null)

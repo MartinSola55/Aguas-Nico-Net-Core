@@ -4,12 +4,11 @@ using AguasNico.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
 
 namespace AguasNico.Controllers
 {
     [Authorize]
-    public class HomeController(IWorkContainer workContainer, SignInManager<ApplicationUser> signInManager) : Controller
+    public class HomeController(IWorkContainer workContainer, SignInManager<ApplicationUser> signInManager, IConfiguration configuration) : BaseController(configuration)
     {
         private readonly IWorkContainer _workContainer = workContainer;
         private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
@@ -19,7 +18,7 @@ namespace AguasNico.Controllers
         {
             try
             {
-                var sessionUser = User.Identity ?? throw new Exception("No se pudo obtener el usuario de la sesión");
+                var sessionUser = User.Identity ?? throw new Exception("No se pudo obtener el usuario de la sesiÃ³n");
                 var user = await _workContainer.ApplicationUser.GetFirstOrDefaultAsync(x => x.UserName != null && x.UserName.Equals(sessionUser.Name));
 
                 var role = _signInManager.UserManager.GetRolesAsync(user).Result.First();
@@ -44,7 +43,7 @@ namespace AguasNico.Controllers
                         return View("~/Views/Home/Admin/Index.cshtml", viewModel);
                     case Constants.Dealer:
                         var dealerRoutes = await _workContainer.Route.GetAllAsync(x => x.UserID == user.Id && !x.IsStatic && x.DayOfWeek == today, includeProperties: "User, Carts, Carts.PaymentMethods");
-                        viewModel.DealerRoutes = [.. dealerRoutes.OrderByDescending(x => x.CreatedAt) ];
+                        viewModel.DealerRoutes = [.. dealerRoutes.OrderByDescending(x => x.CreatedAt)];
                         return View("~/Views/Home/Dealer/Index.cshtml", viewModel);
                     default:
                         return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });

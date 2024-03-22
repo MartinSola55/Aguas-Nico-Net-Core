@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace AguasNico.Controllers
 {
     [Authorize(Roles = Constants.Admin)]
-    public class ProductsController(IWorkContainer workContainer) : Controller
+    public class ProductsController(IWorkContainer workContainer, IConfiguration configuration) : BaseController(configuration)
     {
         private readonly IWorkContainer _workContainer = workContainer;
         private BadRequestObjectResult CustomBadRequest(string title, string message, string? error = null)

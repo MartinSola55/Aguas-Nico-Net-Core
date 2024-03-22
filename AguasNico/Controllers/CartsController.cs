@@ -1,9 +1,6 @@
 ﻿using AguasNico.Data.Repository.IRepository;
-using AguasNico.Data.Repository;
 using Microsoft.AspNetCore.Mvc;
 using AguasNico.Models;
-using Microsoft.AspNetCore.Identity;
-using AguasNico.Models.ViewModels.Clients;
 using AguasNico.Models.ViewModels.Carts;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Authorization;
@@ -11,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace AguasNico.Controllers
 {
     [Authorize]
-    public class CartsController(IWorkContainer workContainer) : Controller
+    public class CartsController(IWorkContainer workContainer, IConfiguration configuration) : BaseController(configuration)
     {
         private readonly IWorkContainer _workContainer = workContainer;
         private BadRequestObjectResult CustomBadRequest(string title, string message, string? error = null)

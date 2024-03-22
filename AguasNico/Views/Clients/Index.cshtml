@@ -18,14 +18,19 @@
                 <li class="breadcrumb-item active">Clientes</li>
             </ol>
         </div>
-        <div class="col-md-7 col-5 align-self-center">
-            <div class="d-flex m-t-10 justify-content-end">
-                <a asp-area="" asp-controller="Clients" asp-action="Create" class="btn btn-info btn-rounded waves-effect waves-light m-t-10 float-right">Agregar nuevo cliente</a>
-            </div>
-        </div>
     </div>
 
     <div class="row">
+        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <a asp-area="" asp-controller="Clients" asp-action="Create" class="btn btn-info btn-rounded waves-effect waves-light float-right">Agregar nuevo cliente</a>
+                        <a asp-area="" asp-controller="Clients" asp-action="Unassigned" class="btn btn-info btn-rounded waves-effect waves-light float-right">Sin asignar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="col-12">
             <div class="card shadow">
                 <div class="card-body">
@@ -63,17 +68,7 @@
                                     <th>Reparto</th>
                                 </tr>
                             </thead>
-                            <tbody id="table_body">
-                                @foreach (Client client in Model.Clients)
-                                {
-                                    <tr>
-                                        <td><a target="_blank" asp-area="" asp-controller="Clients" asp-action="Details" asp-route-id="@client.ID">@Html.DisplayFor(c => client.Name)</a></td>
-                                        <td>@Html.DisplayFor(c => client.Address)</td>
-                                        <td>@Html.DisplayFor(c => client.Phone)</td>
-                                        <td>$@(client.Debt >= 0 ? Html.DisplayFor(c => client.Debt) : (client.Debt * -1).ToString("#,##") + " a favor")</td>
-                                        <td>@Html.DisplayFor(c => client.Dealer.UserName) - @Html.DisplayFor(c => client.DeliveryDay)</td>
-                                    </tr>
-                                }
+                            <tbody>
                             </tbody>
                         </table>
                     </div>

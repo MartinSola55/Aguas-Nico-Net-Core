@@ -56,8 +56,8 @@
                                             }
                                             else if (item.Type == CartsTransfersType.Abono)
                                             {
-                                                <td>@Html.DisplayFor(x => item.AbonoName)</td>
-                                                <td>$@Html.DisplayFor(x => item.AbonoPrice)</td>
+                                                <td>@Html.DisplayFor(x => item.AbonoName) - $@Html.DisplayFor(x => item.AbonoPrice)</td>
+                                                <td>-</td>
                                             }
                                             else if (item.Type == CartsTransfersType.Cart)
                                             {
@@ -67,7 +67,7 @@
                                                     <td>-</td>
                                                     continue;
                                                 }
-                                                @if (item.Products.Count == 0)
+                                                @if (item.Products.Count == 0 && item.AbonoProducts.Count == 0)
                                                 {
                                                     <td>-</td>
                                                 }
@@ -78,6 +78,10 @@
                                                             @foreach (CartProduct product in item.Products)
                                                             {
                                                                 <li>@product.Type.GetDisplayName() x @product.Quantity u.</li>
+                                                            }
+                                                            @foreach (CartAbonoProduct product in item.AbonoProducts)
+                                                            {
+                                                                <li>@product.Type.GetDisplayName() x @product.Quantity u. (Abono)</li>
                                                             }
                                                         </ul>
                                                     </td>
@@ -168,7 +172,7 @@
                                                 <td>@Html.DisplayFor(x => product.Product.Name)</td>
                                                 <td>@Html.DisplayFor(x => product.Product.Price)</td>
                                                 <td>
-                                                    <input type="number" data-product-id="@product.ProductID" disabled class="form-control" value="@(product.Stock >= 0 ? product.Stock : "")" min="0" />
+                                                    <input type="number" data-product-id="@product.ProductID" onkeypress="detectEnter(event, 'btnSave')" disabled class="form-control" value="@(product.Stock >= 0 ? product.Stock : "")" min="0" />
                                                 </td>
                                             </tr>
                                         }
@@ -210,7 +214,7 @@
                                                 <td>@Html.DisplayFor(x => abono.Abono.Name)</td>
                                                 <td>$@Html.DisplayFor(x => abono.Abono.Price)</td>
                                                 <td class="text-center">
-                                                    <input id="abono_@abono.AbonoID" type="checkbox" disabled class="form-check" @(abono.ClientID != 0 ? "checked" : "") />
+                                                    <input id="abono_@abono.AbonoID" onkeypress="detectEnter(event, 'btnSaveAbonos')" type="checkbox" disabled class="form-check" @(abono.ClientID != 0 ? "checked" : "") />
                                                     <label for="abono_@abono.AbonoID" class="pl-3 mb-0"></label>
                                                 </td>
                                             </tr>

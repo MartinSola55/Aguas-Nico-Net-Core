@@ -115,7 +115,7 @@ function fillTable(clients) {
     clients.forEach(item => {
         let row = `
             <tr data-id="${item.id}">
-                <td><a href="/Clients/Details/${item.id}">${item.name}</a></td>
+                <td><a target="_blank" href="/Clients/Details/${item.id}">${item.name}</a></td>
                 <td>${item.address}</td>
                 <td>${item.phone}</td>
                 <td>$${item.debt}</td>
