@@ -16,7 +16,7 @@ namespace AguasNico.Data.Repository
     {
         private readonly ApplicationDbContext _db = db;
 
-        private bool ValidateProducts(List<Product> products)
+        private static bool ValidateProducts(List<Product> products)
         {
             foreach (var product in products)
             {
@@ -106,13 +106,14 @@ namespace AguasNico.Data.Repository
                 {
                     await _db.Carts.AddAsync(new()
                     {
-                        Route = route,
-                        Client = client,
+                        RouteID = route.ID,
+                        ClientID = client.ID,
                         IsStatic = true,
                         State = State.Pending,
                         Priority = route.Carts.Any() ? route.Carts.Max(x => x.Priority) + 1 : 1,
                     });
                 }
+                // The update is done here because the client MUST have a cart assinged
                 oldClient.DealerID = client.DealerID;
                 oldClient.DeliveryDay = client.DeliveryDay;
             }
@@ -465,6 +466,7 @@ namespace AguasNico.Data.Repository
             {
                 var payments = cart.PaymentMethods.ToList();
                 var products = cart.Products.ToList();
+               var abonoProducts = cart.AbonoProducts.ToList();
 
                 cartsTransfersHistory.Add(new()
                 {
@@ -473,6 +475,7 @@ namespace AguasNico.Data.Repository
                     CartState = cart.State,
                     PaymentMethods = payments,
                     Products = products,
+                    AbonoProducts = abonoProducts,
                 });
             }
             return [.. cartsTransfersHistory.OrderByDescending(x => x.Date)];
@@ -496,6 +499,14 @@ namespace AguasNico.Data.Repository
                     x.AbonoRenewal.ClientID == clientID &&
                     x.CreatedAt.Month == today.Month &&
                     x.CreatedAt.Year == today.Year)
+                .ToListAsync();
+        }
+
+        public async Task<List<Client>> GetUnassignedClients()
+        {
+            return await _db
+                .Clients
+                .Where(x => x.IsActive && string.IsNullOrEmpty(x.DealerID) && x.DeliveryDay == null)
                 .ToListAsync();
         }
     }

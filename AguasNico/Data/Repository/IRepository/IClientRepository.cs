@@ -45,5 +45,6 @@ namespace AguasNico.Data.Repository.IRepository
         Task<List<ProductHistory>> GetProductsHistory(long clientID);
         Task<List<Client>> GetNotVisited(DateTime dateFrom, DateTime dateTo, string dealerID);
         Task<List<CartsTransfersHistoryTable>> GetCartsTransfersHistoryTable(long clientID);
+        Task<List<Client>> GetUnassignedClients();
     }
 }
