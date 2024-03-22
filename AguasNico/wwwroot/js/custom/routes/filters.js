@@ -29,19 +29,37 @@ $(document).ready(function () {
         });
     });
 
-    $("#paymentMethodSelect").on("change", function () {
+    // $("#paymentMethodSelect").on("change", function () {
+    //     resetProductAndTypeSelect();
+    //     let searchPaymentMethod = $(this).find("option:selected").val().toLowerCase();
+    //     $(".col-timeline > .card").each(function () {
+    //         let paymentMethodElement = $(this).find(".paymentMethod-element");
+    //         let amountElement = $(this).find(".amount-value").text();
+    //         let amountNumber = parseFloat(amountElement);
+    //         if ((paymentMethodElement.text().toLowerCase().includes(searchPaymentMethod) || searchPaymentMethod === "") && amountNumber > 0) {
+    //             $(this).show();
+    //         } else {
+    //             $(this).hide();
+    //         }
+    //         console.log(amountNumber);
+    //     });
+    // });
+
+    $("#paymentStatusSelect").on("change", function () {
         resetProductAndTypeSelect();
-        let searchPaymentMethod = $(this).find("option:selected").val().toLowerCase();
+        let searchPaymentStatus = $(this).val().toLowerCase();
+    
         $(".col-timeline > .card").each(function () {
-            let paymentMethodElement = $(this).find(".paymentMethod-element");
             let amountElement = $(this).find(".amount-value").text();
             let amountNumber = parseFloat(amountElement);
-            if ((paymentMethodElement.text().toLowerCase().includes(searchPaymentMethod) || searchPaymentMethod === "") && amountNumber > 0) {
+    
+            if (searchPaymentStatus === "realizado" && amountNumber > 0) {
+                $(this).show();
+            } else if (searchPaymentStatus === "pendiente" && amountNumber === 0) {
                 $(this).show();
             } else {
                 $(this).hide();
             }
-            console.log(amountNumber);
         });
     });
 
