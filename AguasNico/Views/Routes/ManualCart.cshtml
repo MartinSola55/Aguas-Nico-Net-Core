@@ -119,7 +119,7 @@
                             <tbody>
                                 @foreach (Client client in Model.Clients)
                                 {
-                                    <tr>
+                                    <tr data-id="@client.ID">
                                         <td>@Html.DisplayFor(c => client.Name)</td>
                                         <td>@Html.DisplayFor(c => client.Address)</td>
                                         <td>$@(client.Debt >= 0 ? Html.DisplayFor(c => client.Debt) : (client.Debt * -1).ToString("#,##") + " a favor")</td>
