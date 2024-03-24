@@ -156,22 +156,21 @@ function confirmCart() {
     }
 
     let form = $("#form-confirmCart");
+    const clientID = $("#form-confirmCart input[name='Cart.ClientID']").val();
     $.ajax({
         url: $(form).attr('action'),
         method: $(form).attr('method'),
         data: $(form).serialize() + "&" + $.param(productsData),
         success: function (response) {
+            $('#DataTable').DataTable().row(`[data-id="${clientID}"]`).remove().draw();
+            $("#modal").modal('hide');
             Swal.fire({
                 title: response.message,
                 icon: 'success',
                 showCancelButton: false,
                 confirmButtonColor: '#1e88e5',
                 confirmButtonText: 'OK',
-                allowOutsideClick: false,
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = window.location.origin + "/Routes/Details/" + response.data;
-                }
+                allowOutsideClick: true,
             });
         },
         error: function (errorThrown) {
