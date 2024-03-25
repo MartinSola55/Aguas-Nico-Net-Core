@@ -64,7 +64,7 @@ namespace AguasNico.Data.Repository
                 .Include(x => x.Client)
                     .ThenInclude(x => x.AbonosRenewed)
                         .ThenInclude(x => x.Abono)
-                .Where(x => x.Route.UserID == dealerID && x.IsStatic)
+                .Where(x => x.Route.UserID == dealerID && x.IsStatic && x.Client.IsActive)
                 .OrderBy(x => x.Priority)
                 .ToListAsync();
 
