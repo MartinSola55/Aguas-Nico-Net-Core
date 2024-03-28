@@ -14,6 +14,7 @@
 <script src="~/js/custom/routes/admin/details/confirmCart.js"></script>
 <script src="~/js/custom/routes/admin/deleteCart.js"></script>
 <script src="~/js/custom/routes/admin/deleteRoute.js"></script>
+<script src="~/js/custom/routes/admin/closeRoute.js"></script>
 <script src="~/js/custom/routes/admin/details/renewAbonos.js"></script>
 <script src="~/js/custom/routes/filters.js"></script>
 
@@ -110,8 +111,8 @@
         <div class="col-12 col-lg-6">
             <div class="card shadow">
                 <div class="card-body">
-                        <h4 class="card-title">Total de repartos: @Model.Route.Carts.Count()</h4>
-                        <h4 class="card-title mb-0">Deuda total: $@Model.Route.Carts.Select(x => x.Client).Sum(x => x.Debt).ToString("#,##")</h4>
+                    <h4 class="card-title">Total de repartos: @Model.Route.Carts.Count()</h4>
+                    <h4 class="card-title mb-0">Deuda total: $@Model.Route.Carts.Select(x => x.Client).Sum(x => x.Debt).ToString("#,##")</h4>
                 </div>
             </div>
         </div>
@@ -262,7 +263,13 @@
                     <div class="col-12 col-md-8 col-lg-6 mb-3 mb-md-0">
                         <h4 class="mb-0">Repartos de <b>@Model.Route.User.UserName</b> para el <b>@Model.Route.DayOfWeek</b></h4>
                     </div>
-                    <button type="button" onclick="deleteRoute(@Model.Route.ID)" class="btn btn-outline-danger btn-rounded px-3 ml-auto" style="max-width: fit-content;">Eliminar planilla</button>
+                    <div>
+                        @if (!Model.Route.IsClosed)
+                        {
+                            <button type="button" onclick="closeRoute()" class="btn btn-outline-warning btn-rounded px-3 ml-auto" style="max-width: fit-content;">Cerrar planilla</button>
+                        }
+                        <button type="button" onclick="deleteRoute(@Model.Route.ID)" class="btn btn-outline-danger btn-rounded px-3 ml-auto" style="max-width: fit-content;">Eliminar planilla</button>
+                    </div>
                 </div>
                 <div class="card-body pl-0 pr-1">
                     <div class="row">
@@ -610,6 +617,10 @@
     </form>
 
     <form id="form-deleteRoute" method="post" asp-area="" asp-controller="Routes" asp-action="SoftDelete">
+        @Html.HiddenFor(x => Model.Route.ID)
+    </form>
+    
+    <form id="form-closeRoute" method="post" asp-area="" asp-controller="Routes" asp-action="Close">
         @Html.HiddenFor(x => Model.Route.ID)
     </form>
 

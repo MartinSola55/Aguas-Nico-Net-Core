@@ -78,6 +78,34 @@ namespace AguasNico.Data.Repository
                 throw;
             }
         }
+
+        public async Task Close(long id)
+        {
+            var route = await _db
+                .Routes
+                .Where(x => x.ID == id)
+                .Include(x => x.Carts)
+                .FirstOrDefaultAsync() ?? throw new Exception("No se ha encontrado la planilla");
+
+            foreach (var cart in route.Carts.Where(x => x.State == State.Pending))
+            {
+                cart.DeletedAt = DateTime.UtcNow.AddHours(-3);
+            }
+
+            route.IsClosed = true;
+
+            try
+            {
+                await _db.Database.BeginTransactionAsync();
+                await _db.SaveChangesAsync();
+                await _db.Database.CommitTransactionAsync();
+            }
+            catch (Exception)
+            {
+                await _db.Database.RollbackTransactionAsync();
+                throw;
+            }
+        }
         public async Task<decimal> GetTotalSold(DateTime date)
         {
             return await _db

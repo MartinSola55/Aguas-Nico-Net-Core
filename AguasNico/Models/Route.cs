@@ -15,6 +15,8 @@ namespace AguasNico.Models
 
         public bool IsStatic { get; set; }
 
+        public bool IsClosed { get; set; } = false;
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow.AddHours(-3);
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow.AddHours(-3);
