@@ -352,6 +352,26 @@ namespace AguasNico.Controllers
             }
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = Constants.Admin)]
+        public async Task<IActionResult> Close(Models.Route route)
+        {
+            try
+            {
+                await _workContainer.Route.Close(route.ID);
+                return Json(new
+                {
+                    success = true,
+                    message = "La planilla se cerró correctamente",
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error", message: "No se ha podido cerrar la planilla", error: e.Message);
+            }
+        }
+
         #endregion
 
         #region AJAX
@@ -374,7 +394,8 @@ namespace AguasNico.Controllers
                         dealer = x.User.UserName,
                         totalCarts = x.Carts.Count(),
                         completedCarts = x.Carts.Count(y => y.State != State.Pending),
-                        state = x.Carts.Count(y => y.State != State.Pending) == x.Carts.Count() ? "Completado" : "Pendiente",
+                        state = x.Carts.Count(y => y.State != State.Pending) == x.Carts.Count() ? "Completada" : "Pendiente",
+                        isClosed = x.IsClosed,
                         collected = x.Carts.Sum(y => y.PaymentMethods.Where(z => z.CreatedAt.Date == date.Date).Sum(z => z.Amount)) != 0 ? x.Carts.Sum(y => y.PaymentMethods.Where(z => z.CreatedAt.Date == date.Date).Sum(z => z.Amount)).ToString("#,##") : "0",
 
                     })

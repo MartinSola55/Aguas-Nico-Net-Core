@@ -47,7 +47,10 @@ $(document).ready(function () {
                     let row = `<tr class="clickable" data-url="/Routes/Details/${route.id}">
                         <td><h6>${route.dealer}</h6></td>
                         <td>${route.completedCarts}/${route.totalCarts}</td>
-                        ${route.state == 'Pendiente' ? `<td><span class="label label-warning">${route.state}</span></td>` : `<td><span class="label label-success">${route.state}</span></td>`}
+                        <td>
+                            ${route.state == 'Pendiente' ? `<span class="label label-warning">${route.state}</span>` : `<span class="label label-success">${route.state}</span>`}
+                            ${route.isClosed ? '<span class="label label-danger">Cerrada</span>' : ''}
+                        </td>
                         <td>$${route.collected}</td>
                     </tr>`;
                     $('#routesTable tbody').append($(row));
