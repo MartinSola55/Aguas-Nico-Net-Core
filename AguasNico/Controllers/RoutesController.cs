@@ -242,7 +242,6 @@ namespace AguasNico.Controllers
                 ManualCartViewModel viewModel = new()
                 {
                     Route = route,
-                    Clients = await _workContainer.Route.ClientsNotInRoute(id),
                     PaymentMethods = await _workContainer.PaymentMethod.GetDropDownList()
                 };
                 return View(viewModel);
@@ -497,6 +496,74 @@ namespace AguasNico.Controllers
             catch (Exception)
             {
                 return CustomBadRequest(title: "No se encontraron planillas", message: "Intente nuevamente o comuníquese para soporte");
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ClientsByIDNotInRoute(long routeID, long clientID)
+        {
+            try
+            {
+                var client = await _workContainer.Route.ClientsByIDNotInRoute(routeID, clientID);
+                if (client is null)
+                    return CustomBadRequest(title: "Error al obtener el cliente", message: "El cliente no existe");
+
+                var clientsList = new List<object>();
+
+                var dealer = client.Dealer is not null ? client.Dealer.UserName : "Sin repartidor asignado";
+                var day = client.DeliveryDay is not null ? client.DeliveryDay.ToString() : "Sin día asignado";
+                var debt = client.Debt >= 0 ? client.Debt.ToString("#,##") : (client.Debt * -1).ToString("#,##") + " a favor";
+                clientsList.Add(new
+                {
+                    id = client.ID,
+                    name = client.Name,
+                    address = client.Address,
+                    dealer = dealer + " - " + day,
+                    debt = debt != "" ? debt : "0",
+                });
+                return Json(new
+                {
+                    success = true,
+                    data = clientsList,
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al obtener los clientes", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ClientsByNameNotInRoute(long routeID, string name)
+        {
+            try
+            {
+                var clients = await _workContainer.Route.ClientsByNameNotInRoute(routeID, name);
+                
+                var clientsList = new List<object>();
+                foreach (var client in clients.OrderBy(x => x.Name))
+                {
+                    var day = client.DeliveryDay is not null ? client.DeliveryDay.ToString() : "Sin día asignado";
+                    var dealer = client.Dealer is not null ? client.Dealer.UserName : "Sin repartidor asignado";
+                    var debt = client.Debt >= 0 ? client.Debt.ToString("#,##") : (client.Debt * -1).ToString("#,##") + " a favor";
+                    clientsList.Add(new
+                    {
+                        id = client.ID,
+                        name = client.Name,
+                        address = client.Address,
+                        dealer = dealer + " - " + day,
+                        debt = debt != "" ? debt : "0",
+                    });
+                }
+                return Json(new
+                {
+                    success = true,
+                    data = clientsList,
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al obtener los clientes", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
             }
         }
 

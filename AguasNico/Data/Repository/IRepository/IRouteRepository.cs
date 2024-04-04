@@ -23,6 +23,8 @@ namespace AguasNico.Data.Repository.IRepository
         Task<List<CartPaymentMethod>> GetTotalCollected(long routeID);
         Task<List<Client>> ClientsInRoute (long routeID);
         Task<List<Client>> ClientsNotInRoute (long routeID);
+        Task<List<Client>> ClientsByNameNotInRoute (long routeID, string name);
+        Task<Client?> ClientsByIDNotInRoute (long routeID, long clientID);
         Task<long> CreateByDealer (long routeID);
     }
 }
