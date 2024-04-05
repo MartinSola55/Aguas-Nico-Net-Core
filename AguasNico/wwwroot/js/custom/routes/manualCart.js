@@ -211,8 +211,6 @@ function searchByName() {
 }
 
 function searchByID() {
-    const id = $('#clientID').val();
-
     loadingRow();
     const form = $('#form-searchByID');
     $.ajax({
