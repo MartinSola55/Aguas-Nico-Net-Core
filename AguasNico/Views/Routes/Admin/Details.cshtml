@@ -571,7 +571,7 @@
                                                                 <div class="input-group-text">$</div>
                                                             </div>
                                                             <input type="number" class="form-control" id="amount_add_@cart.ID" min="0" placeholder="sumar" value="0">
-                                                            <button type="button" onclick="sumTotalCart(@cart.ID)" class="btn btn-primary"><i class="bi bi-plus-circle"></i></button>
+                                                            <button type="button" onclick="sumTotalCart(@cart.ID)" class="btn btn-info"><i class="bi bi-plus-circle"></i></button>
                                                         </div>
                                                     </div>
                                                     <div class="col-12 p-3" id="cartPaymentAmountContainer_@cart.ID">
@@ -581,6 +581,7 @@
                                                                 <div class="input-group-text">$</div>
                                                             </div>
                                                             <input type="number" class="form-control" id="cartPaymentAmount_@cart.ID" placeholder="Entrega" min="0" step="1">
+                                                            <button type="button" onclick="resetPaymentAmount(@cart.ID)" class="btn btn-info"><i class="bi bi-x-circle"></i></button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -601,6 +602,12 @@
                                 </div>
                             </div>
                         }
+                    </div>
+                
+                    <div class="col-12 my-3">
+                        <div class="d-flex flex-row justify-content-end mx-3">
+                            <a class="btn btn-info btn-rounded float-right" asp-area="" asp-controller="Routes" asp-action="ManualCart" asp-route-id="@Model.Route.ID" target="_blank">Agregar fuera de reparto</a>
+                        </div>
                     </div>
                 </div>
             </div>
