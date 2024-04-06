@@ -13,6 +13,7 @@ namespace AguasNico.Data.Repository.IRepository
         Task<List<SelectListItem>> GetYears();
         Task Update(Models.Route route);
         Task SoftDelete(long id);
+        Task Close(long id);
         Task<decimal> GetTotalSold(DateTime date);
         Task<decimal> GetTotalSoldByRoute(long routeID);
         Task UpdateClients(long routeID, List<Client> clients);
@@ -22,6 +23,8 @@ namespace AguasNico.Data.Repository.IRepository
         Task<List<CartPaymentMethod>> GetTotalCollected(long routeID);
         Task<List<Client>> ClientsInRoute (long routeID);
         Task<List<Client>> ClientsNotInRoute (long routeID);
+        Task<List<Client>> ClientsByNameNotInRoute (long routeID, string name);
+        Task<Client?> ClientsByIDNotInRoute (long routeID, long clientID);
         Task<long> CreateByDealer (long routeID);
     }
 }

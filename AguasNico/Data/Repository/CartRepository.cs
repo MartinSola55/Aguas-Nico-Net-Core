@@ -231,16 +231,17 @@ namespace AguasNico.Data.Repository
                     var clientProduct = await _db
                         .ClientProducts
                         .Where(x => x.ClientID == cart.ClientID && x.Product.Type == product.Type)
-                        .FirstOrDefaultAsync() ?? throw new Exception("No se ha encontrado un producto del cliente");
+                        .FirstOrDefaultAsync();
 
-                    clientProduct.Stock -= product.Quantity;
+                    if (clientProduct is not null)
+                        clientProduct.Stock -= product.Quantity;
+
                     cart.Client.Debt -= product.Quantity * product.SettedPrice;
                     product.DeletedAt = DateTime.UtcNow.AddHours(-3);
                 }
             }
 
             // Productos de abonos de la bajada
-
             if (cart.AbonoProducts is not null)
             {
                 foreach (var abonoProductInCart in cart.AbonoProducts)
@@ -259,9 +260,11 @@ namespace AguasNico.Data.Repository
                     var clientProduct = await _db
                         .ClientProducts
                         .Where(x => x.ClientID == cart.ClientID && x.Product.Type == abonoProductInCart.Type)
-                        .FirstOrDefaultAsync() ?? throw new Exception("No se ha encontrado un producto del cliente");
+                        .FirstOrDefaultAsync();
 
-                    clientProduct.Stock -= abonoProductInCart.Quantity;
+                    if (clientProduct is not null)
+                        clientProduct.Stock -= abonoProductInCart.Quantity;
+
                     abonoProductInCart.DeletedAt = DateTime.UtcNow.AddHours(-3);
                 }
             }
@@ -276,7 +279,9 @@ namespace AguasNico.Data.Repository
                         .Where(x => x.ClientID == cart.ClientID && x.Product.Type == product.Type)
                         .FirstOrDefaultAsync() ?? throw new Exception("No se ha encontrado un producto del cliente");
 
-                    clientProduct.Stock += product.Quantity;
+                    if (clientProduct is not null)
+                        clientProduct.Stock += product.Quantity;
+
                     product.DeletedAt = DateTime.UtcNow.AddHours(-3);
                 }
             }

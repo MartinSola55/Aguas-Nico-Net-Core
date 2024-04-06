@@ -2,6 +2,7 @@ function openModal(clientID, clientName) {
     $("#form-searchClientProducts input[name='id']").val(clientID);
     $("#form-confirmCart input[name='Cart.ClientID']").val(clientID);
     $("#form-confirmCart input:not([type='hidden']").val("");
+    $("#cartPaymentAmount").val("");
     $("#divClientAbonos").hide();
 
     $(".modal-title").text(`Confirmar bajada para ${clientName}`);
@@ -156,22 +157,21 @@ function confirmCart() {
     }
 
     let form = $("#form-confirmCart");
+    const clientID = $("#form-confirmCart input[name='Cart.ClientID']").val();
     $.ajax({
         url: $(form).attr('action'),
         method: $(form).attr('method'),
         data: $(form).serialize() + "&" + $.param(productsData),
         success: function (response) {
+            $('#DataTable').DataTable().row(`[data-id="${clientID}"]`).remove().draw();
+            $("#modal").modal('hide');
             Swal.fire({
                 title: response.message,
                 icon: 'success',
                 showCancelButton: false,
                 confirmButtonColor: '#1e88e5',
                 confirmButtonText: 'OK',
-                allowOutsideClick: false,
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = window.location.origin + "/Routes/Details/" + response.data;
-                }
+                allowOutsideClick: true,
             });
         },
         error: function (errorThrown) {
@@ -183,6 +183,113 @@ function confirmCart() {
             });
         }
     });
+}
+
+function searchByName() {
+    const name = $('#clientName').val();
+
+    if (name.length < 4)
+        return toastrWarning("Debes ingresar al menos 4 caracteres para buscar por nombre");
+
+    loadingRow();
+    const form = $('#form-searchByName');
+    $.ajax({
+        url: $(form).attr('action'),
+        method: $(form).attr('method'),
+        data: $(form).serialize(),
+        success: function (response) {
+            if (response.data.length === 0) {
+                emptyTable();
+                return;
+            }
+            fillTable(response.data)
+        },
+        error: function () {
+            errorRow();
+        }
+    });
+}
+
+function searchByID() {
+    loadingRow();
+    const form = $('#form-searchByID');
+    $.ajax({
+        url: $(form).attr('action'),
+        method: $(form).attr('method'),
+        data: $(form).serialize(),
+        success: function (response) {
+            if (response.data.length === 0) {
+                emptyTable();
+                return;
+            }
+            fillTable(response.data)
+        },
+        error: function () {
+            errorRow();
+        }
+    });
+}
+
+function loadingRow() {
+    $('#DataTable tbody').empty();
+    let loadingRow = `
+    <tr>
+        <td>
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Cargando...</span>
+            </div>
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>`;
+    $('#DataTable tbody').append($(loadingRow));
+}
+
+function errorRow() {
+    $('#DataTable tbody').empty();
+    let row = `
+    <tr>
+        <td><h6 class="text-danger">No hay clientes que coincidan con la búsqueda</h6></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>`;
+    $('#DataTable tbody').append($(row));
+}
+
+function fillTable(clients) {
+    $('#DataTable tbody').empty();
+    clients.forEach(item => {
+        let row = `
+            <tr data-id="${item.id}">
+                <td>${item.name}</td>
+                <td>${item.address}</td>
+                <td>$${item.debt}</td>
+                <td>${item.dealer}</td>
+                <td>
+                    <div class="d-flex justify-content-center">
+                        <button class="btn btn-info btn-rounded float-right" onclick='openModal(${item.id}, "${item.name}")'>Seleccionar</button>
+                    </div>
+                </td>
+            </tr>`;
+        $('#DataTable tbody').append($(row));
+    });
+}
+
+function emptyTable() {
+    $('#DataTable tbody').empty();
+    let row = `
+    <tr>
+        <td colspan="5"><h6>No hay clientes que coincidan con la búsqueda</h6></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>`;
+    $('#DataTable tbody').append($(row));
 }
 
 $(document).ready(function () {
@@ -202,5 +309,17 @@ $(document).ready(function () {
                 "sPrevious": "Anterior",
             },
         },
+    });
+
+    let timeoutName;
+    $('#clientName').on('input', function () {
+        clearTimeout(timeoutName);
+        timeoutName = setTimeout(searchByName, 1000);
+    });
+
+    let timeoutId;
+    $('#clientID').on('input', function () {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(searchByID, 1000);
     });
 });

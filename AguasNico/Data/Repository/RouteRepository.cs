@@ -78,6 +78,35 @@ namespace AguasNico.Data.Repository
                 throw;
             }
         }
+
+        public async Task Close(long id)
+        {
+            var route = await _db
+                .Routes
+                .Where(x => x.ID == id)
+                .Include(x => x.Carts)
+                .FirstOrDefaultAsync() ?? throw new Exception("No se ha encontrado la planilla");
+
+            foreach (var cart in route.Carts.Where(x => x.State == State.Pending))
+            {
+                cart.DeletedAt = DateTime.UtcNow.AddHours(-3);
+            }
+
+            route.IsClosed = true;
+
+            try
+            {
+                await _db.Database.BeginTransactionAsync();
+                await _db.SaveChangesAsync();
+                await _db.Database.CommitTransactionAsync();
+            }
+            catch (Exception)
+            {
+                await _db.Database.RollbackTransactionAsync();
+                throw;
+            }
+        }
+        
         public async Task<decimal> GetTotalSold(DateTime date)
         {
             return await _db
@@ -220,6 +249,25 @@ namespace AguasNico.Data.Repository
                 .Include(x => x.Dealer)
                 .OrderBy(x => x.Dealer.TruckNumber)
                 .ToListAsync();
+        }
+
+        public async Task<List<Client>> ClientsByNameNotInRoute(long routeID, string name)
+        {
+            return await _db
+                .Clients
+                .Where(x => x.IsActive && (x.Name.Contains(name) || x.Address.Contains(name)) && !x.Carts.Any(x => x.Route.ID == routeID))
+                .Include(x => x.Dealer)
+                .OrderBy(x => x.Dealer.TruckNumber)
+                .ToListAsync();
+        }
+
+        public async Task<Client?> ClientsByIDNotInRoute(long routeID, long clientID)
+        {
+            return await _db
+                .Clients
+                .Where(x => x.IsActive && x.ID == clientID && !x.Carts.Any(x => x.Route.ID == routeID))
+                .Include(x => x.Dealer)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<long> CreateByDealer(long routeID)

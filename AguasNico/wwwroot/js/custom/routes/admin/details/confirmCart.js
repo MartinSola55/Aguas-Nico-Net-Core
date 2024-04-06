@@ -119,6 +119,10 @@ function sumTotalCart(cart_id) {
     $(`#cartPaymentAmount_${cart_id}`).val(newAmount);
 }
 
+function resetPaymentAmount(cart_id) {
+    $(`#cartPaymentAmount_${cart_id}`).val("");
+}
+
 $(document).ready(function () {
     // $("#cartPaymentMethod").on("change", function () {
     //     $("#cartPaymentAmountContainer").show();
