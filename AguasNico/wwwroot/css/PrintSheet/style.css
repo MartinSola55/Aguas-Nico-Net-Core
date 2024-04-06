@@ -1,0 +1,17 @@
+@page {
+    margin-top: 3cm;
+    @top-left {
+        content: " ";
+    }
+    @top-center {
+        content: " ";
+    }
+    @top-right {
+        content: " ";
+    }
+}
+
+.clientContent {
+    page-break-inside: avoid !important; 
+    width: 100%;
+}

@@ -7,6 +7,7 @@
 <link href="~/lib/bootstrap-material-datetimepicker/css/bootstrap-material-datetimepicker.css" rel="stylesheet">
 <link href="~/lib/datatables/media/css/dataTables.bootstrap4.css" rel="stylesheet">
 <link href="~/lib/morrisjs/morris.css" rel="stylesheet">
+<link href="~/css/PrintSheet/style.css" rel="stylesheet">
 
 <script src="~/lib/raphael/raphael-min.js"></script>
 <script src="~/lib/morrisjs/morris.js"></script>
@@ -53,15 +54,18 @@
         }
         <div class="printableArea px-1" id="@(day)_section">
             <div class="row bg-white">
-                <div class="col-12 my-2 d-flex justify-content-between">
-                    <h4 class="text-center p-2 m-0 text-dark"><strong>Planilla @day</strong></h4>
-                    <h4 class="text-center p-2 m-0 text-dark"><strong>Fecha: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</strong></h4>
-                </div>
-                <div class="col-12 mb-2 d-flex justify-content-between">
-                    <h4 class="text-center p-2 m-0 text-dark"><strong>@Model.Dealer.Name</strong></h4>
+                <div class="row clientContent">
+                    <div class="col-12 my-2 d-flex justify-content-between">
+                        <h4 class="text-center p-2 m-0 text-dark"><strong>Planilla @day</strong></h4>
+                        <h4 class="text-center p-2 m-0 text-dark"><strong>Fecha: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</strong></h4>
+                    </div>
+                    <div class="col-12 mb-2 d-flex justify-content-between">
+                        <h4 class="text-center p-2 m-0 text-dark"><strong>@Model.Dealer.Name</strong></h4>
+                    </div>
                 </div>
                 @foreach (var item in Model.Sheets.Where(x => x.Day == day))
                 {
+                <div class="row clientContent">
                     <div class="col-12 d-flex justify-content-between py-1 border border-dark">
                         <h5 class="mb-0 d-flex align-items-center"><li class="text-dark mb-0"><strong>@item.ClientName</strong> #@item.ClientID</li></h5>
                         <div class="d-flex mr-4">
@@ -177,6 +181,7 @@
                             <p class="text-monospace mb-2 flex-grow-1 align-self-stretch"><small>Entrega:</small></p>
                         </div>
                     </div>
+                </div>
                 }
             </div>
         </div>
@@ -187,6 +192,7 @@
             <div class="row bg-white">
                 @for (int i = 0; i < 4; i++)
                 {
+                <div class="row clientContent">
                     <div class="col-12 d-flex py-1 border border-dark">
                         <div class="col-4 d-flex justify-content-start align-items-center">
                             <h5 class="mb-0 d-flex align-items-center"><li class="text-dark mb-0">Cliente:</li></h5>
@@ -270,6 +276,7 @@
                             <p class="text-monospace mb-2 flex-grow-1 align-self-stretch"><small>Entrega:</small><br />$</p>
                         </div>
                     </div>
+                </div>
                 }
             </div>
         </div>
