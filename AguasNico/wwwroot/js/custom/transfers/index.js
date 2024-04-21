@@ -161,16 +161,72 @@ function changeDate() {
     })
 }
 
+function getTransfers() {
+    const date = $('#DatePicker').val();
+    $('#table_body').empty();
+    const loadingRow = `<tr>
+            <td>
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Cargando...</span>
+                </div>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>`;
+    $('#table_body').append($(loadingRow));
+    $('#form-search input[name="dateString"]').val(date);
+    const form = $('#form-search');
+    $.ajax({
+        url: $(form).attr('action'),
+        method: $(form).attr('method'),
+        data: $(form).serialize(),
+        success: function (response) {
+            $('#table_body').empty();
+            response.data.forEach(transfer => {
+                const row = `
+                    <tr data-id="${transfer.id}">
+                        <td>${transfer.client}</td>
+                        <td>${transfer.dealer}</td>
+                        <td>$${transfer.amount}</td>
+                        <td>${transfer.date.toLocaleString()}</td>
+                        <td>${transfer.createdAt.toLocaleString()}</td>
+                        <td class='d-flex flex-row justify-content-center'>
+                            <button type='button' class='btn btn-outline-info btn-rounded btn-sm mr-2' onclick='editTransfer(${JSON.stringify(transfer)})' data-toggle="modal" data-target="#modalCreate"><i class="bi bi-pencil"></i></button>
+                            <button type='button' class='btn btn-danger btn-rounded btn-sm ml-2' onclick='deleteObj(${transfer.id}'><i class='bi bi-trash3'></i></button>
+                        </td>
+                    </tr>`;
+                $('#table_body').append($(row));
+            });
+        },
+        error: function (error) {
+            $('#table_body').empty();
+            const row = `<tr>
+                    <td>
+                        <h6 class="text-danger">No se pudo cargar la información</h6>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>`;
+            $('#table_body').append($(row));
+        }
+    });
+}
 
 $(document).ready(function () {
-    $("DatePicker").bootstrapMaterialDatePicker({
+    $("#DatePicker").bootstrapMaterialDatePicker({
         maxDate: new Date(),
         time: false,
         format: 'DD/MM/YYYY',
         cancelText: "Cancelar",
         weekStart: 1,
         lang: 'es',
-    });    
+    });   
 
     $('#DataTable').DataTable({
         "order": false,

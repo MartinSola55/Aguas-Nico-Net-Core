@@ -24,68 +24,51 @@
         </div>
     </div>
 
-    <div class="row">
-        <!-- Column -->
-        <div class="col-xl-3 col-md-6">
-            <div class="card shadow">
-                <div class="card-body">
-                    <div class="d-flex flex-row">
-                        <div class="round round-lg align-self-center round-primary"><i class="mdi mdi-currency-usd"></i></div>
-                        <div class="m-l-10 align-self-center">
-                            <h3 class="m-b-0 font-light">@Html.DisplayFor(x => Model.TotalSold)</h3> <!--recaudado del dia -->
-                            <h5 class="text-muted m-b-0">Recaudado en el día</h5>
+    <!-- Modal -->
+    <div id="modalCreate" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+        <div id="formContainer" class="modal-dialog">
+            <form id="form-create-expense" method="post" asp-area="" asp-controller="Expenses" asp-action="Create" autocomplete="off">
+                @Html.AntiForgeryToken()
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Agregar gasto</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-column">
+                                    <div class="col-12 mb-3">
+                                        <label for="ExpenseUserID" class="mb-0">Repartidor</label>
+                                        @Html.DropDownList("", Model.Dealers, new { @class = "form-control mb-2", @id = "ExpenseUserID", @name = "CreateViewModel.UserID" })
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <label for="ExpenseDescription" class="mb-0">Descripción</label>
+                                        <input name="CreateViewModel.Description" id="ExpenseDescription" class="form-control" required />
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <label for="ExpenseAmount" class="mb-0">Monto</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">$</span>
+                                            </div>
+                                            <input name="CreateViewModel.Amount" id="ExpenseAmount" class="form-control" required type="number" data-val-number="Debes ingresar un número" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-        <!-- Column -->
-        <!-- Column -->
-        <div class="col-xl-3 col-md-6">
-            <div class="card shadow">
-                <div class="card-body">
-                    <div class="d-flex flex-row">
-                        <div class="round round-lg align-self-center round-danger"><i class="mdi mdi-shopping"></i></div>
-                        <div class="m-l-10 align-self-center">
-                            <h3 class="m-b-0 font-lgiht">@Html.DisplayFor(x => Model.TotalExpenses)</h3> <!-- GASTOS DEL DIA -->
-                            <h5 class="text-muted m-b-0">Gastos del día</h5>
-                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cerrar</button>
+                        <button type="button" onclick="sendForm()" class="btn btn-success waves-effect waves-light">Agregar</button>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
-        <!-- Column -->
-        <!-- Column -->
-        <div class="col-xl-3 col-md-6">
-            <div class="card shadow">
-                <div class="card-body">
-                    <div class="d-flex flex-row">
-                        <div class="round round-lg align-self-center round-success"><i class="mdi mdi-checkbox-marked-circle-outline"></i></div>
-                        <div class="m-l-10 align-self-center">
-                            <h3 class="m-b-0 font-lgiht">@Html.DisplayFor(x => Model.CompletedRoutes)</h3> <!-- REPARTOS COMPLETADOS -->
-                            <h5 class="text-muted m-b-0">Repartos completados</h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Column -->
-        <!-- Column -->
-        <div class="col-xl-3 col-md-6">
-            <div class="card shadow">
-                <div class="card-body">
-                    <div class="d-flex flex-row">
-                        <div class="round round-lg align-self-center round-warning"><i class="mdi mdi-clock-fast"></i></div>
-                        <div class="m-l-10 align-self-center">
-                            <h3 class="m-b-0 font-lgiht">@Html.DisplayFor(x => Model.PendingRoutes)</h3> <!-- REPARTOS EN CURSO/PROCESO -->
-                            <h5 class="text-muted m-b-0">Repartos en curso</h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Column -->
+    </div>
 
+    <div class="row">
         <div class="col-lg-6 col-md-12">
             <div class="card shadow">
                 <div class="card-body">
@@ -124,9 +107,12 @@
         <div class="col-lg-6 col-md-12">
             <div class="card shadow">
                 <div class="card-body">
-                    <div class="d-flex flex-row mr-auto">
-                        <h3 class="my-auto card-title">Gastos del día</h3>
-                        <input type="text" class="form-control ml-3 my-auto" id="ExpensesDatePicker" name="date" value='@DateTime.UtcNow.AddHours(-3).ToString("dd/MM/yyyy")' style="max-width: fit-content;" />
+                    <div class="d-flex flex-row justify-content-between">
+                        <div class="d-flex flex-row mr-auto">
+                            <h3 class="my-auto card-title">Gastos del día</h3>
+                            <input type="text" class="form-control ml-3 my-auto" id="ExpensesDatePicker" name="date" value='@DateTime.UtcNow.AddHours(-3).ToString("dd/MM/yyyy")' style="max-width: fit-content;" />
+                        </div>
+                        <button id="btnAddExpense" type="button" class="btn btn-info btn-rounded waves-effect waves-light m-t-10 float-right" data-toggle="modal" data-target="#modalCreate">Agregar gasto</button>
                     </div>
                     <div class="table-responsive">
                         <table id="expensesTable" class="table stylish-table">
@@ -142,13 +128,13 @@
                                 {
                                     <tr>
                                         <td>
-                                            <h6>@Html.DisplayFor(x => expense.User.UserName)</h6>
+                                            <h6>@Html.DisplayFor(x => expense.User.Name)</h6>
                                         </td>
                                         <td>
                                             <h6>@Html.DisplayFor(x => expense.Description)</h6>
                                         </td>
                                         <td>
-                                            <h5>@Html.DisplayFor(x => expense.Amount)</h5>
+                                            <h5>$@Html.DisplayFor(x => expense.Amount)</h5>
                                         </td>
                                     </tr>
                                 }
@@ -160,7 +146,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-lg-12">
+        <div class="col-xl-9 col-md-6 col-12">
             <div class="card shadow">
                 <div class="card-body">
                     <div class="d-flex flex-row mr-auto">
@@ -173,13 +159,26 @@
                                 <tr>
                                     <th>Nombre</th>
                                     <th>Envíos completados</th>
-                                    <th>Estado</th>
+                                    <th>Productos vendidos</th>
                                     <th>Recaudado</th>
                                 </tr>
                             </thead>
                             <tbody>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex flex-row">
+                        <div class="round round-lg align-self-center round-primary"><i class="mdi mdi-currency-usd"></i></div>
+                        <div class="m-l-10 align-self-center">
+                            <h3 class="m-b-0 font-light">@Html.DisplayFor(x => Model.TotalSold)</h3> <!--recaudado del dia -->
+                            <h5 class="text-muted m-b-0">Recaudado en el día</h5>
+                        </div>
                     </div>
                 </div>
             </div>

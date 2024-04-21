@@ -148,7 +148,7 @@ namespace AguasNico.Controllers
                 var dateFromParsed = DateTime.Parse(dateFrom);
                 var dateToParsed = DateTime.Parse(dateTo);
 
-                var transfers = await _workContainer.Transfer.GetAllAsync(x => x.Date >= dateFromParsed && x.Date <= dateToParsed, includeProperties: "Client, User.UserName");
+                var transfers = await _workContainer.Transfer.GetAllAsync(x => x.Date.Date >= dateFromParsed.Date && x.Date.Date <= dateToParsed.Date, includeProperties: "Client, User");
                 return Json(new
                 {
                     success = true,
@@ -168,11 +168,19 @@ namespace AguasNico.Controllers
             {
                 var dateFromParsed = DateTime.Parse(dateString);
 
-                var transfers = await _workContainer.Transfer.GetAllAsync(x => x.Date == dateFromParsed, includeProperties: "Client, User.UserName");
+                var transfers = await _workContainer.Transfer.GetAllAsync(x => x.Date.Date == dateFromParsed.Date, includeProperties: "Client, User");
                 return Json(new
                 {
                     success = true,
-                    data = transfers.OrderByDescending(x => x.Amount),
+                    data = transfers.OrderByDescending(x => x.Amount).Select(x => new
+                    {
+                        id = x.ID,
+                        client = x.Client.Name,
+                        dealer = x.User.Name,
+                        amount = x.Amount.ToString("#,##"),
+                        date = x.Date.ToString("dd/MM/yyyy"),
+                        createdAt = x.CreatedAt.ToString("dd/MM/yyyy")
+                    }),
                 });
             }
             catch (Exception e)

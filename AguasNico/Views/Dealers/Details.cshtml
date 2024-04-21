@@ -132,12 +132,48 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-12 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h4 class="card-title mr-2 mb-2">Productos vendidos</h4>
+                    <hr>
+                    <div class="d-flex flex-column flex-sm-row justify-content-start align-items-center">
+                        <div class="form-group">
+                            <label for="dateFromSoldProducts">Fecha desde</label>
+                            <input id="dateFromSoldProducts" type="text" class="form-control" placeholder="dd/mm/aaaa">
+                        </div>
+                        <div id="divDateToSoldProducts" class="form-group" style="display: none;">
+                            <label for="dateToSoldProducts">Fecha hasta</label>
+                            <input id="dateToSoldProducts" type="text" class="form-control" placeholder="dd/mm/aaaa">
+                        </div>
+                        <button id="btnSoldProducts" class="btn btn-info" style="display: none;">Buscar</button>
+                    </div>
+                    <table id="soldProductsTable" class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
     <form id="form-clientsByDay" method="get" asp-area="" asp-controller="Dealers" asp-action="GetClientsByDay">
+        @Html.Hidden("dealerID", Model.Dealer.Id)
         @Html.Hidden("day", "")
     </form>
     <form id="form-clientsNotVisited" method="get" asp-area="" asp-controller="Dealers" asp-action="GetClientsNotVisited">
+        @Html.Hidden("dateFromString", "")
+        @Html.Hidden("dateToString", "")
+        @Html.Hidden("dealerID", Model.Dealer.Id)
+    </form>
+    <form id="form-soldProducts" method="get" asp-area="" asp-controller="Dealers" asp-action="GetSoldProducts">
         @Html.Hidden("dateFromString", "")
         @Html.Hidden("dateToString", "")
         @Html.Hidden("dealerID", Model.Dealer.Id)

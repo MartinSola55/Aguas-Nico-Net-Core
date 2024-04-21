@@ -31,7 +31,7 @@ namespace AguasNico.Controllers
                 var dealers = await _workContainer.ApplicationUser.GetDealers();
                 IndexViewModel viewModel = new()
                 {
-                    Dealers = [.. dealers.OrderByDescending(x => x.UserName) ]
+                    Dealers = [.. dealers.OrderBy(x => x.TruckNumber) ]
                 };
 
                 return View(viewModel);
@@ -54,6 +54,7 @@ namespace AguasNico.Controllers
                     TotalCarts = await _workContainer.Dealer.GetTotalCarts(dealer.Id, DateTime.UtcNow.AddHours(-3)),
                     CompletedCarts = await _workContainer.Dealer.GetTotalCompletedCarts(dealer.Id, DateTime.UtcNow.AddHours(-3)),
                     PendingCarts = await _workContainer.Dealer.GetTotalPendingCarts(dealer.Id, DateTime.UtcNow.AddHours(-3)),
+                    TotalCollected = await _workContainer.Dealer.GetTotalCollected(dealer.Id, DateTime.UtcNow.AddHours(-3)),
                 };
 
                 return View(viewModel);
@@ -88,11 +89,11 @@ namespace AguasNico.Controllers
 
         #region AJAX
         [HttpGet]
-        public async Task<IActionResult> GetClientsByDay(Day day)
+        public async Task<IActionResult> GetClientsByDay(Day day, string dealerID)
         {
             try
             {
-                var clients = await _workContainer.Client.GetAllAsync(x => x.DeliveryDay == day);
+                var clients = await _workContainer.Client.GetAllAsync(x => x.DeliveryDay == day && x.DealerID == dealerID && x.IsActive);
 
                 return Json(new
                 {
@@ -103,6 +104,7 @@ namespace AguasNico.Controllers
                         name = x.Name,
                         debt = x.Debt,
                     })
+                    .OrderBy(x => x.name)
                 });
             }
             catch (Exception)
@@ -132,7 +134,28 @@ namespace AguasNico.Controllers
                         name = x.Name,
                         address = x.Address,
                     })
+                    .OrderBy(x => x.name)
                 });
+            }
+            catch (Exception)
+            {
+                return CustomBadRequest(title: "No se encontraron los clientes", message: "Intente nuevamente o comuníquese para soporte");
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetSoldProducts(string dateFromString, string dateToString, string dealerID)
+        {
+            try
+            {
+                var dealer = await _workContainer.ApplicationUser.GetFirstOrDefaultAsync(x => x.Id == dealerID) ?? throw new Exception("No se ha encontrado el repartidor");
+
+                var dateFrom = DateTime.Parse(dateFromString);
+                var dateTo = DateTime.Parse(dateToString);
+
+                var products = await _workContainer.Tables.GetSoldProductsBetweenDates(dateFrom, dateTo, dealer.Id);
+
+                return Json(products);
             }
             catch (Exception)
             {

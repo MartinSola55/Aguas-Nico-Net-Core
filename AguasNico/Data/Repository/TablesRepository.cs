@@ -244,5 +244,37 @@ namespace AguasNico.Data.Repository
             }
             return soldProducts;
         }
+
+        public async Task<List<SoldProductsTable>> GetSoldProductsBetweenDates(DateTime dateFrom, DateTime dateTo, string dealerID)
+        {
+            var cartProducts = await _db
+                .CartProducts
+                .Where(x => x.Cart.CreatedAt.Date >= dateFrom.Date && x.Cart.CreatedAt.Date <= dateTo.Date && x.Cart.Route.UserID == dealerID)
+                .ToListAsync();
+
+            var cartAbonoProducts = await _db
+                .CartAbonoProducts
+                .Where(x => x.Cart.CreatedAt.Date >= dateFrom.Date && x.Cart.CreatedAt.Date <= dateTo.Date && x.Cart.Route.UserID == dealerID)
+                .ToListAsync();
+
+            var soldProducts = new List<SoldProductsTable>();
+
+            foreach (ProductType type in Enum.GetValues(typeof(ProductType)))
+            {
+                var cartProductsByType = cartProducts.Where(x => x.Type == type).ToList();
+                var cartAbonoProductsByType = cartAbonoProducts.Where(x => x.Type == type).ToList();
+
+                var soldProduct = new SoldProductsTable()
+                {
+                    Name = type.GetDisplayName(),
+                    Sold = cartProductsByType != null ? cartProductsByType.Sum(x => x.Quantity) : 0,
+                };
+                soldProduct.Sold += cartAbonoProductsByType != null ? cartAbonoProductsByType.Sum(x => x.Quantity) : 0;
+
+                soldProducts.Add(soldProduct);
+            }
+
+            return soldProducts;
+        }
     }
 }

@@ -169,7 +169,7 @@ namespace AguasNico.Controllers
                     success = true,
                     data = expenses.OrderByDescending(x => x.Amount).Select(x => new
                     {
-                        dealer = x.User.UserName,
+                        dealer = x.User.Name,
                         description = x.Description,
                         amount = x.Amount
                     })

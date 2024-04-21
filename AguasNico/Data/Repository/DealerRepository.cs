@@ -27,6 +27,11 @@ namespace AguasNico.Data.Repository
             return await _db
                 .CartPaymentMethods
                 .Where(x => x.Cart.Route.UserID == dealerID && x.CreatedAt.Month == date.Month && x.CreatedAt.Year == date.Year)
+                .SumAsync(x => x.Amount)
+                +
+               await _db
+                .Transfers
+                .Where(x => x.UserID == dealerID && x.Date.Month == date.Month && x.Date.Year == date.Year)
                 .SumAsync(x => x.Amount);
         }
 
