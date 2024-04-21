@@ -44,7 +44,7 @@ namespace AguasNico.Data.Repository
                 .OrderBy(x => x.UserName)
                 .Select(i => new SelectListItem()
                 {
-                    Text = i.UserName,
+                    Text = i.Name,
                     Value = i.Id,
                 })
                 .ToListAsync();
@@ -70,10 +70,10 @@ namespace AguasNico.Data.Repository
             var users = await _db
                 .User
                 .Where(x => usersIds.Contains(x.Id))
-                .OrderBy(x => x.UserName)
+                .OrderBy(x => x.TruckNumber)
                 .Select(i => new SelectListItem()
                 {
-                    Text = i.UserName,
+                    Text = i.Name,
                     Value = i.Id,
                 })
                 .ToListAsync();

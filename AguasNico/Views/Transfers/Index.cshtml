@@ -104,6 +104,10 @@
         <div class="col-12">
             <div class="card shadow">
                 <div class="card-body">
+                    <div class="d-flex flex-row mr-auto">
+                        <h4 class="my-auto card-title">Listado de transferencias</h4>
+                        <input type="text" class="form-control ml-3 my-auto" id="DatePicker" onchange="getTransfers()" name="date" value='@DateTime.UtcNow.AddHours(-3).ToString("dd/MM/yyyy")' style="max-width: fit-content;" />
+                    </div>
                     <div class="table-responsive m-t-10">
                         <table id="DataTable" class="table table-bordered table-striped">
                             <thead>
@@ -121,7 +125,7 @@
                                 {
                                     <tr data-id="@item.ID">
                                         <td>@Html.DisplayFor(c => item.Client.Name)</td>
-                                        <td>@Html.DisplayFor(c => item.User.UserName)</td>
+                                        <td>@Html.DisplayFor(c => item.User.Name)</td>
                                         <td>$@Html.DisplayFor(c => item.Amount)</td>
                                         <td>@(item.Date.ToString("dd/MM/yyyy"))</td>
                                         <td>@(item.CreatedAt.ToString("dd/MM/yyyy"))</td>
@@ -137,6 +141,9 @@
                     <form id="form-delete" method="post" asp-area="" asp-controller="Transfers" asp-action="SoftDelete">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="id" value="">
+                    </form>
+                    <form id="form-search" method="get" asp-area="" asp-controller="Transfers" asp-action="GetByDate">
+                        <input type="hidden" name="dateString" value="">
                     </form>
                     <form id="form-edit" method="post" asp-area="" asp-controller="Transfers" asp-action="Edit">
                         @Html.AntiForgeryToken()

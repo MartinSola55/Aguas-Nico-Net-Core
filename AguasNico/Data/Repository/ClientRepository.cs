@@ -417,7 +417,7 @@ namespace AguasNico.Data.Repository
                 .Where(x =>
                     x.IsActive &&
                     x.DealerID == dealerID &&
-                    x.Carts.Any(y => !y.IsStatic && y.CreatedAt.DayOfYear >= dateFrom.DayOfYear && y.CreatedAt.DayOfYear <= dateTo.DayOfYear && y.State != State.Confirmed))
+                    x.Carts.Any(y => !y.IsStatic && y.CreatedAt.Date >= dateFrom.Date && y.CreatedAt.Date <= dateTo.Date && y.State != State.Confirmed))
                 .OrderBy(x => x.Name)
                 .Select(x => new Client
                 {

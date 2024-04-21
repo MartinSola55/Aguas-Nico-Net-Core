@@ -383,20 +383,19 @@ namespace AguasNico.Controllers
             {
                 var date = DateTime.Parse(dateString);
                 var routes = await _workContainer.Route.GetAllAsync(x => x.CreatedAt.Date == date.Date && !x.IsStatic, includeProperties: "User, Carts, Carts.PaymentMethods");
-
+                var transfers = await _workContainer.Transfer.GetAllAsync(x => x.Date.Date == date.Date, includeProperties: "Client");
                 return Json(new
                 {
                     success = true,
-                    routes = routes.OrderBy(x => x.User.TruckNumber).Select(x => new
+                    routes = routes.OrderBy(x => x.User.TruckNumber).Select(async x => new
                     {
                         id = x.ID,
-                        dealer = x.User.UserName,
+                        dealer = x.User.Name,
                         totalCarts = x.Carts.Count(),
                         completedCarts = x.Carts.Count(y => y.State != State.Pending),
-                        state = x.Carts.Count(y => y.State != State.Pending) == x.Carts.Count() ? "Completada" : "Pendiente",
                         isClosed = x.IsClosed,
-                        collected = x.Carts.Sum(y => y.PaymentMethods.Where(z => z.CreatedAt.Date == date.Date).Sum(z => z.Amount)) != 0 ? x.Carts.Sum(y => y.PaymentMethods.Where(z => z.CreatedAt.Date == date.Date).Sum(z => z.Amount)).ToString("#,##") : "0",
-
+                        collected = await _workContainer.Route.GetTotalSoldByRoute(x.ID),
+                        soldProducts = await _workContainer.Tables.GetSoldProductsByRoute(x.ID),
                     })
                 });
             }

@@ -31,15 +31,11 @@ namespace AguasNico.Controllers
                 switch (role)
                 {
                     case Constants.Admin:
-                        var completedRoutes = await _workContainer.Route.GetAllAsync(x => x.CreatedAt.Date == DateTime.UtcNow.AddHours(-3).Date && x.Carts.All(x => x.State != State.Pending));
-                        var pendingRoutes = await _workContainer.Route.GetAllAsync(x => x.CreatedAt.Date == DateTime.UtcNow.AddHours(-3).Date && x.Carts.Any(x => x.State == State.Pending));
-
-                        viewModel.TotalExpenses = await _workContainer.Expense.GetTotalExpenses(DateTime.UtcNow.AddHours(-3).Date);
+                        var expenses = await _workContainer.Expense.GetAllAsync(x => x.CreatedAt.Date == DateTime.UtcNow.AddHours(-3).Date, includeProperties: "User");
+                        viewModel.Dealers = await _workContainer.ApplicationUser.GetDealersDropDownList();
                         viewModel.TotalSold = await _workContainer.Route.GetTotalSold(DateTime.UtcNow.AddHours(-3).Date);
-                        viewModel.CompletedRoutes = completedRoutes.Count();
-                        viewModel.PendingRoutes = pendingRoutes.Count();
                         viewModel.SoldProducts = await _workContainer.Tables.GetSoldProductsByDate(DateTime.UtcNow.AddHours(-3).Date);
-                        viewModel.Expenses = await _workContainer.Expense.GetAllAsync(x => x.CreatedAt.Date == DateTime.UtcNow.AddHours(-3).Date, includeProperties: "User");
+                        viewModel.Expenses = expenses.OrderByDescending(x => x.Amount).ToList();
                         return View("~/Views/Home/Admin/Index.cshtml", viewModel);
                     case Constants.Dealer:
                         var dealerRoutes = await _workContainer.Route.GetAllAsync(x => x.UserID == user.Id && !x.IsStatic && x.DayOfWeek == today, includeProperties: "User, Carts, Carts.PaymentMethods");

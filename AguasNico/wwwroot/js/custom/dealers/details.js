@@ -1,5 +1,18 @@
 
 $(document).ready(function () {
+    $('#clientsTable, #clientsNotVisitedTable, #soldProductsTable').DataTable({
+        "order": false,
+        "paging": false,
+        "info": false,
+        "searching": false,
+        "scrollY": "50vh",
+        "scrollCollapse": true,
+        "language": {
+            "emptyTable": "No hay datos disponibles",
+            "search": "Buscar:",
+        }
+    });
+
     $("#clientsDay").on('change', function () {
         $("#clientsTable tbody").empty();
         $("#searchClientsTotal").text("");
@@ -25,11 +38,11 @@ $(document).ready(function () {
                     total += client.debt;
                     let row = `<tr>
                         <td>${client.name}</td>
-                        <td>$${client.debt >= 0 ? client.debt : client.debt + " a favor"}</td>
+                        <td>$${client.debt >= 0 ? client.debt : (client.debt * -1) + " a favor"}</td>
                     </tr>`;
                     $('#clientsTable tbody').append($(row));
                 });
-                $("#searchClientsTotal").text(`Total: $${total}`);
+                $("#searchClientsTotal").text(`Total: $${total.toLocaleString("es-ES")}`);
             },
             error: function (error) {
                 $('#clientsTable tbody').empty();
@@ -118,6 +131,84 @@ $(document).ready(function () {
                     <td></td>
                 </tr>`;
                 $('#clientsNotVisitedTable tbody').append($(row));
+            }
+        });
+    });
+
+    // Productos vendidos
+    $('#dateFromSoldProducts').bootstrapMaterialDatePicker({
+        maxDate: new Date(),
+        time: false,
+        format: 'DD/MM/YYYY',
+        cancelText: "Cancelar",
+        weekStart: 1,
+        lang: 'es',
+    });
+    $("#dateFromSoldProducts").on("change", function () {
+        $("#divDateToSoldProducts").show();
+        $('#dateToSoldProducts').bootstrapMaterialDatePicker({
+            minDate: $("#dateFromSoldProducts").val(),
+            maxDate: new Date(),
+            time: false,
+            format: 'DD/MM/YYYY',
+            cancelText: "Cancelar",
+            weekStart: 1,
+            lang: 'es',
+        });
+    });
+    $("#dateToSoldProducts").on("change", function () {
+        if ($("#dateFromSoldProducts").val() !== "" && $("#dateToSoldProducts").val() !== "") {
+            $("#btnSoldProducts").show();
+        }
+    });
+    $("#btnSoldProducts").on("click", function () {
+        if ($("#dateFromSoldProducts").val() === "" || $("#dateToSoldProducts").val() === "") {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Error',
+                text: 'Debe seleccionar un rango de fechas',
+                confirmButtonColor: '#1e88e5',
+            });
+            return;
+        }
+        $("#form-soldProducts input[name='dateFromString']").val($("#dateFromSoldProducts").val());
+        $("#form-soldProducts input[name='dateToString']").val($("#dateToSoldProducts").val());
+
+        $("#soldProductsTable tbody").empty();
+        let loadingRow = `<tr>
+            <td>
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Cargando...</span>
+                </div>
+            </td>
+            <td></td>
+        </tr>`;
+        $('#soldProductsTable tbody').append($(loadingRow));
+        let form = $('#form-soldProducts');
+        $("#form-soldProducts input[name='day']").val($(this).val());
+        $.ajax({
+            url: $(form).attr('action'),
+            method: $(form).attr('method'),
+            data: $(form).serialize(),
+            success: function (response) {
+                $('#soldProductsTable tbody').empty();
+                response.forEach(product => {
+                    let row = `<tr>
+                        <td>${product.name}</td>
+                        <td>${product.sold}</td>
+                    </tr>`;
+                    $('#soldProductsTable tbody').append($(row));
+                });
+            },
+            error: function (error) {
+                $('#soldProductsTable tbody').empty();
+                let row = `<tr>
+                    <td>
+                        <h6 class="text-danger">No se pudo cargar la información</h6>
+                    </td>
+                    <td></td>
+                </tr>`;
+                $('#soldProductsTable tbody').append($(row));
             }
         });
     });
