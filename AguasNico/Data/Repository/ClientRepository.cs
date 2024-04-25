@@ -417,7 +417,7 @@ namespace AguasNico.Data.Repository
                 .Where(x =>
                     x.IsActive &&
                     x.DealerID == dealerID &&
-                    x.Carts.Any(y => !y.IsStatic && y.CreatedAt.Date >= dateFrom.Date && y.CreatedAt.Date <= dateTo.Date && y.State != State.Confirmed))
+                    x.Carts.Where(y => !y.IsStatic && y.CreatedAt.Date >= dateFrom.Date && y.CreatedAt.Date <= dateTo.Date).All(y => y.State != State.Confirmed))
                 .OrderBy(x => x.Name)
                 .Select(x => new Client
                 {
@@ -438,7 +438,7 @@ namespace AguasNico.Data.Repository
 
             AbonoRepository abonoRepository = new(_db);
             var abonos = await abonoRepository.GetLastTen(clientID);
-            
+
             var cartsTransfersHistory = new List<CartsTransfersHistoryTable>();
 
             foreach (var transfer in transfers)
@@ -466,7 +466,7 @@ namespace AguasNico.Data.Repository
             {
                 var payments = cart.PaymentMethods.ToList();
                 var products = cart.Products.ToList();
-               var abonoProducts = cart.AbonoProducts.ToList();
+                var abonoProducts = cart.AbonoProducts.ToList();
 
                 cartsTransfersHistory.Add(new()
                 {

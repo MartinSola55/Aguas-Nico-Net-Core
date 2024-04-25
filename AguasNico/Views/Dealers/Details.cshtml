@@ -81,9 +81,14 @@
         <div class="col-lg-6">
             <div class="card shadow">
                 <div class="card-body">
-                    <div class="d-flex flex-row justify-content-start align-items-center">
-                        <h4 class="card-title mr-2 mb-2">Clientes del día:</h4>
-                        @Html.DropDownList("clientsDay", Model.Days, new { @class = "form-control form-select", @id = "clientsDay", @style = "max-width: fit-content;" })
+                    <div class="d-flex flex-row justify-content-between align-items-center">
+                        <div class="d-flex flex-row justify-content-start align-items-center">
+                            <h4 class="card-title mr-2">Clientes del día:</h4>
+                            @Html.DropDownList("clientsDay", Model.Days, new { @class = "form-control form-select", @id = "clientsDay", @style = "max-width: fit-content;" })
+                        </div>
+                        <div>
+                            <p class="mb-0">Saldo total: $@Model.TotalDebt.ToString("#,##")</span></p>
+                        </div>
                     </div>
                     <hr>
                     <table id="clientsTable" class="table table-striped table-bordered table-hover">
@@ -97,7 +102,7 @@
                         </tbody>
                     </table>
                     <div class="d-flex flex-row justify-content-end mt-2">
-                        <p id="searchClientsTotal">Total: $0</p>
+                        <p id="searchClientsTotal">Saldo del día: $0</p>
                     </div>
                 </div>
             </div>
@@ -157,6 +162,32 @@
                             </tr>
                         </thead>
                         <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h4 class="card-title mr-2 mb-2">Stock de clientes</h4>
+                    <hr>
+                    <table id="soldProductsTable" class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var product in Model.ClientsStock)
+                            {
+                                <tr>
+                                    <td>@product.Item1</td>
+                                    <td>@product.Item2</td>
+                                </tr>
+                            }
                         </tbody>
                     </table>
                 </div>

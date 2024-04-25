@@ -118,5 +118,25 @@ namespace AguasNico.Data.Repository
 
             return sheets;
         }
+
+        public async Task<decimal> GetClientsDebt(string dealerID)
+        {
+            return await _db
+                .Clients
+                .Where(x => x.DealerID == dealerID)
+                .SumAsync(x => x.Debt);
+        }
+
+        public async Task<List<Tuple<string, int>>> GetClientsStock(string dealerID)
+        {
+            // Group by product type and sum stock
+            return await _db
+                .Clients
+                .Where(x => x.DealerID == dealerID)
+                .SelectMany(x => x.Products)
+                .GroupBy(x => x.Product.Type)
+                .Select(x => new Tuple<string, int>(x.Key.GetDisplayName(), x.Sum(y => y.Stock)))
+                .ToListAsync();
+        }
     }
 }

@@ -11,6 +11,8 @@ namespace AguasNico.Models.ViewModels.Dealers
         public int PendingCarts { get; set; } = 0;
         [DisplayFormat(DataFormatString = "${0:#,##0}", ApplyFormatInEditMode = true)]
         public decimal TotalCollected { get; set; } = 0;
+        public decimal TotalDebt { get; set; } = 0;
+        public List<Tuple<string, int>> ClientsStock { get; set; } = [];
         public List<SelectListItem> Days { get; set; } = new ConstantsMethods().GetDaysDropdown(valueString: true, firstItem: new() { Text = "Seleccione un día", Value = "", Disabled = true, Selected = true });
     }
 }
