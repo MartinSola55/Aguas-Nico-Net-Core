@@ -56,6 +56,9 @@
                 <div class="row clientContent">
                     <div class="col-12 my-2 d-flex justify-content-between">
                         <h4 class="text-center p-2 pl-3 m-0 text-dark"><strong>Planilla @day</strong></h4>
+                        @* <h4 class="text-center p-2 pr-3 m-0 text-dark">
+                            <strong>Fecha: @TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("SA Pacific Standard Time")).ToString("dd/MM/yyyy HH:mm")</strong>
+                        </h4> *@
                         <h4 class="text-center p-2 pr-3 m-0 text-dark"><strong>Fecha: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</strong></h4>
                     </div>
                     <div class="col-12 mb-2 d-flex justify-content-between">
@@ -98,7 +101,7 @@
                                             {
                                             <tr>
                                                 <td class="py-2 text-dark font-italic">
-                                                    @product.Type.GetDisplayName() @Html.DisplayFor(x => product.Price)  (Stock: @product.Stock u.)
+                                                    @product.Type.GetDisplayName() @Html.DisplayFor(x => product.Price)  Stk: @product.Stock u.
                                                 </td>   
                                                 <td class="py-2"></td> 
                                                 <td class="py-2"></td> 
@@ -132,7 +135,7 @@
                                             {
                                             <tr>
                                                 <td class="py-2 text-dark font-italic">
-                                                    @product.Type.GetDisplayName() - (Stock: @product.Stock u.)
+                                                    @product.Type.GetDisplayName() - Stk: @product.Stock u.
                                                 </td>   
                                                 <td class="py-2"></td> 
                                                 <td class="py-2"></td> 
@@ -156,7 +159,7 @@
                                                     @if (item.Products.Any(x => x.Type == ProductType.Máquina))
                                                     {
                                                         var product = item.Products.First(x => x.Type == ProductType.Máquina);
-                                                        <p class="text-muted mb-0">@($"{product.Type.GetDisplayName()} - (Stock: {product.Stock} u.)")</p>
+                                                        <p class="text-muted mb-0">@($"{product.Type.GetDisplayName()} - Stk: {product.Stock} u.")</p>
                                                     }
                                                 </td>
                                                 <td style="width: 60%;">
