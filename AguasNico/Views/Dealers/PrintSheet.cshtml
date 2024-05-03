@@ -65,7 +65,7 @@
                 </div>
                 @foreach (var item in Model.Sheets.Where(x => x.Day == day))
                 {
-                <div class="row clientContent">
+                <div class="row clientContent pl-4">
                     <div class="col-12 d-flex justify-content-between py-1 border border-dark">
                         <h5 class="mb-0 d-flex align-items-center"><li class="text-dark mb-0"><strong>@item.ClientName</strong> #@item.ClientID</li></h5>
                         <div class="d-flex mr-4">
@@ -188,7 +188,7 @@
     }
 
     <!-- Empty sheets -->
-    <div class="printableArea px-1" id="emptySheets">
+    <div class="printableArea pl-4" id="emptySheets">
             <div class="row bg-white">
                 @for (int i = 0; i < 4; i++)
                 {
