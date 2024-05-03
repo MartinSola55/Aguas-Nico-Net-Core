@@ -9,6 +9,9 @@
     @top-right {
         content: " ";
     }
+    @bottom-right {
+        content: counter(page) " of " counter(pages);
+    }
 }
 
 .clientContent {
