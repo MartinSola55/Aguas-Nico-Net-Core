@@ -21,10 +21,11 @@ namespace AguasNico.Data.Repository.IRepository
         Task<List<Models.Route>> GetStaticsByDay(Day day);
         Task<List<Models.Route>> GetStaticsByDealer(string dealerID);
         Task<List<CartPaymentMethod>> GetTotalCollected(long routeID);
-        Task<List<Client>> ClientsInRoute (long routeID);
-        Task<List<Client>> ClientsNotInRoute (long routeID);
-        Task<List<Client>> ClientsByNameNotInRoute (long routeID, string name);
-        Task<Client?> ClientsByIDNotInRoute (long routeID, long clientID);
-        Task<long> CreateByDealer (long routeID);
+        Task<List<Client>> ClientsInRoute(long routeID);
+        Task<List<Client>> ClientsNotInRoute(long routeID);
+        Task<List<Client>> ClientsByNameNotInRoute(long routeID, string name);
+        Task<Client?> ClientsByIDNotInRoute(long routeID, long clientID);
+        Task<long> CreateByDealer(long routeID);
+        Task SetDispenserPrice(long routeID, decimal price);
     }
 }

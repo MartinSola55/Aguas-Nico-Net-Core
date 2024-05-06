@@ -317,7 +317,7 @@ namespace AguasNico.Controllers
                 foreach (var client in clients.OrderBy(x => x.Name))
                 {
                     var day = client.DeliveryDay is not null ? client.DeliveryDay.ToString() : "Sin día asignado";
-                    var dealer = client.Dealer is not null ? client.Dealer.UserName : "Sin repartidor asignado";
+                    var dealer = client.Dealer is not null ? client.Dealer.Name : "Sin repartidor asignado";
                     var debt = client.Debt >= 0 ? client.Debt.ToString("#,##") : (client.Debt * -1).ToString("#,##") + " a favor";
                     clientsList.Add(new
                     {
@@ -352,7 +352,7 @@ namespace AguasNico.Controllers
 
                 var clientsList = new List<object>();
 
-                var dealer = client.Dealer is not null ? client.Dealer.UserName : "Sin repartidor asignado";
+                var dealer = client.Dealer is not null ? client.Dealer.Name : "Sin repartidor asignado";
                 var day = client.DeliveryDay is not null ? client.DeliveryDay.ToString() : "Sin día asignado";
                 var debt = client.Debt >= 0 ? client.Debt.ToString("#,##") : (client.Debt * -1).ToString("#,##") + " a favor";
                 clientsList.Add(new

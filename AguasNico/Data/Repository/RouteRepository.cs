@@ -109,6 +109,11 @@ namespace AguasNico.Data.Repository
         
         public async Task<decimal> GetTotalSold(DateTime date)
         {
+            var dispensers = await _db
+                .Routes
+                .Where(x => x.CreatedAt.Date == date.Date)
+                .SumAsync(x => x.DispenserPrice);
+
             return await _db
                 .CartPaymentMethods
                 .Where(x => x.CreatedAt.Date == date.Date)
@@ -117,7 +122,9 @@ namespace AguasNico.Data.Repository
                 await _db
                 .Transfers
                 .Where(x => x.Date.Date == date.Date)
-                .SumAsync(x => x.Amount);
+                .SumAsync(x => x.Amount)
+                +
+                dispensers;
         }
 
         public async Task<decimal> GetTotalSoldByRoute(long routeID)
@@ -134,7 +141,9 @@ namespace AguasNico.Data.Repository
                 await _db
                 .Transfers
                 .Where(x => x.Date.Date == route.CreatedAt.Date && x.UserID == route.UserID)
-                .SumAsync(x => x.Amount);
+                .SumAsync(x => x.Amount)
+                +
+                route.DispenserPrice;
         }
 
         public async Task UpdateClients(long routeID, List<Client> clients)
@@ -362,6 +371,16 @@ namespace AguasNico.Data.Repository
                 await _db.Database.RollbackTransactionAsync();
                 throw;
             }
+        }
+
+        public async Task SetDispenserPrice(long routeID, decimal price)
+        {
+            var route = await _db
+                .Routes
+                .FirstAsync(x => x.ID == routeID) ?? throw new Exception("No se ha encontrado la planilla");
+
+            route.DispenserPrice = price;
+            await _db.SaveChangesAsync();
         }
     }
 }
