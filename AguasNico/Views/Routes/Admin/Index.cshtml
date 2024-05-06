@@ -60,7 +60,7 @@
                                 @foreach (AguasNico.Models.Route route in Model.Routes)
                                 {
                                     <tr class="clickable" data-url="/Routes/Details/@route.ID">
-                                        <td><span class="label label-info"><h6 class="text-white">@Html.DisplayFor(x => route.User.UserName)</h6></span></td>
+                                        <td><span class="label label-info"><h6 class="text-white">@Html.DisplayFor(x => route.User.Name)</h6></span></td>
                                         <td><h6>@route.Carts.Count()</h6></td>
                                     </tr>
                                 }

@@ -47,7 +47,7 @@
                                 @foreach (Route route in Model.DealerRoutes)
                                 {
                                     <tr class="clickable" data-url="/Routes/Details/@route.ID">
-                                        <td>@Html.DisplayFor(x => route.User.UserName)</td>
+                                        <td>@Html.DisplayFor(x => route.User.Name)</td>
                                         <td>@route.Carts.Count(x => x.State != State.Pending)/@route.Carts.Count()</td>
                                         <td>
                                             @if(route.Carts.Count(x => x.State != State.Pending) == route.Carts.Count())

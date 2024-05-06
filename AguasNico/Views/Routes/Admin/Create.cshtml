@@ -74,7 +74,7 @@
                                 @foreach (ApplicationUser dealer in Model.Dealers)
                                 {
                                     <tr data-id="@dealer.Id">
-                                        <td><p style="color: cornflowerblue; cursor: pointer; max-width: fit-content" data-toggle="modal" data-target="#modalConfirmation" onclick="openModal('@dealer.Id', '@dealer.UserName')">@Html.DisplayFor(c => dealer.UserName)</p></td>
+                                        <td><p style="color: cornflowerblue; cursor: pointer; max-width: fit-content" data-toggle="modal" data-target="#modalConfirmation" onclick="openModal('@dealer.Id', '@dealer.Name')">@Html.DisplayFor(c => dealer.Name)</p></td>
                                         <td>@Html.DisplayFor(c => dealer.Email)</td>
                                         <td>@(dealer.TruckNumber != null ? dealer.TruckNumber.Value : "Sin camión asignado")</td>
                                     </tr>

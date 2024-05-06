@@ -509,7 +509,7 @@ namespace AguasNico.Controllers
 
                 var clientsList = new List<object>();
 
-                var dealer = client.Dealer is not null ? client.Dealer.UserName : "Sin repartidor asignado";
+                var dealer = client.Dealer is not null ? client.Dealer.Name : "Sin repartidor asignado";
                 var day = client.DeliveryDay is not null ? client.DeliveryDay.ToString() : "Sin día asignado";
                 var debt = client.Debt >= 0 ? client.Debt.ToString("#,##") : (client.Debt * -1).ToString("#,##") + " a favor";
                 clientsList.Add(new
@@ -543,7 +543,7 @@ namespace AguasNico.Controllers
                 foreach (var client in clients.OrderBy(x => x.Name))
                 {
                     var day = client.DeliveryDay is not null ? client.DeliveryDay.ToString() : "Sin día asignado";
-                    var dealer = client.Dealer is not null ? client.Dealer.UserName : "Sin repartidor asignado";
+                    var dealer = client.Dealer is not null ? client.Dealer.Name : "Sin repartidor asignado";
                     var debt = client.Debt >= 0 ? client.Debt.ToString("#,##") : (client.Debt * -1).ToString("#,##") + " a favor";
                     clientsList.Add(new
                     {
@@ -623,6 +623,28 @@ namespace AguasNico.Controllers
             }
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = Constants.Admin)]
+        public async Task<IActionResult> SetDispenserPrice(long routeID, decimal price)
+        {
+            try
+            {
+                if (price < 0)
+                    return CustomBadRequest(title: "Error al actualizar el precio", message: "El precio no puede ser menor a 0");
+                
+                await _workContainer.Route.SetDispenserPrice(routeID, price);
+                return Json(new
+                {
+                    success = true,
+                    message = "El precio se actualizó correctamente",
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al actualizar el precio", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
+        }
         #endregion
     }
 }

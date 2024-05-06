@@ -24,6 +24,11 @@ namespace AguasNico.Data.Repository
 
         public async Task<decimal> GetTotalCollected(string dealerID, DateTime date)
         {
+            var dispensers = await _db
+                .Routes
+                .Where(x => x.UserID == dealerID)
+                .SumAsync(x => x.DispenserPrice);
+
             return await _db
                 .CartPaymentMethods
                 .Where(x => x.Cart.Route.UserID == dealerID && x.CreatedAt.Month == date.Month && x.CreatedAt.Year == date.Year)
@@ -32,7 +37,9 @@ namespace AguasNico.Data.Repository
                await _db
                 .Transfers
                 .Where(x => x.UserID == dealerID && x.Date.Month == date.Month && x.Date.Year == date.Year)
-                .SumAsync(x => x.Amount);
+                .SumAsync(x => x.Amount)
+                +
+                dispensers;
         }
 
         public async Task<int> GetTotalCompletedCarts(string dealerID, DateTime date)

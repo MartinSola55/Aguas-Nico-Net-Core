@@ -125,7 +125,7 @@ $(document).ready(function () {
                     let row = `<tr>
                         <td>${client.name}</td>
                         <td>${client.address}</td>
-                        <td>${client.dealer != null ? client.dealer.userName : "Sin repartidor"} - ${client.deliveryDay != null ? dayOfWeek[client.deliveryDay] : "Sin día de reparto"}</td>
+                        <td>${client.dealer != null ? client.dealer.name : "Sin repartidor"} - ${client.deliveryDay != null ? dayOfWeek[client.deliveryDay] : "Sin día de reparto"}</td>
                     </tr>`;
                     $('#clientsTable tbody').append($(row));
                 });
