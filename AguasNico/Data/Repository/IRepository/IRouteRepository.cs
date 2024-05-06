@@ -20,6 +20,7 @@ namespace AguasNico.Data.Repository.IRepository
         Task<List<Models.Route>> GetStaticsByDay(Day day);
         Task<List<Models.Route>> GetStaticsByDealer(string dealerID);
         Task<List<CartPaymentMethod>> GetTotalCollected(long routeID);
+        Task<List<CartPaymentMethod>> GetTotalCollected(DateTime date);
         Task<List<Client>> ClientsInRoute(long routeID);
         Task<List<Client>> ClientsNotInRoute(long routeID);
         Task<List<Client>> ClientsByNameNotInRoute(long routeID, string name);
