@@ -14,6 +14,9 @@ namespace AguasNico.Data.Repository.IRepository
         Task<int> GetTotalCompletedCarts(string dealerID, DateTime month);
         Task<int> GetTotalPendingCarts(string dealerID, DateTime month);
         Task<decimal> GetTotalCollected(string dealerID, DateTime month);
+        Task<decimal> GetClientsDebt(string dealerID);
         Task<List<DealerSheet>> GetDealerSheets(string dealerID);
+        Task<List<Tuple<string, int>>> GetClientsStock(string dealerID);
+
     }
 }

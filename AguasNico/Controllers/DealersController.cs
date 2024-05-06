@@ -31,7 +31,7 @@ namespace AguasNico.Controllers
                 var dealers = await _workContainer.ApplicationUser.GetDealers();
                 IndexViewModel viewModel = new()
                 {
-                    Dealers = [.. dealers.OrderBy(x => x.TruckNumber) ]
+                    Dealers = [.. dealers.OrderBy(x => x.TruckNumber)]
                 };
 
                 return View(viewModel);
@@ -55,6 +55,8 @@ namespace AguasNico.Controllers
                     CompletedCarts = await _workContainer.Dealer.GetTotalCompletedCarts(dealer.Id, DateTime.UtcNow.AddHours(-3)),
                     PendingCarts = await _workContainer.Dealer.GetTotalPendingCarts(dealer.Id, DateTime.UtcNow.AddHours(-3)),
                     TotalCollected = await _workContainer.Dealer.GetTotalCollected(dealer.Id, DateTime.UtcNow.AddHours(-3)),
+                    TotalDebt = await _workContainer.Dealer.GetClientsDebt(dealer.Id),
+                    ClientsStock = await _workContainer.Dealer.GetClientsStock(dealer.Id),
                 };
 
                 return View(viewModel);
@@ -119,7 +121,7 @@ namespace AguasNico.Controllers
             try
             {
                 var dealer = await _workContainer.ApplicationUser.GetFirstOrDefaultAsync(x => x.Id == dealerID) ?? throw new Exception("No se ha encontrado el repartidor");
-                
+
                 var dateFrom = DateTime.Parse(dateFromString);
                 var dateTo = DateTime.Parse(dateToString);
 

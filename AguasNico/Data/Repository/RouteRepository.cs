@@ -129,15 +129,15 @@ namespace AguasNico.Data.Repository
 
         public async Task<decimal> GetTotalSoldByRoute(long routeID)
         {
-           var route = await _db
-                .Routes
-                .FirstAsync(x => x.ID == routeID) ?? throw new Exception("No se ha encontrado la planilla");
+            var route = await _db
+                 .Routes
+                 .FirstAsync(x => x.ID == routeID) ?? throw new Exception("No se ha encontrado la planilla");
 
             return await _db
                 .CartPaymentMethods
                 .Where(x => x.Cart.RouteID == routeID)
                 .SumAsync(x => x.Amount)
-                + 
+                +
                 await _db
                 .Transfers
                 .Where(x => x.Date.Date == route.CreatedAt.Date && x.UserID == route.UserID)
@@ -153,7 +153,7 @@ namespace AguasNico.Data.Repository
                 .Where(x => x.ID == routeID)
                 .Include(x => x.Carts)
                 .FirstAsync() ?? throw new Exception("No se ha encontrado la planilla");
-                
+
             foreach (var cart in route.Carts)
             {
                 cart.DeletedAt = DateTime.UtcNow.AddHours(-3);
@@ -180,7 +180,7 @@ namespace AguasNico.Data.Repository
                 };
                 await _db.Carts.AddAsync(cart);
             }
-                
+
             route.UpdatedAt = DateTime.UtcNow.AddHours(-3);
 
             try
@@ -240,6 +240,29 @@ namespace AguasNico.Data.Repository
             return cartPaymentMethods;
         }
 
+        public async Task<List<CartPaymentMethod>> GetTotalCollected(DateTime date)
+        {
+            var methods = await _db
+                .PaymentMethods
+                .Where(x => x.Name == "Efectivo")
+                .ToListAsync();
+
+            var cartPaymentMethods = new List<CartPaymentMethod>();
+
+            foreach (var method in methods)
+            {
+                cartPaymentMethods.Add(new CartPaymentMethod()
+                {
+                    PaymentMethod = method,
+                    Amount = await _db
+                        .CartPaymentMethods
+                        .Where(x => x.Cart.CreatedAt.Date == date && x.PaymentMethodID == method.ID)
+                        .SumAsync(x => x.Amount)
+                });
+            }
+            return cartPaymentMethods;
+        }
+
         public async Task<List<Client>> ClientsInRoute(long routeID)
         {
             return await _db
@@ -285,7 +308,7 @@ namespace AguasNico.Data.Repository
                 .Routes
                 .Include(x => x.Carts)
                 .FirstAsync(x => x.ID == routeID && x.IsStatic) ?? throw new Exception("No se ha encontrado la planilla");
-            
+
             var newRoute = new Models.Route()
             {
                 UserID = route.UserID,
@@ -357,7 +380,7 @@ namespace AguasNico.Data.Repository
                         Type = dispatchedProduct.Type,
                         Quantity = dispatchedProduct.Quantity,
                     });
-                    
+
                 }
             }
             try

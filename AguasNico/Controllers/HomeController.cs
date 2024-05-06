@@ -33,9 +33,11 @@ namespace AguasNico.Controllers
                     case Constants.Admin:
                         var expenses = await _workContainer.Expense.GetAllAsync(x => x.CreatedAt.Date == DateTime.UtcNow.AddHours(-3).Date, includeProperties: "User");
                         viewModel.Dealers = await _workContainer.ApplicationUser.GetDealersDropDownList();
-                        viewModel.TotalSold = await _workContainer.Route.GetTotalSold(DateTime.UtcNow.AddHours(-3).Date);
                         viewModel.SoldProducts = await _workContainer.Tables.GetSoldProductsByDate(DateTime.UtcNow.AddHours(-3).Date);
                         viewModel.Expenses = expenses.OrderByDescending(x => x.Amount).ToList();
+                        viewModel.Payments = await _workContainer.Route.GetTotalCollected(DateTime.UtcNow.AddHours(-3).Date);
+                        viewModel.Transfers = await _workContainer.Transfer.GetAllAsync(x => x.Date.Date == DateTime.UtcNow.AddHours(-3).Date, includeProperties: "Client");
+                        viewModel.TotalSold = viewModel.Payments.Sum(x => x.Amount) + viewModel.Transfers.Sum(x => x.Amount);
                         return View("~/Views/Home/Admin/Index.cshtml", viewModel);
                     case Constants.Dealer:
                         var dealerRoutes = await _workContainer.Route.GetAllAsync(x => x.UserID == user.Id && !x.IsStatic && x.DayOfWeek == today, includeProperties: "User, Carts, Carts.PaymentMethods");

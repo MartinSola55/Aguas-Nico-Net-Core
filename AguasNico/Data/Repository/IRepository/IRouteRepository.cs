@@ -14,7 +14,6 @@ namespace AguasNico.Data.Repository.IRepository
         Task Update(Models.Route route);
         Task SoftDelete(long id);
         Task Close(long id);
-        Task<decimal> GetTotalSold(DateTime date);
         Task<decimal> GetTotalSoldByRoute(long routeID);
         Task UpdateClients(long routeID, List<Client> clients);
         Task UpdateDispatched(long routeID, List<DispatchedProduct> products);
