@@ -27,5 +27,6 @@ namespace AguasNico.Data.Repository.IRepository
         Task<Client?> ClientsByIDNotInRoute(long routeID, long clientID);
         Task<long> CreateByDealer(long routeID);
         Task SetDispenserPrice(long routeID, decimal price);
+        Task<decimal> GetDispenserPrice(DateTime date);
     }
 }
