@@ -199,6 +199,12 @@
                                                                     <td><h6 class="text-white text-left">Transferencia (administración): @Model.Transfers.Sum(y => y.Amount).ToString("$#,##")</h6></td>
                                                                 </tr>
                                                             }
+                                                            @if(Model.Dispensers > 0)
+                                                            {
+                                                                <tr>
+                                                                    <td><h6 class="text-white text-left">Dispensers: $@Model.Dispensers.ToString("N0")</h6></td>
+                                                                </tr>
+                                                            }
                                                         </tbody>
                                                     </table>
                                                 </div>

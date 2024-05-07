@@ -106,7 +106,7 @@ namespace AguasNico.Data.Repository
                 throw;
             }
         }
-        
+
         public async Task<decimal> GetTotalSold(DateTime date)
         {
             var dispensers = await _db
@@ -404,6 +404,14 @@ namespace AguasNico.Data.Repository
 
             route.DispenserPrice = price;
             await _db.SaveChangesAsync();
+        }
+
+        public async Task<decimal> GetDispenserPrice(DateTime date)
+        {
+            return await _db
+                .Routes
+                .Where(x => x.CreatedAt.Date == date.Date)
+                .SumAsync(x => x.DispenserPrice);
         }
     }
 }
