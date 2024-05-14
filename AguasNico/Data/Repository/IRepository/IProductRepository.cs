@@ -17,5 +17,6 @@ namespace AguasNico.Data.Repository.IRepository
         Task<int[]> GetAnnualSales(ProductType productType, DateTime year);
         Task<int> GetClientStock(long productID);
         Task<decimal> GetTotalSold(ProductType productType, DateTime year);
+        Task<JsonResult> GetProductsSold(int year, int month);
     }
 }
