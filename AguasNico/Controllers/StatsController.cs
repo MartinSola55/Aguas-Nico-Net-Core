@@ -34,7 +34,7 @@ namespace AguasNico.Controllers
                     Years = await _workContainer.Route.GetYears(),
                     AnnualProfits = await this.GetAnnualProfits(today.Year.ToString()),
                     MonthlyProfits = await this.GetMonthlyProfits(today.Year.ToString(), today.Month.ToString()),
-
+                    ProductsSold = await this.GetProductsSold(today.Year.ToString(), today.Month.ToString()),
                 };
                 return View(viewModel);
             }
@@ -139,6 +139,7 @@ namespace AguasNico.Controllers
                     .OrderBy(entry => entry.Day)
                     .ToList();
 
+                var total = cartsByDay.Sum(x => x.Profit);
                 var monthlyProfits = new List<object>();
 
                 for (int day = 1; day <= DateTime.DaysInMonth(year, month); day++)
@@ -159,8 +160,32 @@ namespace AguasNico.Controllers
                 return Json(new
                 {
                     success = true,
-                    data = monthlyProfits,
+                    data = new
+                    {
+                        total = total,
+                        daily = monthlyProfits,
+                    },
                 });
+            }
+            catch (Exception)
+            {
+                return Json(new
+                {
+                    success = false,
+                    title = "Ha ocurrido un error al obtener las estadísticas",
+                    message = "Intente nuevamente o comuníquese para soporte",
+                });
+            }
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> GetProductsSold(string yearString, string monthString)
+        {
+            try
+            {
+                var month = int.Parse(monthString);
+                var year = int.Parse(yearString);
+                return await _workContainer.Product.GetProductsSold(year, month);
             }
             catch (Exception)
             {

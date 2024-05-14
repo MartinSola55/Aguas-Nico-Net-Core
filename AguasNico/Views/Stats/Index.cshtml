@@ -28,7 +28,12 @@
                 <div class="card-body">
                     <div class="d-flex flex-column flex-sm-row justify-content-start align-items-center ">
                         <h4 class="card-title mr-2 mb-2">Ventas anuales</h4>
-                        @Html.DropDownList("annualProfitsYear", Model.Years, new { @class = "form-control mb-2", @style = "max-width: fit-content" })
+                        @Html.DropDownList("annualProfitsYear", Model.Years, new
+                            {
+                                @class = "form-control mb-2",
+                                @style
+                                 = "max-width: fit-content"
+                            })
                     </div>
                     <div id="extra-area-chart"></div>
                 </div>
@@ -55,14 +60,64 @@
                             <option value="12">Diciembre</option>
                         </select>
                         <h4 class="card-title mx-2 mb-2">&nbsp;Año:</h4>
-                        @Html.DropDownList("monthlySalesYear", Model.Years, new { @class = "form-control mb-2", @style = "max-width: fit-content" })
+                        @Html.DropDownList("monthlySalesYear", Model.Years, new
+                            {
+                                @class = "form-control mb-2",
+                                @style =
+                                 "max-width: fit-content"
+                            })
                     </div>
-                    <div id="morris-area-chart"></div>
+                    <h4 class="card-title" style="font-weight: bold;">
+                        Total: $<span id="monthlySalesTotal"></span>
+                    </h4>
                 </div>
+                <div id="morris-area-chart"></div>
             </div>
         </div>
 
+        <div class="col-12 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex flex-column flex-sm-row justify-content-start align-items-center">
+                        <h4 class="card-title mr-2 mb-2">Productos vendidos en el mes:</h4>
+                        <select id="productsSoldMonth" class="form-control mb-2" style="max-width: fit-content">
+                            <option value="1">Enero</option>
+                            <option value="2">Febrero</option>
+                            <option value="3">Marzo</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Mayo</option>
+                            <option value="6">Junio</option>
+                            <option value="7">Julio</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+                        <h4 class="card-title mx-2 mb-2">&nbsp;Año:</h4>
+                        @Html.DropDownList("productsSoldYear", Model.Years, new
+                            {
+                                @class = "form-control mb-2",
+                                @style =
+                                 "max-width: fit-content"
+                            })
+                    </div>
+                    <table id="soldProductsTable" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
+
+</div>
 </div>
 
 
@@ -111,6 +166,10 @@
                         deleteMonthlyGraph();
                         createMonthlyGraph(response.data);
                         break;
+                    case "ProductsSold":
+                        deleteProductsSoldTable();
+                        createProductsSoldTable(response.data);
+                        break;
                     default:
                         break;
                 }
@@ -157,13 +216,16 @@
 
 @*Ventas mensuales*@
 <script>
-    let monthlySales = @(Json.Serialize(Model.MonthlyProfits)).value.data;
-    createMonthlyGraph(monthlySales);
+    const data = @(Json.Serialize(Model.MonthlyProfits)).value.data;
+    createMonthlyGraph(data);
 
     function createMonthlyGraph(data) {
+        const total = data.total;
+        $("#monthlySalesTotal").text(total);
+
         Morris.Area({
             element: 'morris-area-chart',
-            data: data,
+            data: data.daily,
             xkey: 'period',
             ykeys: ['sold'],
             labels: ['$'],
@@ -182,4 +244,38 @@
     function deleteMonthlyGraph() {
         $("#morris-area-chart").empty();
     }
+</script>
+
+@* Productos vendidos *@
+<script>
+    $("#productsSoldYear").on("change", function () {
+        let data = { yearString: $(this).val(), monthString: $("#productsSoldMonth").val() }
+        sendForm("ProductsSold", data);
+    });
+
+    $("#productsSoldMonth").on("change", function () {
+        let data = { yearString: $("#productsSoldYear").val(), monthString: $(this).val() }
+        sendForm("ProductsSold", data);
+    });
+
+    const productsSold = @(Json.Serialize(Model.ProductsSold)).value.data;
+    createProductsSoldTable(productsSold);
+
+    function createProductsSoldTable(data) {
+        const table = $("#soldProductsTable tbody");
+        table.empty();
+        data.forEach(product => {
+            table.append(`
+                <tr>
+                    <td>${product.type}</td>
+                    <td>${product.quantity}</td>
+                </tr>
+            `);
+        });
+    }
+
+    function deleteProductsSoldTable() {
+        $("#soldProductsTable tbody").empty();
+    }
+
 </script>
