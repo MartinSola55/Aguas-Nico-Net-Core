@@ -219,9 +219,14 @@
     const data = @(Json.Serialize(Model.MonthlyProfits)).value.data;
     createMonthlyGraph(data);
 
+    function formatNumberWithDots(number) {
+        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
     function createMonthlyGraph(data) {
         const total = data.total;
-        $("#monthlySalesTotal").text(total);
+
+        $("#monthlySalesTotal").text(formatNumberWithDots(total));
 
         Morris.Area({
             element: 'morris-area-chart',
