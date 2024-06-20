@@ -20,6 +20,7 @@ namespace AguasNico.Models.ViewModels.Tables
         public string Name { get; set; } = null!;
         public int Dispatched { get; set; } = 0;
         public int Sold { get; set; } = 0;
+        public decimal Total { get; set; } = 0;
         public int Returned { get; set; } = 0;
         public int ClientStock { get; set; } = 0;
     }
@@ -54,7 +55,7 @@ namespace AguasNico.Models.ViewModels.Tables
         public string ClientName { get; set; } = "";
         public string ClientPhone { get; set; } = "";
         public string ClientAddress { get; set; } = "";
-        public string ClientObservations { get; set; } = "";
+        public string? ClientObservations { get; set; }
 
         [DisplayFormat(DataFormatString = "${0:#,##0}")]
         public decimal ClientDebt { get; set; }

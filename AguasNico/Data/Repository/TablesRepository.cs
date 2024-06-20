@@ -96,7 +96,7 @@ namespace AguasNico.Data.Repository
 
             return invoices;
         }
-            
+
         public async Task<List<SoldProductsTable>> GetSoldProductsByDate(DateTime date)
         {
             var cartProducts = await _db
@@ -268,6 +268,7 @@ namespace AguasNico.Data.Repository
                 {
                     Name = type.GetDisplayName(),
                     Sold = cartProductsByType != null ? cartProductsByType.Sum(x => x.Quantity) : 0,
+                    Total = cartProductsByType != null ? cartProductsByType.Sum(x => x.SettedPrice * x.Quantity) : 0,
                 };
                 soldProduct.Sold += cartAbonoProductsByType != null ? cartAbonoProductsByType.Sum(x => x.Quantity) : 0;
 

@@ -117,7 +117,9 @@ namespace AguasNico.Data.Repository
                         Type = x.Product.Type,
                         Price = x.Product.Price,
                         Stock = x.Stock,
-                    }).ToList();
+                    })
+                    .OrderByDescending(x => x.Type)
+                    .ToList();
                 };
 
                 sheets.Add(dealerSheet);
