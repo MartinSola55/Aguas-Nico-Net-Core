@@ -95,7 +95,7 @@ $(document).ready(function () {
         }
         $("#form-clientsNotVisited input[name='dateFromString']").val($("#dateFromClientsNotVisited").val());
         $("#form-clientsNotVisited input[name='dateToString']").val($("#dateToClientsNotVisited").val());
-        
+
         $("#clientsNotVisitedTable tbody").empty();
         let loadingRow = `<tr>
             <td>
@@ -182,6 +182,7 @@ $(document).ready(function () {
                 </div>
             </td>
             <td></td>
+            <td></td>
         </tr>`;
         $('#soldProductsTable tbody').append($(loadingRow));
         let form = $('#form-soldProducts');
@@ -196,6 +197,7 @@ $(document).ready(function () {
                     let row = `<tr>
                         <td>${product.name}</td>
                         <td>${product.sold}</td>
+                        <td>$${product.total}</td>
                     </tr>`;
                     $('#soldProductsTable tbody').append($(row));
                 });
@@ -206,6 +208,7 @@ $(document).ready(function () {
                     <td>
                         <h6 class="text-danger">No se pudo cargar la información</h6>
                     </td>
+                    <td></td>
                     <td></td>
                 </tr>`;
                 $('#soldProductsTable tbody').append($(row));
