@@ -15,7 +15,7 @@ namespace AguasNico.Models
         [Required(ErrorMessage = "Debes seleccionar un repartidor")]
         [Display(Name = "Monto")]
         [Column(TypeName = "money")]
-        [Range(0, 1000000, ErrorMessage = "El monto debe ser mayor a 0")]
+        [Range(0, 10000000, ErrorMessage = "El monto debe ser mayor a 0")]
         [DisplayFormat(DataFormatString = "{0:#,##0}", ApplyFormatInEditMode = true)]
         public decimal Amount { get; set; }
 
