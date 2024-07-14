@@ -31,7 +31,7 @@ namespace AguasNico.Controllers
                 var expenses = await _workContainer.Expense.GetAllAsync(x => x.CreatedAt.Date == DateTime.UtcNow.AddHours(-3).Date, includeProperties: "User");
                 IndexViewModel viewModel = new()
                 {
-                    Expenses = [.. expenses.OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Amount) ],
+                    Expenses = [.. expenses.OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Amount)],
                     Dealers = await _workContainer.ApplicationUser.GetDealersDropDownList(),
                     CreateViewModel = new Expense()
                 };
@@ -135,14 +135,14 @@ namespace AguasNico.Controllers
 
         [HttpGet]
         [Authorize(Roles = Constants.Admin)]
-        public async Task<IActionResult> SearchBetweenDates(string dateFrom, string dateTo)
+        public async Task<IActionResult> SearchBetweenDates(string dateFromString, string dateToString)
         {
             try
             {
-                var dateFromParsed = DateTime.Parse(dateFrom);
-                var dateToParsed = DateTime.Parse(dateTo);
+                var dateFromParsed = DateTime.Parse(dateFromString);
+                var dateToParsed = DateTime.Parse(dateToString);
 
-                var expenses = await _workContainer.Expense.GetAllAsync(x => x.CreatedAt >= dateFromParsed && x.CreatedAt <= dateToParsed, includeProperties: "User");
+                var expenses = await _workContainer.Expense.GetAllAsync(x => x.CreatedAt.Date >= dateFromParsed.Date && x.CreatedAt.Date <= dateToParsed.Date, includeProperties: "User");
                 return Json(new
                 {
                     success = true,

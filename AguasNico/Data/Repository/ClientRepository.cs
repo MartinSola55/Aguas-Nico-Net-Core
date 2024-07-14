@@ -509,5 +509,13 @@ namespace AguasNico.Data.Repository
                 .Where(x => x.IsActive && string.IsNullOrEmpty(x.DealerID) && x.DeliveryDay == null)
                 .ToListAsync();
         }
+
+        public async Task<int> GetTotalClients(string dealerId)
+        {
+            return await _db
+                .Clients
+                .Where(x => x.DealerID == dealerId && x.IsActive)
+                .CountAsync();
+        }
     }
 }

@@ -126,17 +126,24 @@ namespace AguasNico.Controllers
                 var dateTo = DateTime.Parse(dateToString);
 
                 var clients = await _workContainer.Client.GetNotVisited(dateFrom, dateTo, dealer.Id);
+                var totalClients = await _workContainer.Client.GetTotalClients(dealer.Id);
+                var totalNotVisited = clients.Count;
 
                 return Json(new
                 {
                     success = true,
-                    data = clients.Select(x => new
+                    data = new
                     {
-                        id = x.ID,
-                        name = x.Name,
-                        address = x.Address,
-                    })
-                    .OrderBy(x => x.name)
+                        totalClients,
+                        totalNotVisited,
+                        clients = clients.Select(x => new
+                        {
+                            id = x.ID,
+                            name = x.Name,
+                            address = x.Address,
+                        })
+                        .OrderBy(x => x.name)
+                    }
                 });
             }
             catch (Exception)

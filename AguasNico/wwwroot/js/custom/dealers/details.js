@@ -114,13 +114,14 @@ $(document).ready(function () {
             data: $(form).serialize(),
             success: function (response) {
                 $('#clientsNotVisitedTable tbody').empty();
-                response.data.forEach(client => {
+                response.data.clients.forEach(client => {
                     let row = `<tr>
                         <td>${client.name}</td>
                         <td>${client.address}</td>
                     </tr>`;
                     $('#clientsNotVisitedTable tbody').append($(row));
                 });
+                $("#clientsNotVisitedTotal").html(`No se han bajado productos a ${response.data.totalNotVisited} de los ${response.data.totalClients} clientes del repartidor entre las fechas seleccionadas. <br />Esto representa un total del ${response.data.totalNotVisited * 100 / response.data.totalClients}% de los clientes.`);
             },
             error: function (error) {
                 $('#clientsNotVisitedTable tbody').empty();
@@ -192,14 +193,17 @@ $(document).ready(function () {
             method: $(form).attr('method'),
             data: $(form).serialize(),
             success: function (response) {
+                let total = 0;
                 $('#soldProductsTable tbody').empty();
                 response.forEach(product => {
+                    total += product.total;
                     let row = `<tr>
                         <td>${product.name}</td>
                         <td>${product.sold}</td>
-                        <td>$${product.total}</td>
+                        <td>$${product.total.toLocaleString("es-ES")}</td>
                     </tr>`;
                     $('#soldProductsTable tbody').append($(row));
+                    $("#soldProductsTotal").text(`Total: $${total.toLocaleString("es-ES")}`);
                 });
             },
             error: function (error) {

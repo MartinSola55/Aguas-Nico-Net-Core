@@ -8,15 +8,15 @@ function createDate(dateString) {
 
 function fillTable(item) {
     let content = `
-            <tr data-id='${item.id}'>
-                <td>${item.description}</td>
-                <td>$${item.amount.toLocaleString("de-DE")}</td>
-                <td>${createDate(item.createdAt)}</td>
-                <td class='d-flex flex-row justify-content-center'>
-                    <button type='button' class='btn btn-outline-info btn-rounded btn-sm mr-2' onclick='edit(${JSON.stringify(item)})' data-toggle="modal" data-target="#modalCreate"><i class="bi bi-pencil"></i></button>
-                    <button type='button' class='btn btn-danger btn-rounded btn-sm ml-2' onclick='deleteObj(${item.id})'><i class='bi bi-trash3'></i></button>
-                </td>
-            </tr>`;
+        <tr data-id='${item.id}'>
+            <td>${item.description}</td>
+            <td>$${item.amount.toLocaleString("de-DE")}</td>
+            <td>${createDate(item.createdAt)}</td>
+            <td class='d-flex flex-row justify-content-center'>
+                <button type='button' class='btn btn-outline-info btn-rounded btn-sm mr-2' onclick='edit(${JSON.stringify(item)})' data-toggle="modal" data-target="#modalCreate"><i class="bi bi-pencil"></i></button>
+                <button type='button' class='btn btn-danger btn-rounded btn-sm ml-2' onclick='deleteObj(${item.id})'><i class='bi bi-trash3'></i></button>
+            </td>
+        </tr>`;
     $('#DataTable').DataTable().row.add($(content)).draw();
 }
 
@@ -132,5 +132,91 @@ $(document).ready(function () {
                 "sPrevious": "Anterior",
             },
         },
+    });
+
+    $('#dateFrom').bootstrapMaterialDatePicker({
+        maxDate: new Date(),
+        time: false,
+        format: 'DD/MM/YYYY',
+        cancelText: "Cancelar",
+        weekStart: 1,
+        lang: 'es',
+    });
+    $("#dateFrom").on("change", function () {
+        $("#divDateTo").show();
+        $('#dateTo').bootstrapMaterialDatePicker({
+            minDate: $("#dateFrom").val(),
+            maxDate: new Date(),
+            time: false,
+            format: 'DD/MM/YYYY',
+            cancelText: "Cancelar",
+            weekStart: 1,
+            lang: 'es',
+        });
+    });
+    $("#dateTo").on("change", function () {
+        if ($("#dateFrom").val() !== "" && $("#dateTo").val() !== "") {
+            $("#btnSearch").show();
+        }
+    });
+    $("#btnSearch").on("click", function () {
+        if ($("#dateFrom").val() === "" || $("#dateTo").val() === "") {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Error',
+                text: 'Debe seleccionar un rango de fechas',
+                confirmButtonColor: '#1e88e5',
+            });
+            return;
+        }
+        $("#form-expenses input[name='dateFromString']").val($("#dateFrom").val());
+        $("#form-expenses input[name='dateToString']").val($("#dateTo").val());
+
+        $("#DataTable").DataTable().clear().draw();
+        const loadingRow = `<tr>
+            <td>
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Cargando...</span>
+                </div>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>`;
+        $('#DataTable').DataTable().row.add($(loadingRow)).draw();
+        const form = $('#form-expenses');
+        $.ajax({
+            url: $(form).attr('action'),
+            method: $(form).attr('method'),
+            data: $(form).serialize(),
+            success: function (response) {
+                let total = 0;
+                $('#DataTable').DataTable().clear().draw();
+                response.data.forEach(expense => {
+                    let row = `<tr>
+                        <td>${expense.description}</td>
+                        <td>$${expense.amount.toLocaleString('es-ES')}</td>
+                        <td>${createDate(expense.createdAt)}</td>
+                        <td class='d-flex flex-row justify-content-center'>
+                            <button type='button' class='btn btn-outline-info btn-rounded btn-sm mr-2' onclick='editExpense(${JSON.stringify(expense)})' data-toggle="modal" data-target="#modalCreate"><i class="bi bi-pencil"></i></button>
+                            <button type='button' class='btn btn-danger btn-rounded btn-sm ml-2' onclick='deleteObj(${expense.id})'><i class='bi bi-trash3'></i></button>
+                        </td>
+                    </tr>`;
+                    $('#DataTable').DataTable().row.add($(row)).draw();
+                });
+            },
+            error: function (error) {
+                $('DataTable').DataTable().clear().draw();
+                const row = `<tr>
+                    <td>
+                        <h6 class="text-danger">No se pudo cargar la información</h6>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>`;
+                $('DataTable').DataTable().row.add($(row)).draw();
+            }
+        });
     });
 });

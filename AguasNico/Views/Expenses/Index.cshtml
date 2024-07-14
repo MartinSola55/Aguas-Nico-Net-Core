@@ -4,9 +4,12 @@
     ViewData["Title"] = "Gastos";
 }
 
+<link href="~/lib/bootstrap-material-datetimepicker/css/bootstrap-material-datetimepicker.css" rel="stylesheet">
 <link href="~/lib/datatables/media/css/dataTables.bootstrap4.css" rel="stylesheet">
 
 <script src="~/lib/datatables/datatables.min.js"></script>
+<script src="~/lib/moment/moment-with-locales.js"></script>
+<script src="~/lib/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js"></script>
 <script src="~/js/custom/expenses/index.js"></script>
 
 
@@ -32,7 +35,8 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 id="modalTitle" class="modal-title"></h4>
-                        <button type="button" class="close" id="btnCloseModalCreate" data-dismiss="modal" aria-hidden="true">×</button>
+                        <button type="button" class="close" id="btnCloseModalCreate" data-dismiss="modal"
+                            aria-hidden="true">×</button>
                     </div>
                     <div class="modal-body">
                         <div class="row">
@@ -41,13 +45,18 @@
                                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                                     <div class="col-12 mb-3">
                                         <label asp-for="CreateViewModel.UserID" class="mb-0"></label>
-                                        @Html.DropDownListFor(x => x.CreateViewModel.UserID, Model.Dealers, new { @class = "form-control mb-2" })
+                                        @Html.DropDownListFor(x => x.CreateViewModel.UserID, Model.Dealers, new
+                                            {
+                                                @class
+                                                 = "form-control mb-2"
+                                            })
                                         <span asp-validation-for="CreateViewModel.UserID" class="text-danger"></span>
                                     </div>
                                     <div class="col-12 mb-3">
                                         <label asp-for="CreateViewModel.Description" class="mb-0"></label>
                                         <input asp-for="CreateViewModel.Description" class="form-control" required />
-                                        <span asp-validation-for="CreateViewModel.Description" class="text-danger"></span>
+                                        <span asp-validation-for="CreateViewModel.Description"
+                                            class="text-danger"></span>
                                     </div>
                                     <div class="col-12 mb-3">
                                         <label asp-for="CreateViewModel.Amount" class="mb-0"></label>
@@ -55,7 +64,8 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text">$</span>
                                             </div>
-                                            <input asp-for="CreateViewModel.Amount" class="form-control" required type="number" data-val-number="Debes ingresar un número" />
+                                            <input asp-for="CreateViewModel.Amount" class="form-control" required
+                                                type="number" data-val-number="Debes ingresar un número" />
                                         </div>
                                         <span asp-validation-for="CreateViewModel.Amount" class="text-danger"></span>
                                     </div>
@@ -65,7 +75,8 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cerrar</button>
-                        <button id="btnSendModal" type="button" class="btn btn-success waves-effect waves-light">Agregar</button>
+                        <button id="btnSendModal" type="button"
+                            class="btn btn-success waves-effect waves-light">Agregar</button>
                     </div>
                 </div>
             </form>
@@ -79,7 +90,20 @@
                 <div class="card-body">
                     <div class="d-flex flex-row justify-content-between">
                         <h2 class="card-title">Listado de gastos</h2>
-                        <button id="btnAdd" type="button" class="btn btn-info btn-rounded waves-effect waves-light m-t-10 float-right" data-toggle="modal" data-target="#modalCreate">Agregar gasto</button>
+                        <button id="btnAdd" type="button"
+                            class="btn btn-info btn-rounded waves-effect waves-light m-t-10 float-right"
+                            data-toggle="modal" data-target="#modalCreate">Agregar gasto</button>
+                    </div>
+                    <div class="d-flex flex-direction-row ">
+                        <div class="col-12 col-md-3 px-0">
+                            <label for="dateFrom">Fecha desde</label>
+                            <input id="dateFrom" type="text" class="form-control" placeholder="dd/mm/aaaa">
+                        </div>
+                        <div id="divDateTo" class="col-12 col-md-3 px-0 ml-2" style="display: none;">
+                            <label for="dateTo">Fecha hasta</label>
+                            <input id="dateTo" type="text" class="form-control" placeholder="dd/mm/aaaa">
+                        </div>
+                        <button id="btnSearch" class="btn btn-info mt-auto ml-2" style="display: none;">Buscar</button>
                     </div>
                     <div class="table-responsive m-t-10">
                         <table id="DataTable" class="table table-bordered table-striped">
@@ -99,8 +123,11 @@
                                         <td>$@Html.DisplayFor(c => item.Amount)</td>
                                         <td>@(item.CreatedAt.ToString("dd/MM/yyyy"))</td>
                                         <td class='d-flex flex-row justify-content-center'>
-                                            <button type='button' class='btn btn-outline-info btn-rounded btn-sm mr-2' onclick='editExpense(@Json.Serialize(item))' data-toggle="modal" data-target="#modalCreate"><i class="bi bi-pencil"></i></button>
-                                            <button type='button' class='btn btn-danger btn-rounded btn-sm ml-2' onclick='deleteObj(@item.ID)'><i class='bi bi-trash3'></i></button>
+                                            <button type='button' class='btn btn-outline-info btn-rounded btn-sm mr-2'
+                                                onclick='editExpense(@Json.Serialize(item))' data-toggle="modal"
+                                                data-target="#modalCreate"><i class="bi bi-pencil"></i></button>
+                                            <button type='button' class='btn btn-danger btn-rounded btn-sm ml-2'
+                                                onclick='deleteObj(@item.ID)'><i class='bi bi-trash3'></i></button>
                                         </td>
                                     </tr>
                                 }
@@ -110,6 +137,11 @@
                     <form id="form-delete" method="post" asp-area="" asp-controller="Expenses" asp-action="SoftDelete">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="id" value="">
+                    </form>
+                    <form id="form-expenses" method="get" asp-area="" asp-controller="Expenses"
+                        asp-action="SearchBetweenDates">
+                        @Html.Hidden("dateFromString", "")
+                        @Html.Hidden("dateToString", "")
                     </form>
                 </div>
             </div>
