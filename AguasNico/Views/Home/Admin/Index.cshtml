@@ -183,10 +183,44 @@
                 <div class="card-body">
                     <div class="d-flex flex-row">
                         <div class="round round-lg align-self-center round-primary"><i class="mdi mdi-currency-usd"></i></div>
-                        <div class="m-l-10 align-self-end text-end">
-                            <input type="text" class="form-control ml-3 mb-2" id="BalanceDatePicker" name="date" value='@DateTime.UtcNow.AddHours(-3).ToString("dd/MM/yyyy")' style="max-width: fit-content;" />
-                            <h3 class="m-b-0 font-light">@Html.DisplayFor(x => Model.TotalSold)</h3> <!--recaudado del dia -->
-                            <h5 class="text-muted m-b-0">Balance del día</h5>
+                        <div class="m-l-10 align-self-center">
+                            <h3 class="m-b-0 font-light">@Html.DisplayFor(x => Model.TotalSold)</h3>
+                            <h5 class="text-muted m-b-0">
+                                Recaudado en el día
+                                <a class="mytooltip" href="javascript:void(0)">
+                                    <i class="bi bi-info-circle"></i>
+                                    <span class="tooltip-content5">
+                                        <span class="tooltip-text3">
+                                            <span class="tooltip-inner2">
+                                                <div class="d-flex">
+                                                    <table>
+                                                        <tbody>
+                                                            @foreach (var method in Model.Payments)
+                                                            {
+                                                                <tr>
+                                                                    <td><h6 class="text-white text-left">@Html.DisplayFor(x => method.PaymentMethod.Name): $@Html.DisplayFor(x => method.Amount)</h6></td>
+                                                                </tr>
+                                                            }
+                                                            @if(Model.Transfers.Any())
+                                                            {
+                                                                <tr>
+                                                                    <td><h6 class="text-white text-left">Transferencia (administración): @Model.Transfers.Sum(y => y.Amount).ToString("$#,##")</h6></td>
+                                                                </tr>
+                                                            }
+                                                            @if(Model.Dispensers > 0)
+                                                            {
+                                                                <tr>
+                                                                    <td><h6 class="text-white text-left">Dispensers: $@Model.Dispensers.ToString("N0")</h6></td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </span>
+                                        </span>
+                                    </span>
+                                </a>
+                            </h5>
                         </div>
                     </div>
                 </div>

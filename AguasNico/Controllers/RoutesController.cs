@@ -90,7 +90,7 @@ namespace AguasNico.Controllers
 
                 if (route is null)
                     return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nLa planilla no existe", ErrorCode = 404 });
-                
+
                 if ((route.UserID != user.Id && role != Constants.Admin) || (route.IsStatic && role != Constants.Admin))
                     return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nNo tienes permisos para ver esta planilla", ErrorCode = 403 });
 
@@ -191,7 +191,7 @@ namespace AguasNico.Controllers
                     AbonoProducts = abonoProducts,
                 };
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 throw;
             }
@@ -204,7 +204,7 @@ namespace AguasNico.Controllers
             try
             {
                 var route = await _workContainer.Route.GetFirstOrDefaultAsync(x => x.ID == id, includeProperties: "User, Carts, Carts.Client");
-                
+
                 if (route is null)
                     return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nLa planilla no existe", ErrorCode = 404 });
 
@@ -228,14 +228,14 @@ namespace AguasNico.Controllers
             try
             {
                 var route = await _workContainer.Route.GetFirstOrDefaultAsync(x => x.ID == id, includeProperties: "User, Carts") ?? throw new Exception("La planilla no existe");
-                
+
                 var sessionUser = User.Identity ?? throw new Exception("No se pudo obtener el usuario de la sesión");
                 var user = await _workContainer.ApplicationUser.GetFirstOrDefaultAsync(x => x.UserName != null && x.UserName.Equals(sessionUser.Name));
                 var role = _signInManager.UserManager.GetRolesAsync(user).Result.First();
 
                 if (route.IsStatic)
                     return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nLa planilla no existe", ErrorCode = 404 });
-                
+
                 if (route.UserID != user.Id && role != Constants.Admin)
                     return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nNo tienes permisos para ver esta planilla", ErrorCode = 403 });
 
@@ -271,7 +271,7 @@ namespace AguasNico.Controllers
                     route.IsStatic = true;
                     if (await _workContainer.Route.GetFirstOrDefaultAsync(x => x.DayOfWeek == route.DayOfWeek && x.IsStatic && x.UserID == route.UserID) is not null)
                         return CustomBadRequest(title: "Error al crear la planilla", message: "El repartidor ya tiene una planilla para ese día");
-                    
+
                     await _workContainer.Route.AddAsync(route);
                     await _workContainer.SaveAsync();
 
@@ -444,10 +444,10 @@ namespace AguasNico.Controllers
                 switch (role)
                 {
                     case Constants.Admin:
-                    {
+                        {
 
-                        break;
-                    }
+                            break;
+                        }
 
                     default:
                         break;
@@ -456,19 +456,19 @@ namespace AguasNico.Controllers
                 switch (role)
                 {
                     case Constants.Admin:
-                    {
-                        var routes = await _workContainer.Route.GetAllAsync(x => x.DayOfWeek == dayString && x.IsStatic, includeProperties: "User, Carts");
-                        return Json(new
                         {
-                            success = true,
-                            routes = routes.OrderBy(x => x.User.TruckNumber).Select(x => new
+                            var routes = await _workContainer.Route.GetAllAsync(x => x.DayOfWeek == dayString && x.IsStatic, includeProperties: "User, Carts");
+                            return Json(new
                             {
-                                id = x.ID,
-                                dealer = x.User.UserName,
-                                totalCarts = x.Carts.Count(),
-                            })
-                        });
-                    }
+                                success = true,
+                                routes = routes.OrderBy(x => x.User.TruckNumber).Select(x => new
+                                {
+                                    id = x.ID,
+                                    dealer = x.User.UserName,
+                                    totalCarts = x.Carts.Count(),
+                                })
+                            });
+                        }
                     case Constants.Dealer:
                         {
                             var routes = await _workContainer.Route.GetAllAsync(x => x.DayOfWeek == dayString && !x.IsStatic && x.UserID == user.Id, includeProperties: "User, Carts, Carts.PaymentMethods");
@@ -509,7 +509,7 @@ namespace AguasNico.Controllers
 
                 var clientsList = new List<object>();
 
-                var dealer = client.Dealer is not null ? client.Dealer.UserName : "Sin repartidor asignado";
+                var dealer = client.Dealer is not null ? client.Dealer.Name : "Sin repartidor asignado";
                 var day = client.DeliveryDay is not null ? client.DeliveryDay.ToString() : "Sin día asignado";
                 var debt = client.Debt >= 0 ? client.Debt.ToString("#,##") : (client.Debt * -1).ToString("#,##") + " a favor";
                 clientsList.Add(new
@@ -538,12 +538,12 @@ namespace AguasNico.Controllers
             try
             {
                 var clients = await _workContainer.Route.ClientsByNameNotInRoute(routeID, name);
-                
+
                 var clientsList = new List<object>();
                 foreach (var client in clients.OrderBy(x => x.Name))
                 {
                     var day = client.DeliveryDay is not null ? client.DeliveryDay.ToString() : "Sin día asignado";
-                    var dealer = client.Dealer is not null ? client.Dealer.UserName : "Sin repartidor asignado";
+                    var dealer = client.Dealer is not null ? client.Dealer.Name : "Sin repartidor asignado";
                     var debt = client.Debt >= 0 ? client.Debt.ToString("#,##") : (client.Debt * -1).ToString("#,##") + " a favor";
                     clientsList.Add(new
                     {
@@ -577,7 +577,7 @@ namespace AguasNico.Controllers
             try
             {
                 var dispatchedProducts = await _workContainer.DispatchedProduct.GetAllAsync(x => x.RouteID == routeID);
-                
+
                 var data = new List<object>();
                 foreach (var productType in new ConstantsMethods().GetProductTypes())
                 {
@@ -623,6 +623,28 @@ namespace AguasNico.Controllers
             }
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = Constants.Admin)]
+        public async Task<IActionResult> SetDispenserPrice(long routeID, decimal price)
+        {
+            try
+            {
+                if (price < 0)
+                    return CustomBadRequest(title: "Error al actualizar el precio", message: "El precio no puede ser menor a 0");
+                
+                await _workContainer.Route.SetDispenserPrice(routeID, price);
+                return Json(new
+                {
+                    success = true,
+                    message = "El precio se actualizó correctamente",
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "Error al actualizar el precio", message: "Intente nuevamente o comuníquese para soporte", error: e.Message);
+            }
+        }
         #endregion
     }
 }

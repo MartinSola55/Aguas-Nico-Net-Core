@@ -66,7 +66,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Transferencias del <strong>@Model.Route.CreatedAt.ToString("dd/MM/yyyy")</strong> de <strong>@Model.Route.User.UserName</strong></h4>
+                    <h4 class="modal-title">Transferencias del <strong>@Model.Route.CreatedAt.ToString("dd/MM/yyyy")</strong> de <strong>@Model.Route.User.Name</strong></h4>
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                 </div>
                 <div class="modal-body">
@@ -102,8 +102,9 @@
         <div class="col-12 col-lg-6">
             <div class="card shadow">
                 <div class="card-body">
-                    <div class="d-flex flex-column flex-md-row justify-content-start">
+                    <div class="d-flex flex-column flex-md-row justify-content-between">
                         <button type="button" class="btn btn-info" onclick="getDispatchedProducts(@Model.Route.ID)">Productos cargados</button>
+                        <button type="button" class="btn btn-info" onclick="setDispenserPrice()">Precio dispenser</button>
                     </div>
                 </div>
             </div>
@@ -112,7 +113,8 @@
             <div class="card shadow">
                 <div class="card-body">
                     <h4 class="card-title">Total de repartos: @Model.Route.Carts.Count()</h4>
-                    <h4 class="card-title mb-0">Deuda total: $@Model.Route.Carts.Select(x => x.Client).Sum(x => x.Debt).ToString("#,##")</h4>
+                    <h4 class="card-title">Deuda total: $@Model.Route.Carts.Select(x => x.Client).Sum(x => x.Debt).ToString("#,##")</h4>
+                    <h4 class="card-title mb-0">Precio dispenser $@Model.Route.DispenserPrice.ToString("N0")</h4>
                 </div>
             </div>
         </div>
@@ -184,6 +186,12 @@
                                                                     {
                                                                         <tr>
                                                                             <td><h6 class="text-white text-left">Transferencia (administración): @Model.Transfers.Sum(y => y.Amount).ToString("$#,##")</h6></td>
+                                                                        </tr>
+                                                                    }
+                                                                    @if(Model.Route.DispenserPrice > 0)
+                                                                    {
+                                                                        <tr>
+                                                                            <td><h6 class="text-white text-left">Dispenser: $@Model.Route.DispenserPrice.ToString("N0")</h6></td>
                                                                         </tr>
                                                                     }
                                                                 </tbody>
@@ -261,7 +269,7 @@
             <div class="card shadow">
                 <div class="card-header mx-0 d-flex row justify-content-between">
                     <div class="col-12 col-md-8 col-lg-6 mb-3 mb-md-0">
-                        <h4 class="mb-0">Repartos de <b>@Model.Route.User.UserName</b> para el <b>@Model.Route.DayOfWeek</b></h4>
+                        <h4 class="mb-0">Repartos de <b>@Model.Route.User.Name</b> para el <b>@Model.Route.DayOfWeek</b></h4>
                     </div>
                     <div>
                         @if (!Model.Route.IsClosed)
@@ -465,7 +473,6 @@
                                         </div>
 
                                         <div class="d-flex flex-md-row flex-column justify-content-end">
-                                            <button type="button" onclick="getReturnedProducts('@cart.ClientID', '@cart.Client.Name', '@cart.ID')" class="btn btn-sm btn-info btn-rounded px-3 mb-2 mb-md-0 ml-auto ml-md-0">Devuelve</button>
                                             <a asp-area="" asp-controller="Carts" asp-action="Edit" asp-route-id="@cart.ID" target="_blank" class="btn btn-sm btn-info btn-rounded px-3 ml-auto ml-md-2">Editar Bajada</a>
                                         </div>
                                         <hr>
@@ -633,6 +640,11 @@
 
     <form id="form-confirmDispatchedProducts" method="post" asp-area="" asp-controller="Routes" asp-action="UpdateDispatched">
         @Html.Hidden("routeID", "")
+    </form>
+
+    <form id="form-setDispenserPrice" method="post" asp-area="" asp-controller="Routes" asp-action="SetDispenserPrice">
+        @Html.Hidden("routeID", Model.Route.ID)
+        @Html.Hidden("price", 0)
     </form>
     
     <form id="form-dispatchedProducts" method="get" asp-area="" asp-controller="Routes" asp-action="GetDispatched">

@@ -16,6 +16,7 @@ namespace AguasNico.Models
         public bool IsStatic { get; set; }
 
         public bool IsClosed { get; set; } = false;
+        public decimal DispenserPrice { get; set; } = 0;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow.AddHours(-3);
 

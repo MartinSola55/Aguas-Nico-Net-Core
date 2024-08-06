@@ -24,6 +24,11 @@ namespace AguasNico.Data.Repository
 
         public async Task<decimal> GetTotalCollected(string dealerID, DateTime date)
         {
+            var dispensers = await _db
+                .Routes
+                .Where(x => x.UserID == dealerID)
+                .SumAsync(x => x.DispenserPrice);
+
             return await _db
                 .CartPaymentMethods
                 .Where(x => x.Cart.Route.UserID == dealerID && x.CreatedAt.Month == date.Month && x.CreatedAt.Year == date.Year)
@@ -32,7 +37,9 @@ namespace AguasNico.Data.Repository
                await _db
                 .Transfers
                 .Where(x => x.UserID == dealerID && x.Date.Month == date.Month && x.Date.Year == date.Year)
-                .SumAsync(x => x.Amount);
+                .SumAsync(x => x.Amount)
+                +
+                dispensers;
         }
 
         public async Task<int> GetTotalCompletedCarts(string dealerID, DateTime date)
@@ -117,6 +124,26 @@ namespace AguasNico.Data.Repository
             }
 
             return sheets;
+        }
+
+        public async Task<decimal> GetClientsDebt(string dealerID)
+        {
+            return await _db
+                .Clients
+                .Where(x => x.DealerID == dealerID)
+                .SumAsync(x => x.Debt);
+        }
+
+        public async Task<List<Tuple<string, int>>> GetClientsStock(string dealerID)
+        {
+            // Group by product type and sum stock
+            return await _db
+                .Clients
+                .Where(x => x.DealerID == dealerID)
+                .SelectMany(x => x.Products)
+                .GroupBy(x => x.Product.Type)
+                .Select(x => new Tuple<string, int>(x.Key.GetDisplayName(), x.Sum(y => y.Stock)))
+                .ToListAsync();
         }
     }
 }

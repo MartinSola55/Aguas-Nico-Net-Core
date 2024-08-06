@@ -40,11 +40,11 @@
                                             <td>
                                             @if (route.User.TruckNumber != null)
                                             {
-                                                <h6>@Html.DisplayFor(x => route.User.UserName)</h6><small class="text-muted">Camión @Html.DisplayFor(x => route.User.TruckNumber)</small>
+                                                <h6>@Html.DisplayFor(x => route.User.Name)</h6><small class="text-muted">Camión @Html.DisplayFor(x => route.User.TruckNumber)</small>
                                             }
                                             else
                                             {
-                                                <h6>@Html.DisplayFor(x => route.User.UserName)</h6><small class="text-muted">Sin camión asignado</small>
+                                                <h6>@Html.DisplayFor(x => route.User.Name)</h6><small class="text-muted">Sin camión asignado</small>
                                             }
                                             </td>
                                             <td>@route.Carts.Count()</td>

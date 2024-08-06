@@ -91,7 +91,7 @@ namespace AguasNico.Data.Repository
                     Total = x.Sum(x => x.Quantity)
                 })
                 .ToListAsync();
-            
+
             int[] sales = new int[12];
 
             foreach (var sale in salesByMonth)
@@ -115,6 +115,37 @@ namespace AguasNico.Data.Repository
                 .CartProducts
                 .Where(x => x.Type == productType && x.CreatedAt.Year == year.Year)
                 .SumAsync(x => x.Quantity * x.SettedPrice);
+        }
+
+        public async Task<JsonResult> GetProductsSold(int year, int month)
+        {
+            var products = await _db
+                .CartProducts
+                .Where(x => x.Cart.CreatedAt.Year == year && x.Cart.CreatedAt.Month == month)
+                .GroupBy(x => x.Type)
+                .Select(x => new
+                {
+                    Type = x.Key.GetDisplayName(),
+                    Quantity = x.Sum(x => x.Quantity)
+                })
+                .ToListAsync();
+
+            foreach (ProductType type in Enum.GetValues(typeof(ProductType)))
+            {
+                if (!products.Any(x => x.Type == type.GetDisplayName()))
+                {
+                    products.Add(new
+                    {
+                        Type = type.GetDisplayName(),
+                        Quantity = 0
+                    });
+                }
+            }
+            return new JsonResult(new
+            {
+                success = true,
+                data = products.OrderBy(x => x.Type)
+            });
         }
     }
 }
