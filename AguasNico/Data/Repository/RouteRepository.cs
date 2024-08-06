@@ -413,5 +413,33 @@ namespace AguasNico.Data.Repository
                 .Where(x => x.CreatedAt.Date == date.Date)
                 .SumAsync(x => x.DispenserPrice);
         }
+
+        public async Task<object> GetBalanceByDate(DateTime date)
+        {
+            var cartPaymentMethods = await _db
+                .CartPaymentMethods
+                .Where(x => x.CreatedAt.Date == date.Date)
+                .SumAsync(x => x.Amount);
+
+            var transfers = await _db
+                .Transfers
+                .Where(x => x.Date.Date == date.Date)
+                .SumAsync(x => x.Amount);
+
+            var expenses = await _db
+                .Expenses
+                .Where(x => x.CreatedAt.Date == date.Date)
+                .SumAsync(x => x.Amount);
+
+            var dispenserPrice = await GetDispenserPrice(date);
+            return new
+            {
+                total = cartPaymentMethods + transfers + dispenserPrice - expenses,
+                cartPaymentMethods,
+                transfers,
+                expenses,
+                dispenserPrice,
+            };
+        }
     }
 }

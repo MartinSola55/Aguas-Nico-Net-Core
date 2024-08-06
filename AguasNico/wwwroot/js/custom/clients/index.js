@@ -99,7 +99,7 @@ function errorRow() {
     $('#DataTable tbody').empty();
     let row = `
     <tr>
-        <td><h6 class="text-danger">No se pudo cargar la información</h6></td>
+        <td><h6 class="text-danger">No se pudo cargar la información o el cliente no existe</h6></td>
         <td></td>
         <td></td>
         <td></td>
