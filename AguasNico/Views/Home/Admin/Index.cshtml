@@ -140,6 +140,10 @@
                                 }
                             </tbody>
                         </table>
+                        <div class="m-l-10 align-self-center">
+                            <h3 class="m-b-0 font-light" id="expensesTotal">$0</h3>
+                            <h5 class="text-muted m-b-0">Gastos totales del día</h5>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -149,9 +153,13 @@
         <div class="col-xl-9 col-md-6 col-12">
             <div class="card shadow">
                 <div class="card-body">
-                    <div class="d-flex flex-row mr-auto">
+                    <div class="d-flex flex-row mr-auto justify-content-between">
                         <h3 class="my-auto card-title">Repartos del día</h3>
                         <input type="text" class="form-control ml-3 my-auto" id="RoutesDatePicker" name="date" value='@DateTime.UtcNow.AddHours(-3).ToString("dd/MM/yyyy")' style="max-width: fit-content;" />
+                        <div class="m-l-10 align-self-center">
+                            <h3 class="m-b-0 font-light" id="routesTotal">$0</h3>
+                            <h5 class="text-muted m-b-0">Recaudación total del día</h5>
+                        </div>
                     </div>
                     <div class="table-responsive m-t-20">
                         <table id="routesTable" class="table stylish-table">
@@ -175,9 +183,10 @@
                 <div class="card-body">
                     <div class="d-flex flex-row">
                         <div class="round round-lg align-self-center round-primary"><i class="mdi mdi-currency-usd"></i></div>
-                        <div class="m-l-10 align-self-center">
+                        <div class="m-l-10 align-self-end text-end">
+                            <input type="text" class="form-control ml-3 mb-2" id="BalanceDatePicker" name="date" value='@DateTime.UtcNow.AddHours(-3).ToString("dd/MM/yyyy")' style="max-width: fit-content;" />
                             <h3 class="m-b-0 font-light">@Html.DisplayFor(x => Model.TotalSold)</h3> <!--recaudado del dia -->
-                            <h5 class="text-muted m-b-0">Recaudado en el día</h5>
+                            <h5 class="text-muted m-b-0">Balance del día</h5>
                         </div>
                     </div>
                 </div>
@@ -192,6 +201,9 @@
         @Html.Hidden("dateString", "")
     </form>
     <form id="form-searchExpensesByDate" method="get" asp-area="" asp-controller="Expenses" asp-action="SearchByDate">
+        @Html.Hidden("dateString", "")
+    </form>
+    <form id="form-searchBalanceByDate" method="get" asp-area="" asp-controller="Stats" asp-action="GetBalanceByDate">
         @Html.Hidden("dateString", "")
     </form>
 </div>
