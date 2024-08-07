@@ -28,5 +28,6 @@ namespace AguasNico.Data.Repository.IRepository
         Task<long> CreateByDealer(long routeID);
         Task SetDispenserPrice(long routeID, decimal price);
         Task<decimal> GetDispenserPrice(DateTime date);
+        Task<object> GetBalanceByDate(DateTime date);
     }
 }

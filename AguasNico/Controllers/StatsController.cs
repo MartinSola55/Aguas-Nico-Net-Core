@@ -198,6 +198,23 @@ namespace AguasNico.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetBalanceByDate(string dateString)
+        {
+            try
+            {
+                var date = DateTime.Parse(dateString);
+                return Json(new
+                {
+                    success = true,
+                    balance = await _workContainer.Route.GetBalanceByDate(date),
+                });
+            }
+            catch (Exception e)
+            {
+                return CustomBadRequest(title: "No se encontró el balance", message: "Intente nuevamente o comuníquese para soporte");
+            }
+        }
         #endregion
     }
 }

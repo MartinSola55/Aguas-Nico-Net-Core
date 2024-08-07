@@ -1,6 +1,6 @@
 
 $(document).ready(function () {
-    $('#ExpensesDatePicker, #ProductsDatePicker, #RoutesDatePicker').bootstrapMaterialDatePicker({
+    $('#ExpensesDatePicker, #ProductsDatePicker, #RoutesDatePicker, #BalanceDatePicker').bootstrapMaterialDatePicker({
         maxDate: new Date(),
         time: false,
         format: 'DD/MM/YYYY',
@@ -16,6 +16,9 @@ $(document).ready(function () {
 
     routesDay($('#RoutesDatePicker').val());
 
+    balanceDay($('#BalanceDatePicker').val());
+    expensesDay($('#ExpensesDatePicker').val());
+
     $('#RoutesDatePicker').on('change', function () {
         routesDay($(this).val());
     });
@@ -24,6 +27,9 @@ $(document).ready(function () {
     });
     $('#ExpensesDatePicker').on('change', function () {
         expensesDay($(this).val());
+    });
+    $('#BalanceDatePicker').on('change', function () {
+        balanceDay($(this).val());
     });
 });
 
@@ -48,6 +54,8 @@ function routesDay(selectedDate) {
         data: $(form).serialize(),
         success: function (response) {
             $('#routesTable tbody').empty();
+            let totalRoutes = 0;
+
             response.routes.forEach(r => {
                 const route = r.result;
                 const row = `<tr class="clickable" data-url="/Routes/Details/${route.id}">
@@ -60,11 +68,15 @@ function routesDay(selectedDate) {
                         </td>
                         <td>$${route.collected.toLocaleString("es-ES")}</td>
                     </tr>`;
+                    totalRoutes += route.collected;
                 $('#routesTable tbody').append($(row));
             });
+
             $('#routesTable tbody tr').on('click', function () {
                 window.location.href = $(this).data('url');
             });
+
+            $('#routesTotal').text(`$${totalRoutes.toLocaleString("es-ES")}`);
         },
         error: function (error) {
             $('#routesTable tbody').empty();
@@ -149,6 +161,8 @@ function expensesDay(selectedDate) {
         data: $(form).serialize(),
         success: function (response) {
             $('#expensesTable tbody').empty();
+            let totalExpenses = 0;
+
             response.data.forEach(expense => {
                 let row = `<tr>
                         <td><h6>${expense.dealer}</h6></td>
@@ -156,7 +170,9 @@ function expensesDay(selectedDate) {
                         <td><h5>$${expense.amount.toLocaleString("es-ES")}</h5></td>
                     </tr>`;
                 $('#expensesTable tbody').append($(row));
+                totalExpenses += expense.amount;
             });
+            $('#expensesTotal').text(`$${totalExpenses.toLocaleString("es-ES")}`);
         },
         error: function (error) {
             $('#expensesTable tbody').empty();
@@ -169,6 +185,7 @@ function expensesDay(selectedDate) {
                     <td></td>
                 </tr>`;
             $('#expensesTable tbody').append($(row));
+            $('#expensesTotal').text('No se pudo cargar la información');
         }
     });
 }
@@ -195,6 +212,28 @@ function sendForm() {
                 text: errorThrown.responseJSON.message,
                 confirmButtonColor: '#1e88e5',
             });
+        }
+    });
+}
+
+function balanceDay(selectedDate)
+{
+    const form = document.getElementById("form-searchBalanceByDate");
+    $('#form-searchBalanceByDate input[name="dateString"]').val(selectedDate);
+    $.ajax({
+        url: $(form).attr('action'),
+        method: $(form).attr('method'),
+        data: $(form).serialize(),
+        success: function (response) {
+            console.log(response.balance);
+            $('#balanceTotal').text(`$${response.balance.total.toLocaleString("es-ES")}`);
+            $('#balanceTableCash').text(`Efectivo: $${response.balance.cartPaymentMethods.toLocaleString("es-ES")}`);
+            $('#balanceTableTransfers').text(`Transferencias (administración): $${response.balance.transfers.toLocaleString("es-ES")}`);
+            $('#balanceTableDispenser').text(`Dispensers: $${response.balance.dispenserPrice.toLocaleString("es-ES")}`);
+            $('#balanceTableExpenses').text(`Gastos: $${response.balance.expenses.toLocaleString("es-ES")}`);
+        },
+        error: function (error) {
+
         }
     });
 }
