@@ -158,7 +158,7 @@
                         <input type="text" class="form-control ml-3 my-auto" id="RoutesDatePicker" name="date" value='@DateTime.UtcNow.AddHours(-3).ToString("dd/MM/yyyy")' style="max-width: fit-content;" />
                         <div class="m-l-10 align-self-center">
                             <h3 class="m-b-0 font-light" id="routesTotal">$0</h3>
-                            <h5 class="text-muted m-b-0">Recaudación total del día</h5>
+                            <h5 class="text-muted m-b-0">Recaudación total de repartos</h5>
                         </div>
                     </div>
                     <div class="table-responsive m-t-20">
@@ -184,9 +184,11 @@
                     <div class="d-flex flex-row">
                         <div class="round round-lg align-self-center round-primary"><i class="mdi mdi-currency-usd"></i></div>
                         <div class="m-l-10 align-self-center">
-                            <h3 class="m-b-0 font-light">@Html.DisplayFor(x => Model.TotalSold)</h3>
+                        <input type="text" class="form-control ml-3 my-auto" id="BalanceDatePicker" name="date" value='@DateTime.UtcNow.AddHours(-3).ToString("dd/MM/yyyy")' style="max-width: fit-content;" />
+
+                            <h3 class="m-b-0 font-light" id="balanceTotal"></h3>
                             <h5 class="text-muted m-b-0">
-                                Recaudado en el día
+                                Balance del día
                                 <a class="mytooltip" href="javascript:void(0)">
                                     <i class="bi bi-info-circle"></i>
                                     <span class="tooltip-content5">
@@ -195,24 +197,18 @@
                                                 <div class="d-flex">
                                                     <table>
                                                         <tbody>
-                                                            @foreach (var method in Model.Payments)
-                                                            {
-                                                                <tr>
-                                                                    <td><h6 class="text-white text-left">@Html.DisplayFor(x => method.PaymentMethod.Name): $@Html.DisplayFor(x => method.Amount)</h6></td>
-                                                                </tr>
-                                                            }
-                                                            @if(Model.Transfers.Any())
-                                                            {
-                                                                <tr>
-                                                                    <td><h6 class="text-white text-left">Transferencia (administración): @Model.Transfers.Sum(y => y.Amount).ToString("$#,##")</h6></td>
-                                                                </tr>
-                                                            }
-                                                            @if(Model.Dispensers > 0)
-                                                            {
-                                                                <tr>
-                                                                    <td><h6 class="text-white text-left">Dispensers: $@Model.Dispensers.ToString("N0")</h6></td>
-                                                                </tr>
-                                                            }
+                                                            <tr>
+                                                                <td><h6 class="text-white text-left" id="balanceTableCash"></h6></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><h6 class="text-white text-left" id="balanceTableTransfers"></h6></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><h6 class="text-white text-left" id="balanceTableDispenser"></h6></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><h6 class="text-white text-left" id="balanceTableExpenses"></h6></td>
+                                                            </tr>
                                                         </tbody>
                                                     </table>
                                                 </div>

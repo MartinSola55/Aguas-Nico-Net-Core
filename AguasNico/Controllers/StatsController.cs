@@ -210,7 +210,7 @@ namespace AguasNico.Controllers
                     balance = await _workContainer.Route.GetBalanceByDate(date),
                 });
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return CustomBadRequest(title: "No se encontró el balance", message: "Intente nuevamente o comuníquese para soporte");
             }
