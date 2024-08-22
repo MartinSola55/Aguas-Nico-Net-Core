@@ -382,7 +382,7 @@
                                         </div>
                                         <div class="col-lg-7">
                                             <div class="form-group focused">
-                                                <label asp-for="@Model.Client.TaxCondition` " class="form-control-label"></label>
+                                                <label asp-for="@Model.Client.TaxCondition" class="form-control-label"></label>
                                                 @Html.DropDownListFor(m => m.Client.TaxCondition, Model.TaxConditions, new { @class = "form-control form-select", disabled = "disabled" })
                                                 <span asp-validation-for="@Model.Client.TaxCondition" class="text-danger"></span>
                                             </div>
