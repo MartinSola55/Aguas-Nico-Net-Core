@@ -1,19 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using AguasNico.Data.Repository.IRepository;
 using AguasNico.Models;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using AguasNico.Models.ViewModels.Routes.Details;
+using AguasNico.Data.Services;
 
 namespace AguasNico.Data.Repository
 {
-    public class RouteRepository(ApplicationDbContext db) : Repository<Models.Route>(db), IRouteRepository
+    public class RouteRepository(ApplicationDbContext db, WhatsAppService whatsAppService) : Repository<Models.Route>(db), IRouteRepository
     {
         private readonly ApplicationDbContext _db = db;
+        private readonly WhatsAppService _whatsAppService = whatsAppService;
 
         public async Task Update(Models.Route route)
         {
@@ -61,7 +57,7 @@ namespace AguasNico.Data.Repository
             {
                 await _db.Database.BeginTransactionAsync();
 
-                CartRepository cartRepository = new(_db);
+                CartRepository cartRepository = new(_db, _whatsAppService);
                 foreach (var cart in route.Carts)
                 {
                     await cartRepository.SoftDelete(cart.ID);

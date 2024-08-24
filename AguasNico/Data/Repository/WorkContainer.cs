@@ -1,27 +1,26 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AguasNico.Data.Repository.IRepository;
+using AguasNico.Data.Services;
 
 namespace AguasNico.Data.Repository
 {
     public class WorkContainer : IWorkContainer
     {
         private readonly ApplicationDbContext _db;
+        private readonly WhatsAppService _whatsAppService;
 
-        public WorkContainer(ApplicationDbContext db)
+        public WorkContainer(ApplicationDbContext db, WhatsAppService whatsAppService)
         {
             _db = db;
+            _whatsAppService = whatsAppService;
             ApplicationUser = new ApplicationUserRepository(_db);
             Product = new ProductRepository(_db);
-            Client = new ClientRepository(_db);
+            Client = new ClientRepository(_db, _whatsAppService);
             Transfer = new TransferRepository(_db);
             Expense = new ExpenseRepository(_db);
-            Route = new RouteRepository(_db);
+            Route = new RouteRepository(_db, _whatsAppService);
             PaymentMethod = new PaymentMethodRepository(_db);
             DispatchedProduct = new DispatchedProductRepository(_db);
-            Cart = new CartRepository(_db);
+            Cart = new CartRepository(_db, _whatsAppService);
             Tables = new TablesRepository(_db);
             Dealer = new DealerRepository(_db);
             Abono = new AbonoRepository(_db);

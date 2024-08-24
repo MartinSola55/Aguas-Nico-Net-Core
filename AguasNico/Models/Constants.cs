@@ -10,6 +10,10 @@ namespace AguasNico.Models
         public const string Admin = "ADMIN";
         public const string Dealer = "DEALER";
     }
+    public class WppMessages
+    {
+        public const string ConfirmOrder = "se ha confimardo su pedido. Gracias por elegirnos.";
+    }
     public enum State
     {
         [Display(Name = "Pendiente")] Pending = 0,

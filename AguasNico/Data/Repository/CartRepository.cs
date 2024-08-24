@@ -1,17 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using AguasNico.Data.Repository.IRepository;
+using AguasNico.Data.Services;
 using AguasNico.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AguasNico.Data.Repository
 {
-    public class CartRepository(ApplicationDbContext db) : Repository<Cart>(db), ICartRepository
+    public class CartRepository(ApplicationDbContext db, WhatsAppService whatsAppService) : Repository<Cart>(db), ICartRepository
     {
         private readonly ApplicationDbContext _db = db;
+        private readonly WhatsAppService _whatsAppService = whatsAppService;
 
         public async Task Update(Cart cart)
         {
@@ -29,7 +26,7 @@ namespace AguasNico.Data.Repository
 
                 if (cart.Products is not null)
                 {
-                    foreach(var product in cart.Products)
+                    foreach (var product in cart.Products)
                     {
                         if (product.Quantity <= 0)
                             continue;
@@ -75,14 +72,14 @@ namespace AguasNico.Data.Repository
                         var clientProduct = client.Products.First(x => x.Product.Type == product.Type);
                         clientProduct.Stock += product.Quantity;
 
-                    var abonoProducts = await _db
-                        .AbonoRenewalProducts
-                        .Where(x =>
-                            x.AbonoRenewal.ClientID == cart.ClientID &&
-                            x.CreatedAt.Month == cart.CreatedAt.Month &&
-                            x.CreatedAt.Year == cart.CreatedAt.Year &&
-                            x.Type == product.Type)
-                        .ToListAsync();
+                        var abonoProducts = await _db
+                            .AbonoRenewalProducts
+                            .Where(x =>
+                                x.AbonoRenewal.ClientID == cart.ClientID &&
+                                x.CreatedAt.Month == cart.CreatedAt.Month &&
+                                x.CreatedAt.Year == cart.CreatedAt.Year &&
+                                x.Type == product.Type)
+                            .ToListAsync();
 
                         if (abonoProducts.Sum(x => x.Available) < product.Quantity)
                             throw new Exception("El cliente no posee suficientes " + product.Type.GetDisplayName() + " disponibles en sus abonos");
@@ -302,7 +299,7 @@ namespace AguasNico.Data.Repository
                 bool isInTransaction = _db.Database.CurrentTransaction is not null;
 
                 if (!isInTransaction) await _db.Database.BeginTransactionAsync();
-                
+
                 await _db.SaveChangesAsync();
 
                 if (!isInTransaction) await _db.Database.CommitTransactionAsync();
@@ -351,7 +348,7 @@ namespace AguasNico.Data.Repository
                 foreach (var product in cart.Products)
                 {
                     if (product.Quantity <= 0)
-                            continue;
+                        continue;
                     var clientProduct = await _db
                         .ClientProducts
                         .Where(x => x.ClientID == cart.ClientID && x.Product.Type == product.Type)
@@ -362,7 +359,7 @@ namespace AguasNico.Data.Repository
                     product.SettedPrice = clientProduct.Product.Price;
                     product.CartID = cart.ID;
                     total += product.Quantity * product.SettedPrice;
-                    
+
                     await _db.CartProducts.AddAsync(product);
 
                     if (returnedProducts.Any(x => x.Type == product.Type))
@@ -390,11 +387,11 @@ namespace AguasNico.Data.Repository
                         .ToListAsync();
 
                     if (abonoProductsList.Count == 0)
-                            throw new Exception("No se ha encontrado un producto del abono del cliente");
+                        throw new Exception("No se ha encontrado un producto del abono del cliente");
 
                     if (abonoProductsList.Sum(x => x.Available) < abonoProduct.Quantity)
-                            throw new Exception("El cliente no posee stock suficiente de: " + abonoProduct.Type.GetDisplayName());
-                        
+                        throw new Exception("El cliente no posee stock suficiente de: " + abonoProduct.Type.GetDisplayName());
+
                     int quantity = abonoProduct.Quantity;
                     foreach (var abonoProductList in abonoProductsList)
                     {
@@ -470,6 +467,13 @@ namespace AguasNico.Data.Repository
                 await _db.Database.RollbackTransactionAsync();
                 throw;
             }
+            finally
+            {
+                if (!string.IsNullOrEmpty(client.Phone))
+                {
+                    await _whatsAppService.ConfirmOrder(client.Phone);
+                }
+            }
         }
 
         public async Task CreateManual(Cart cart)
@@ -505,7 +509,7 @@ namespace AguasNico.Data.Repository
                 foreach (var product in cart.Products)
                 {
                     if (product.Quantity <= 0)
-                            continue;
+                        continue;
 
                     var clientProduct = await _db
                         .ClientProducts
@@ -666,7 +670,7 @@ namespace AguasNico.Data.Repository
                     .ThenInclude(x => x.Product)
                 .Where(x => x.ID == cart.ClientID)
                 .FirstAsync() ?? throw new Exception("No se ha encontrado el cliente");
-                
+
             foreach (var product in cart.ReturnedProducts)
             {
                 var clientProduct = client.Products.First(x => x.Product.Type == product.Type);
@@ -709,7 +713,7 @@ namespace AguasNico.Data.Repository
                     });
                 }
             }
-                
+
             cart.UpdatedAt = DateTime.UtcNow.AddHours(-3);
 
             try

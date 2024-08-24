@@ -2,6 +2,7 @@ using AguasNico.Data;
 using AguasNico.Data.Repository;
 using AguasNico.Data.Repository.IRepository;
 using AguasNico.Data.Seeding;
+using AguasNico.Data.Services;
 using AguasNico.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
@@ -23,6 +24,7 @@ builder.Services.AddControllersWithViews();
 
 // Agregar work container
 builder.Services.AddScoped<IWorkContainer, WorkContainer>();
+builder.Services.AddScoped<WhatsAppService>();
 
 // Agregar seeding
 builder.Services.AddScoped<ISeeder, Seeder>();

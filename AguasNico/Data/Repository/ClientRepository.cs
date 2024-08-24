@@ -1,20 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using AguasNico.Data.Repository.IRepository;
 using AguasNico.Models;
 using Microsoft.EntityFrameworkCore;
 using AguasNico.Models.ViewModels.Clients;
 using AguasNico.Models.ViewModels.Tables;
-using NuGet.Protocol;
+using AguasNico.Data.Services;
 
 namespace AguasNico.Data.Repository
 {
-    public class ClientRepository(ApplicationDbContext db) : Repository<Client>(db), IClientRepository
+    public class ClientRepository(ApplicationDbContext db, WhatsAppService whatsAppService) : Repository<Client>(db), IClientRepository
     {
         private readonly ApplicationDbContext _db = db;
+        private readonly WhatsAppService _whatsAppService = whatsAppService;
 
         private static bool ValidateProducts(List<Product> products)
         {
@@ -433,7 +429,7 @@ namespace AguasNico.Data.Repository
             TransferRepository transferRepository = new(_db);
             var transfers = await transferRepository.GetLastTen(clientID);
 
-            CartRepository cartRepository = new(_db);
+            CartRepository cartRepository = new(_db, _whatsAppService);
             var carts = await cartRepository.GetLastTen(clientID);
 
             AbonoRepository abonoRepository = new(_db);
