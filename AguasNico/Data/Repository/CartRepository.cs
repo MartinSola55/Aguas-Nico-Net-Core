@@ -461,18 +461,39 @@ namespace AguasNico.Data.Repository
                 await _db.Database.BeginTransactionAsync();
                 await _db.SaveChangesAsync();
                 await _db.Database.CommitTransactionAsync();
+
+                if (!string.IsNullOrEmpty(client.Phone))
+                {
+                    var totalProducts = new List<Dictionary<int, string>>();
+                    if (cart.Products is not null)
+                    {
+                        foreach (var product in cart.Products)
+                        {
+                            totalProducts.Add(new()
+                            {
+                                { product.Quantity, product.Type.GetDisplayName() }
+                            });
+                        }
+                    }
+
+                    var totalAbonoProducts = new List<Dictionary<int, string>>();
+                    if (cart.AbonoProducts is not null)
+                    {
+                        foreach (var abonoProduct in cart.AbonoProducts)
+                        {
+                            totalAbonoProducts.Add(new()
+                            {
+                                { abonoProduct.Quantity, abonoProduct.Type.GetDisplayName() }
+                            });
+                        }
+                    }
+                    // await _whatsAppService.ConfirmOrder(client.Phone, totalProducts, totalAbonoProducts, client.Debt);
+                }
             }
             catch (Exception)
             {
                 await _db.Database.RollbackTransactionAsync();
                 throw;
-            }
-            finally
-            {
-                if (!string.IsNullOrEmpty(client.Phone))
-                {
-                    await _whatsAppService.ConfirmOrder(client.Phone);
-                }
             }
         }
 

@@ -12,7 +12,22 @@ namespace AguasNico.Models
     }
     public class WppMessages
     {
-        public const string ConfirmOrder = "se ha confimardo su pedido. Gracias por elegirnos.";
+        public string ConfirmOrder(List<Dictionary<int, string>> products, List<Dictionary<int, string>> abonoProducts, decimal debt)
+        {
+            var message = "";
+            if (products.Count > 0)
+                message += "su bajada contiene los siguientes productos: " + string.Join(", ", products.Select(x => $"{x.Keys.First()} {x.Values.First()}"));
+            if (abonoProducts.Count > 0 && products.Count > 0)
+                message += ". Además, su abono contiene los siguientes productos: " + string.Join(", ", abonoProducts.Select(x => $"{x.Keys.First()} {x.Values.First()}"));
+            else if (abonoProducts.Count > 0)
+                message += "su abono contiene los siguientes productos: " + string.Join(", ", abonoProducts.Select(x => $"{x.Keys.First()} {x.Values.First()}"));
+
+            if (debt > 0)
+                message += $". Su deuda total es de: ${debt.ToString("N2")}";
+            else
+                message += $". Tiene un saldo a favor de: ${(debt * -1).ToString("N2")}";
+            return message;
+        }
     }
     public enum State
     {

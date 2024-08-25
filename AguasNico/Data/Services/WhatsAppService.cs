@@ -8,9 +8,10 @@ namespace AguasNico.Data.Services
     {
         private readonly IConfiguration _configuration = configuration;
 
-        public async Task<bool> ConfirmOrder(string phoneNumber)
+        public async Task<bool> ConfirmOrder(string phoneNumber, List<Dictionary<int, string>> products, List<Dictionary<int, string>> abonoProducts, decimal debt)
         {
-            return await SendMessage("notificacion_bajada", phoneNumber, WppMessages.ConfirmOrder);
+            var message = new WppMessages().ConfirmOrder(products, abonoProducts, debt);
+            return await SendMessage("notificacion_bajada", phoneNumber, message);
         }
 
         private async Task<bool> SendMessage(string templateName, string to, string message)
