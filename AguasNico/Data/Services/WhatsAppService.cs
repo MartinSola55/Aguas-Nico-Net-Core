@@ -10,14 +10,18 @@ namespace AguasNico.Data.Services
 
         public async Task<bool> ConfirmOrder(string phoneNumber, List<Dictionary<int, string>> products, List<Dictionary<int, string>> abonoProducts, decimal debt)
         {
-            var message = new WppMessages().ConfirmOrder(products, abonoProducts, debt);
-            return await SendMessage("notificacion_bajada", phoneNumber, message);
+            var (message1, message2, message3) = new WppMessages().ConfirmOrder(products, abonoProducts, debt);
+            return await SendMessage("notificacion_bajada3", phoneNumber, message1, message2, message3);
         }
 
-        private async Task<bool> SendMessage(string templateName, string to, string message)
+        private async Task<bool> SendMessage(string templateName, string to, string message1, string message2, string message3)
         {
             var token = _configuration["WppToken"];
             var phoneId = _configuration["WppPhoneId"];
+
+            message1 = string.IsNullOrWhiteSpace(message1) ? "-" : message1;
+            message2 = string.IsNullOrWhiteSpace(message2) ? "-" : message2;
+            message3 = string.IsNullOrWhiteSpace(message3) ? "-" : message3;
 
             var client = new HttpClient();
             var request = new HttpRequestMessage(HttpMethod.Post, $"https://graph.facebook.com/v20.0/{phoneId}/messages");
@@ -46,7 +50,17 @@ namespace AguasNico.Data.Services
                                 new
                                 {
                                     type = "text",
-                                    text = message
+                                    text = message1
+                                },
+                                new
+                                {
+                                    type = "text",
+                                    text = message2
+                                },
+                                new
+                                {
+                                    type = "text",
+                                    text = message3
                                 }
                             }
                         }
@@ -56,10 +70,15 @@ namespace AguasNico.Data.Services
 
             var response = await client.SendAsync(request);
 
-            if (response.IsSuccessStatusCode)
-                return true;
-            else
+           //return response.IsSuccessStatusCode;
+            if (!response.IsSuccessStatusCode){
+                var responseContent = await response.Content.ReadAsStringAsync();
+                // Registrar o mostrar el error para diagnóstico.
+                Console.WriteLine($"Error: {responseContent}");
                 return false;
+            }
+
+            return true;
         }
     }
 }

@@ -12,21 +12,26 @@ namespace AguasNico.Models
     }
     public class WppMessages
     {
-        public string ConfirmOrder(List<Dictionary<int, string>> products, List<Dictionary<int, string>> abonoProducts, decimal debt)
+        public (string, string, string) ConfirmOrder(List<Dictionary<int, string>> products, List<Dictionary<int, string>> abonoProducts, decimal debt)
         {
-            var message = "";
+            var message1 = "";
+            var message2 = "";
+            var message3 = "";
+
             if (products.Count > 0)
-                message += "su bajada contiene los siguientes productos: " + string.Join(", ", products.Select(x => $"{x.Keys.First()} {x.Values.First()}"));
+                message1 = "su bajada contiene los siguientes productos: " + string.Join(", ", products.Select(x => $"{x.Keys.First()} {x.Values.First()}"));
+            
             if (abonoProducts.Count > 0 && products.Count > 0)
-                message += ". Además, su abono contiene los siguientes productos: " + string.Join(", ", abonoProducts.Select(x => $"{x.Keys.First()} {x.Values.First()}"));
+                message2 = ". Además, su abono contiene los siguientes productos: " + string.Join(", ", abonoProducts.Select(x => $"{x.Keys.First()} {x.Values.First()}"));
             else if (abonoProducts.Count > 0)
-                message += "su abono contiene los siguientes productos: " + string.Join(", ", abonoProducts.Select(x => $"{x.Keys.First()} {x.Values.First()}"));
+                message2 = "su abono contiene los siguientes productos: " + string.Join(", ", abonoProducts.Select(x => $"{x.Keys.First()} {x.Values.First()}"));
 
             if (debt > 0)
-                message += $". Su deuda total es de: ${debt.ToString("N2")}";
+                message3 = $". Deuda total es de: ${debt.ToString("N2")}";
             else
-                message += $". Tiene un saldo a favor de: ${(debt * -1).ToString("N2")}";
-            return message;
+                message3 = $". Saldo a favor de: ${(debt * -1).ToString("N2")}";
+
+            return (message1, message2, message3);
         }
     }
     public enum State

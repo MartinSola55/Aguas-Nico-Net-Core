@@ -487,7 +487,7 @@ namespace AguasNico.Data.Repository
                             });
                         }
                     }
-                    // await _whatsAppService.ConfirmOrder(client.Phone, totalProducts, totalAbonoProducts, client.Debt);
+                    //await _whatsAppService.ConfirmOrder(client.Phone, totalProducts, totalAbonoProducts, client.Debt);
                 }
             }
             catch (Exception)
