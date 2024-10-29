@@ -117,7 +117,7 @@ namespace AguasNico.Controllers
         {
             try
             {
-                var product = _workContainer.Product.GetOneAsync(id);
+                var product = await _workContainer.Product.GetOneAsync(id);
 
                 if (product == null)
                     return CustomBadRequest(title: "Error al eliminar", message: "No se encontró el producto solicitado");

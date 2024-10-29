@@ -35,7 +35,7 @@ namespace AguasNico.Data.Repository
         {
             return await _db
                 .Products
-                .AnyAsync(x => x.Name == product.Name && x.Price == product.Price && x.ID != product.ID);
+                .AnyAsync(x => x.Name == product.Name && x.Price == product.Price && x.IsActive && x.ID != product.ID);
         }
 
         public async Task SoftDelete(long id)
