@@ -331,6 +331,14 @@ namespace AguasNico.Data.Repository
                 .Clients
                 .FindAsync(cart.ClientID) ?? throw new Exception("No se ha encontrado el cliente");
 
+            var updatedCart = await _db
+                .Carts
+                .AsNoTracking()
+                .FirstAsync(x => x.ID == cart.ID) ?? throw new Exception("No se ha encontrado la bajada");
+
+            if (updatedCart.State != State.Pending)
+                throw new Exception("La bajada ya ha sido efectuada. Recargue la página y vuelva a intentar");
+
             var returnedProducts = new List<ReturnedProduct>();
             foreach (var type in new ConstantsMethods().GetProductTypes())
             {
