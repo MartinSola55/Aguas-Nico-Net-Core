@@ -507,6 +507,14 @@ namespace AguasNico.Data.Repository
 
         public async Task CreateManual(Cart cart)
         {
+            var updatedCart = await _db
+                .Carts
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.RouteID == cart.RouteID && x.ClientID == cart.ClientID && !x.IsStatic);
+
+            if (updatedCart != null && updatedCart.State != State.Pending)
+                throw new Exception("La bajada ya ha sido efectuada. Recargue la página y vuelva a intentar");
+
             cart.State = State.Confirmed;
             cart.IsStatic = false;
             cart.Priority = await _db

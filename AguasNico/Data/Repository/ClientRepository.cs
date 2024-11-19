@@ -76,6 +76,7 @@ namespace AguasNico.Data.Repository
             oldClient.Address = client.Address;
             oldClient.Phone = client.Phone;
             oldClient.Observations = client.Observations;
+            oldClient.Notes = client.Notes;
             oldClient.Debt = client.Debt;
             oldClient.HasInvoice = client.HasInvoice;
             oldClient.OnlyAbonos = client.OnlyAbonos;

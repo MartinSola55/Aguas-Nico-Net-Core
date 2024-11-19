@@ -30,6 +30,10 @@ namespace AguasNico.Models
         [StringLength(300, MinimumLength = 1, ErrorMessage = "Debes ingresar observaciones de menos de 300 caracteres")]
         public string? Observations { get; set; } = null!;
 
+        [Display(Name = "Notas")]
+        [StringLength(300, MinimumLength = 1, ErrorMessage = "Las notas deben tener menos de 300 caracteres")]
+        public string? Notes { get; set; } = null!;
+
         [Display(Name = "Deuda")]
         [Column(TypeName = "money")]
         [DefaultValue(0)]

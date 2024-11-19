@@ -55,6 +55,11 @@
                                 <span asp-validation-for="Client.Observations" class="text-danger"></span>
                             </div>
                             <div class="col-12 mb-3">
+                                <label asp-for="Client.Notes" class="mb-0"></label>
+                                <textarea asp-for="Client.Notes" class="form-control"></textarea>
+                                <span asp-validation-for="Client.Notes" class="text-danger"></span>
+                            </div>
+                            <div class="col-12 mb-3">
                                 <label asp-for="Client.DealerID" class="mb-0"></label>
                                 @Html.DropDownListFor(x => x.Client.DealerID, Model.Dealers, new { @class = "form-control mb-2" })
                                 <span asp-validation-for="Client.DealerID" class="text-danger"></span>
