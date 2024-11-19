@@ -77,7 +77,9 @@ function openModal(clientID, clientName) {
     });
 }
 
-function confirmCart() {
+function confirmCart(button) {
+    button.disabled = true;
+
     let abonoProducts = [];
     let rows = $('#clientAbonoProductsTable tbody tr');
     for (let i = 0; i < rows.length; i++) {
@@ -90,6 +92,7 @@ function confirmCart() {
                 text: "La cantidad debe ser mayor a cero",
                 confirmButtonColor: '#1e88e5',
             });
+            button.disabled = false;
             return false;
         }
         if (quantity > parseInt(parseInt(row.cells[1].textContent.trim()))) {
@@ -99,6 +102,7 @@ function confirmCart() {
                 text: "No se puede bajar más productos del abono de los que dispone",
                 confirmButtonColor: '#1e88e5',
             });
+            button.disabled = false;
             return false;
         }
         if (quantity > 0) {
@@ -122,6 +126,7 @@ function confirmCart() {
                 text: "La cantidad debe ser mayor a cero",
                 confirmButtonColor: '#1e88e5',
             });
+            button.disabled = false;
             return false;
         }
         if (quantity > 0) {
@@ -153,6 +158,7 @@ function confirmCart() {
             text: "No se puede confirmar una bajada sin productos y dinero.",
             confirmButtonColor: '#1e88e5',
         });
+        button.disabled = false;
         return false;
     }
 
@@ -163,6 +169,7 @@ function confirmCart() {
         method: $(form).attr('method'),
         data: $(form).serialize() + "&" + $.param(productsData),
         success: function (response) {
+            button.disabled = false;
             $('#DataTable').DataTable().row(`[data-id="${clientID}"]`).remove().draw();
             $("#modal").modal('hide');
             Swal.fire({
@@ -175,6 +182,7 @@ function confirmCart() {
             });
         },
         error: function (errorThrown) {
+            button.disabled = false;
             Swal.fire({
                 icon: 'error',
                 title: errorThrown.responseJSON.title,

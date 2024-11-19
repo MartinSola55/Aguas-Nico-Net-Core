@@ -1,4 +1,6 @@
-function confirmCart(id) {
+function confirmCart(button, id) {
+    button.disabled = true;
+    
     const form = $(`#form-confirmCart_${id}`);
     let abonoProducts = [];
 
@@ -14,6 +16,7 @@ function confirmCart(id) {
                text: "La cantidad debe ser mayor a cero",
                confirmButtonColor: '#1e88e5',
            });
+           button.disabled = false;
            return false;
        }
        if (quantity > parseInt(parseInt(row.cells[1].textContent.trim()))) {
@@ -23,6 +26,7 @@ function confirmCart(id) {
                text: "No se puede bajar más productos del abono de los que dispone",
                confirmButtonColor: '#1e88e5',
            });
+           button.disabled = false;
            return false;
        }
        if (quantity > 0) {
@@ -46,6 +50,7 @@ function confirmCart(id) {
                text: "La cantidad debe ser mayor a cero",
                confirmButtonColor: '#1e88e5',
            });
+           button.disabled = false;
            return false;
        }
        if (quantity > 0) {
@@ -80,6 +85,7 @@ function confirmCart(id) {
            text: "No se puede confirmar una bajada sin productos y dinero.",
            confirmButtonColor: '#1e88e5',
        });
+       button.disabled = false;
        return false;
     }
 
@@ -102,6 +108,7 @@ function confirmCart(id) {
             });
         },
         error: function (errorThrown) {
+            button.disabled = false;
             Swal.fire({
                 icon: 'error',
                 title: errorThrown.responseJSON.title,
