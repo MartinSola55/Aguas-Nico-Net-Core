@@ -48,6 +48,7 @@ namespace AguasNico.Models
         [Display(Name = "Bidón 12L")] B12L = 2,
         [Display(Name = "Soda")] Soda = 3,
         [Display(Name = "Máquina frío calor")] Máquina = 4,
+        [Display(Name = "Bidón 5L")] B5L = 5,
     }
     public enum Day
     {
