@@ -24,7 +24,7 @@ namespace AguasNico.Data.Services
             message3 = string.IsNullOrWhiteSpace(message3) ? "-" : message3;
 
             var client = new HttpClient();
-            var request = new HttpRequestMessage(HttpMethod.Post, $"https://graph.facebook.com/v20.0/{phoneId}/messages");
+            var request = new HttpRequestMessage(HttpMethod.Post, $"https://graph.facebook.com/v21.0/{phoneId}/messages");
 
             request.Headers.Add("Authorization", $"Bearer {token}");
 
