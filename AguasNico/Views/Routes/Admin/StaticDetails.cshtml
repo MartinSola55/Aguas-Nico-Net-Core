@@ -80,19 +80,19 @@
                                     <div class="row justify-content-between">
                                         @if (cart.State == State.Confirmed)
                                         {
-                                            <h4 class="timeline-title name-element col-8" style="color: #30d577">@Html.DisplayFor(x => cart.Client.Name) - @Html.DisplayFor(x => cart.State)</h4>
+                                            <h4 class="timeline-title name-element col-8" style="color: #30d577">@Html.DisplayFor(x => cart.Client.Name) #@Html.DisplayFor(x => cart.Client.ID) - @Html.DisplayFor(x => cart.State)</h4>
                                         }
                                         else if (cart.State == State.Ausent ||cart.State == State.NotNeeded ||cart.State == State.Holidays) 
                                         {
-                                            <h4 class="timeline-title name-element col-8" style="color: #ffc107">@Html.DisplayFor(x => cart.Client.Name) - @Html.DisplayFor(x => cart.State)</h4>
+                                            <h4 class="timeline-title name-element col-8" style="color: #ffc107">@Html.DisplayFor(x => cart.Client.Name) #@Html.DisplayFor(x => cart.Client.ID) - @Html.DisplayFor(x => cart.State)</h4>
                                         }
                                         else if (cart.State == State.Pending)
                                         {
-                                            <h4 class="timeline-title name-element col-8" style="color: #6c757d">@Html.DisplayFor(x => cart.Client.Name) - @Html.DisplayFor(x => cart.State)</h4>
+                                            <h4 class="timeline-title name-element col-8" style="color: #6c757d">@Html.DisplayFor(x => cart.Client.Name) #@Html.DisplayFor(x => cart.Client.ID) - @Html.DisplayFor(x => cart.State)</h4>
                                         }
                                         else
                                         {
-                                            <h4 class="timeline-title name-element col-8" style="color: #6c757d">@Html.DisplayFor(x => cart.Client.Name)</h4>
+                                            <h4 class="timeline-title name-element col-8" style="color: #6c757d">@Html.DisplayFor(x => cart.Client.Name) #@Html.DisplayFor(x => cart.Client.ID)</h4>
                                         }
                                         <button class="btn btn-info h-100 rounded-circle mr-2" onclick="getClientHistory(@cart.ClientID,'@cart.Client.Name')"><i class="bi bi-clipboard"></i></button>
                                     </div>
