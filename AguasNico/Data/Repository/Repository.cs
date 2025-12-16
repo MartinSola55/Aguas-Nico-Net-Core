@@ -65,6 +65,24 @@ namespace AguasNico.Data.Repository
             return await query.FirstOrDefaultAsync();
         }
 
+        public async Task<int> CountAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
+        {
+            IQueryable<T> query = dbSet.AsQueryable();
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+            // Include properties separados por coma
+            if (includeProperties != null)
+            {
+                foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProperty.Trim());
+                }
+            }
+            return await query.CountAsync();
+        }
+
         public async Task<T> GetOneAsync(int id)
         {
             return await dbSet.FindAsync(id) ?? throw new NullReferenceException("No se ha encontrado la entidad");

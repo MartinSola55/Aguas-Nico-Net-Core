@@ -23,6 +23,11 @@ namespace AguasNico.Data.Repository.IRepository
             string? includeProperties = null
         );
 
+        Task<int> CountAsync(
+            Expression<Func<T, bool>>? filter = null,
+            string? includeProperties = null
+        );
+
         Task AddAsync(T entity);
     }
 }

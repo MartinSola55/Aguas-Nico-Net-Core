@@ -86,7 +86,7 @@ namespace AguasNico.Controllers
                 var user = await _workContainer.ApplicationUser.GetFirstOrDefaultAsync(x => x.UserName != null && x.UserName.Equals(sessionUser.Name));
                 var role = _signInManager.UserManager.GetRolesAsync(user).Result.First();
 
-                var route = await _workContainer.Route.GetFirstOrDefaultAsync(x => x.ID == id, includeProperties: "User, Carts, Carts.Products, Carts.Products, Carts.AbonoProducts, Carts.ReturnedProducts, Carts.Client, Carts.PaymentMethods, Carts.PaymentMethods.PaymentMethod");
+                var route = await _workContainer.Route.GetFirstOrDefaultAsync(x => x.ID == id, includeProperties: "User, Carts, Carts.Products, Carts.AbonoProducts, Carts.ReturnedProducts, Carts.Client, Carts.PaymentMethods, Carts.PaymentMethods.PaymentMethod");
 
                 if (route is null)
                     return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Error al obtener la planilla\nLa planilla no existe", ErrorCode = 404 });
@@ -112,8 +112,8 @@ namespace AguasNico.Controllers
                 switch (role)
                 {
                     case Constants.Admin:
-                        var completedCarts = await _workContainer.Cart.GetAllAsync(x => x.RouteID == id && x.State != State.Pending);
-                        var pendingCarts = await _workContainer.Cart.GetAllAsync(x => x.RouteID == id && x.State == State.Pending);
+                        var completedCartsCount = await _workContainer.Cart.CountAsync(x => x.RouteID == id && x.State != State.Pending);
+                        var pendingCartsCount = await _workContainer.Cart.CountAsync(x => x.RouteID == id && x.State == State.Pending);
 
                         AdminViewModel adminViewModel = new()
                         {
@@ -121,8 +121,8 @@ namespace AguasNico.Controllers
                             Clients = clientData,
                             TotalExpenses = await _workContainer.Expense.GetTotalExpensesByDealer(route.CreatedAt.Date, route.UserID),
                             TotalSold = await _workContainer.Route.GetTotalSoldByRoute(id),
-                            CompletedCarts = completedCarts.Count(),
-                            PendingCarts = pendingCarts.Count(),
+                            CompletedCarts = completedCartsCount,
+                            PendingCarts = pendingCartsCount,
                             SoldProducts = await _workContainer.Tables.GetSoldProductsByRoute(id),
                             Payments = await _workContainer.Route.GetTotalCollected(route.ID),
                             Transfers = await _workContainer.Transfer.GetAllAsync(x => x.UserID == route.UserID && x.Date.Date == route.CreatedAt.Date, includeProperties: "Client"),
