@@ -97,6 +97,102 @@ namespace AguasNico.Data.Repository
             return invoices;
         }
 
+        public async Task<List<InvoiceCsvRow>> GetInvoicesCsvData(DateTime startDate, DateTime endDate, Day invoiceDay, string invoiceDealer)
+        {
+            var clients = await _db.Clients
+                .Where(x =>
+                    x.DealerID == invoiceDealer &&
+                    x.DeliveryDay == invoiceDay &&
+                    !string.IsNullOrEmpty(x.CUIT) &&
+                    x.IsActive &&
+                    x.HasInvoice &&
+                    x.TaxCondition.HasValue &&
+                    x.InvoiceType.HasValue)
+                .Select(x => new
+                {
+                    x.ID,
+                    x.Name,
+                    x.Address,
+                    x.CUIT,
+                    x.InvoiceType,
+                    x.TaxCondition,
+                })
+                .ToListAsync();
+
+            var clientIds = clients.Select(x => x.ID).ToList();
+
+            var cartProducts = await _db.CartProducts
+                .Where(x =>
+                    clientIds.Contains(x.Cart.ClientID) &&
+                    x.CreatedAt.Date >= startDate.Date &&
+                    x.CreatedAt.Date <= endDate.Date &&
+                    x.SettedPrice > 0)
+                .Select(x => new { x.Cart.ClientID, x.Type, x.Quantity, x.SettedPrice })
+                .ToListAsync();
+
+            var cartAbonoProducts = await _db.CartAbonoProducts
+                .Where(x =>
+                    clientIds.Contains(x.Cart.ClientID) &&
+                    x.CreatedAt.Date >= startDate.Date &&
+                    x.CreatedAt.Date <= endDate.Date)
+                .Select(x => new { x.Cart.ClientID, x.Type, x.Quantity })
+                .ToListAsync();
+
+            var result = new List<InvoiceCsvRow>();
+            foreach (var client in clients)
+            {
+                var products = cartProducts
+                    .Where(x => x.ClientID == client.ID)
+                    .GroupBy(x => x.Type)
+                    .Select(g => new InvoiceProductCsv
+                    {
+                        Type = g.Key.GetDisplayName(),
+                        Quantity = g.Sum(x => x.Quantity),
+                        Subtotal = g.Sum(x => x.SettedPrice * x.Quantity),
+                    })
+                    .ToList();
+
+                if (products.Count == 0)
+                    continue;
+
+                foreach (var abonoGroup in cartAbonoProducts.Where(x => x.ClientID == client.ID).GroupBy(x => x.Type))
+                {
+                    var existing = products.FirstOrDefault(x => x.Type == abonoGroup.Key.GetDisplayName());
+                    if (existing != null)
+                        existing.Quantity += abonoGroup.Sum(x => x.Quantity);
+                }
+
+                decimal neto = products.Sum(x => x.Subtotal);
+                result.Add(new InvoiceCsvRow
+                {
+                    ClientCuit = client.CUIT ?? "",
+                    InvoiceTypeId = GetInvoiceTypeCode(client.InvoiceType),
+                    Neto = neto,
+                    IvaRate = 21,
+                    Total = neto * 1.21m,
+                    TaxConditionTypeId = (int)client.TaxCondition.Value,
+                    ClientName = client.Name,
+                    ClientAddress = client.Address,
+                    Description = FormatCsvDescription(products),
+                });
+            }
+
+            return result;
+        }
+
+        private static string GetInvoiceTypeCode(InvoiceType? invoiceType) => invoiceType switch
+        {
+            InvoiceType.A => "1",
+            InvoiceType.B => "6",
+            InvoiceType.C => "11",
+            _ => "",
+        };
+
+        private static string FormatCsvDescription(List<InvoiceProductCsv> products)
+        {
+            return string.Join(",", products.Select(p => $"[{p.Type}, {p.Quantity}, {(int)p.Subtotal}]"));
+        }
+
         public async Task<List<SoldProductsTable>> GetSoldProductsByDate(DateTime date)
         {
             var cartProducts = await _db

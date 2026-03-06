@@ -60,8 +60,9 @@ namespace AguasNico.Models
     }
     public enum InvoiceType
     {
-        A = 1,
-        B = 2
+        [Display(Name = "Factura A")] A = 1,
+        [Display(Name = "Factura B")] B = 2,
+        [Display(Name = "Factura C")] C = 3,
     }
     public enum TaxCondition
     {
@@ -141,7 +142,7 @@ namespace AguasNico.Models
         {
             var list = Enum.GetValues(typeof(InvoiceType)).Cast<InvoiceType>().Select(x => new SelectListItem
             {
-                Text = x.ToString(),
+                Text = x.GetDisplayName(),
                 Value = valueString ? x.ToString() : ((int)x).ToString()
             }).ToList();
 

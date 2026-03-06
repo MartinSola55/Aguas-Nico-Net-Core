@@ -3,6 +3,7 @@ using AguasNico.Models.ViewModels.Invoices;
 using AguasNico.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using System.Text;
 
 namespace AguasNico.Controllers
 {
@@ -65,6 +66,50 @@ namespace AguasNico.Controllers
             {
                 return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DownloadCsv(string dateRange, Day invoiceDay, string invoiceDealer)
+        {
+            try
+            {
+                var startDate = DateTime.Parse(dateRange.Split('-')[0].Trim());
+                var endDate = DateTime.Parse(dateRange.Split('-')[1].Trim());
+
+                var rows = await _workContainer.Tables.GetInvoicesCsvData(startDate, endDate, invoiceDay, invoiceDealer);
+
+                var sb = new StringBuilder();
+                sb.AppendLine("client_cuit,invoice_type_id,neto,iva_rate,total,tax_condition_type_id,client_name,client_address,description");
+
+                foreach (var row in rows)
+                {
+                    sb.AppendLine(string.Join(",", [
+                        EscapeCsvField(row.ClientCuit),
+                        EscapeCsvField(row.InvoiceTypeId),
+                        ((int)row.Neto).ToString(),
+                        row.IvaRate.ToString(),
+                        ((int)row.Total).ToString(),
+                        row.TaxConditionTypeId.ToString(),
+                        EscapeCsvField(row.ClientName),
+                        EscapeCsvField(row.ClientAddress),
+                        EscapeCsvField(row.Description),
+                    ]));
+                }
+
+                var bytes = Encoding.UTF8.GetBytes(sb.ToString());
+                return File(bytes, "text/csv", $"facturas_{startDate:dd-MM-yyy}_{endDate:dd-MM-yyy}.csv");
+            }
+            catch (Exception)
+            {
+                return View("~/Views/Error.cshtml", new ErrorViewModel { Message = "Ha ocurrido un error inesperado con el servidor\nSi sigue obteniendo este error contacte a soporte", ErrorCode = 500 });
+            }
+        }
+
+        private static string EscapeCsvField(string value)
+        {
+            if (value.Contains(',') || value.Contains('"') || value.Contains('\n'))
+                return $"\"{value.Replace("\"", "\"\"")}\"";
+            return value;
         }
 
         #endregion

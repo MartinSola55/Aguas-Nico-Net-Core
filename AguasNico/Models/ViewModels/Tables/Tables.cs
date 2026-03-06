@@ -3,6 +3,24 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AguasNico.Models.ViewModels.Tables
 {
+    public class InvoiceProductCsv
+    {
+        public string Type { get; set; } = "";
+        public int Quantity { get; set; }
+        public decimal Subtotal { get; set; }
+    }
+    public class InvoiceCsvRow
+    {
+        public string ClientCuit { get; set; } = "";
+        public string InvoiceTypeId { get; set; } = "";
+        public decimal Neto { get; set; }
+        public int IvaRate { get; set; } = 21;
+        public decimal Total { get; set; }
+        public int TaxConditionTypeId { get; set; }
+        public string ClientName { get; set; } = "";
+        public string ClientAddress { get; set; } = "";
+        public string Description { get; set; } = "";
+    }
     public class InvoiceProduct
     {
         public string Type { get; set; } = "";
