@@ -86,7 +86,7 @@ namespace AguasNico.Controllers
                     sb.AppendLine(string.Join(",", [
                         EscapeCsvField(row.ExternalId),
                         EscapeCsvField(row.ClientCuit),
-                        "5",
+                        Constants.INVOICE_SALES_POINT.ToString(),
                         EscapeCsvField(row.InvoiceTypeId),
                         ((int)row.Neto).ToString(),
                         row.IvaRate.ToString(),

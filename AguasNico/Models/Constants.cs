@@ -9,6 +9,8 @@ namespace AguasNico.Models
     {
         public const string Admin = "ADMIN";
         public const string Dealer = "DEALER";
+        public const int INVOICE_UNIT_TYPE = 7;
+        public const int INVOICE_SALES_POINT = 5;
     }
     public class WppMessages
     {

@@ -191,7 +191,8 @@ namespace AguasNico.Data.Repository
 
         private static string FormatCsvDescription(List<InvoiceProductCsv> products)
         {
-            return string.Join(",", products.Select(p => $"[{p.Type}, {p.Quantity}, {(int)p.Subtotal}]"));
+            
+            return string.Join(",", products.Select(p => $"[{p.Type}, {p.Quantity}, {Constants.INVOICE_UNIT_TYPE}, {(int)p.Subtotal}]"));
         }
 
         public async Task<List<SoldProductsTable>> GetSoldProductsByDate(DateTime date)
