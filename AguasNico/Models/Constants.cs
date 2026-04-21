@@ -62,7 +62,7 @@ namespace AguasNico.Models
     {
         [Display(Name = "Factura A")] A = 1,
         [Display(Name = "Factura B")] B = 2,
-        [Display(Name = "Factura C")] C = 3,
+        //[Display(Name = "Factura C")] C = 3,
     }
     public enum TaxCondition
     {

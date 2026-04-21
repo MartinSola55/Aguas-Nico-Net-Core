@@ -11,6 +11,7 @@ namespace AguasNico.Models.ViewModels.Tables
     }
     public class InvoiceCsvRow
     {
+        public string ExternalId { get; set; } = "";
         public string ClientCuit { get; set; } = "";
         public string InvoiceTypeId { get; set; } = "";
         public decimal Neto { get; set; }

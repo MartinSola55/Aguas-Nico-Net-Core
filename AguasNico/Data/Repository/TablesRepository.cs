@@ -162,14 +162,15 @@ namespace AguasNico.Data.Repository
                         existing.Quantity += abonoGroup.Sum(x => x.Quantity);
                 }
 
-                decimal neto = products.Sum(x => x.Subtotal);
+                decimal total = products.Sum(x => x.Subtotal);
                 result.Add(new InvoiceCsvRow
                 {
+                    ExternalId = $"SLN-{client.ID}-{DateTime.Now:yyyyMMddHHmmss}",
                     ClientCuit = client.CUIT ?? "",
                     InvoiceTypeId = GetInvoiceTypeCode(client.InvoiceType),
-                    Neto = neto,
+                    Neto = total / 1.21m,
                     IvaRate = 21,
-                    Total = neto * 1.21m,
+                    Total = total,
                     TaxConditionTypeId = (int)client.TaxCondition.Value,
                     ClientName = client.Name,
                     ClientAddress = client.Address,
@@ -184,7 +185,7 @@ namespace AguasNico.Data.Repository
         {
             InvoiceType.A => "1",
             InvoiceType.B => "6",
-            InvoiceType.C => "11",
+            //InvoiceType.C => "11",
             _ => "",
         };
 

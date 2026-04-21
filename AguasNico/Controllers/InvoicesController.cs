@@ -79,12 +79,14 @@ namespace AguasNico.Controllers
                 var rows = await _workContainer.Tables.GetInvoicesCsvData(startDate, endDate, invoiceDay, invoiceDealer);
 
                 var sb = new StringBuilder();
-                sb.AppendLine("client_cuit,invoice_type_id,neto,iva_rate,total,tax_condition_type_id,client_name,client_address,description");
+                sb.AppendLine("external_id,cuit_cliente,punto_venta,tipo_comprobante,neto,iva_alicuota,total,tax_condition_type_id,client_name,client_address,description");
 
                 foreach (var row in rows)
                 {
                     sb.AppendLine(string.Join(",", [
+                        EscapeCsvField(row.ExternalId),
                         EscapeCsvField(row.ClientCuit),
+                        "5",
                         EscapeCsvField(row.InvoiceTypeId),
                         ((int)row.Neto).ToString(),
                         row.IvaRate.ToString(),
