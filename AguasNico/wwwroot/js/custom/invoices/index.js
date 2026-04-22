@@ -42,6 +42,32 @@ $(document).ready(function () {
         $("#totalAmount").html("<b>Total: </b>$" + formattedNumber(subtotal))
     }
 
+    const getInvoiceTypeName = (type) => {
+        switch (type) {
+            case 1: return "A";
+            case 2: return "B";
+            case 3: return "C";
+            default: return "-";
+        }
+    };
+
+    const getTaxConditionName = (type) => {
+        switch (type) {
+            case 1: return "Responsable Inscripto";
+            case 2: return "Monotributista";
+            case 3: return "Exento";
+            case 4: return "Consumidor Final";
+            default: return "-";
+        }
+    };
+
+    $("#btnDownloadCsv").click(function () {
+        let dateRange = $("#dateRange").val();
+        let invoiceDay = $("#InvoiceDay").val();
+        let invoiceDealer = $("#InvoiceDealer").val();
+        window.location = `/Invoices/DownloadCsv?dateRange=${encodeURIComponent(dateRange)}&invoiceDay=${invoiceDay}&invoiceDealer=${encodeURIComponent(invoiceDealer)}`;
+    });
+
     $("#btnSearchInvoices").click(function () {
         let dateRange = $("#dateRange").val();
         let invoiceDay = $("#InvoiceDay").val();
@@ -61,12 +87,20 @@ $(document).ready(function () {
             url: "/Invoices/Show",
             type: "GET",
             data: data,
-            success: function (response) {             
+            success: function (response) {
+                if (response.data.length > 0) {
+                    $("#btnDownloadCsv").show();
+                } else {
+                    $("#btnDownloadCsv").hide();
+                }
                 let content = "";
                 let total = 0;
                 response.data.forEach(({ client, products }) => {
                     content +=
-                    `<h3 class='text-start my-0'>${client.name} / Tipo de factura: ${client.invoice_type ?? "Sin cargar"} - CUIT: ${client.cuit ?? "Sin cargar"}</h3>
+                    `<h3 class='text-start my-0'>${client.name}</h3>
+                    ${client.invoiceType || client.cuit || client.taxCondition ? `
+                    <small class='text-muted d-block mb-1'>Tipo de factura: ${getInvoiceTypeName(client.invoiceType)} &nbsp;|&nbsp; CUIT: ${client.cuit ?? "-"} &nbsp;|&nbsp; Cond. IVA: ${getTaxConditionName(client.taxCondition)}</small>
+                    ` : ""}
                     <table class="table table-hover mb-1" style="font-size: 0.75rem !important" >
                         <thead>
                             <tr>
@@ -115,6 +149,7 @@ $(document).ready(function () {
             },
             error: function(errorThrown) {
                 $("#tables_container").html("");
+                $("#btnDownloadCsv").hide();
                 if (errorThrown.exception !== null) {
                     Swal.fire({
                         icon: 'error',
@@ -134,5 +169,5 @@ function formatNumber(number) {
     if (isNaN(number)) {
         return "Número inválido";
     }
-    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return Math.round(number).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }

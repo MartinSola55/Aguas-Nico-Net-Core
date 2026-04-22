@@ -9,6 +9,8 @@ namespace AguasNico.Models
     {
         public const string Admin = "ADMIN";
         public const string Dealer = "DEALER";
+        public const int INVOICE_UNIT_TYPE = 7;
+        public const int INVOICE_SALES_POINT = 5;
     }
     public class WppMessages
     {
@@ -60,8 +62,9 @@ namespace AguasNico.Models
     }
     public enum InvoiceType
     {
-        A = 1,
-        B = 2
+        [Display(Name = "Factura A")] A = 1,
+        [Display(Name = "Factura B")] B = 2,
+        //[Display(Name = "Factura C")] C = 3,
     }
     public enum TaxCondition
     {
@@ -141,7 +144,7 @@ namespace AguasNico.Models
         {
             var list = Enum.GetValues(typeof(InvoiceType)).Cast<InvoiceType>().Select(x => new SelectListItem
             {
-                Text = x.ToString(),
+                Text = x.GetDisplayName(),
                 Value = valueString ? x.ToString() : ((int)x).ToString()
             }).ToList();
 
