@@ -293,6 +293,10 @@ namespace AguasNico.Migrations
                     b.Property<decimal>("Debt")
                         .HasColumnType("money");
 
+                    b.Property<string>("Email")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<int?>("DeliveryDay")
                         .HasColumnType("int");
 

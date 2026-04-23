@@ -26,6 +26,11 @@ namespace AguasNico.Models
         [Phone(ErrorMessage = "Debes ingresar un teléfono válido")]
         public string Phone { get; set; } = null!;
 
+        [Display(Name = "Email")]
+        [StringLength(200, ErrorMessage = "Debes ingresar un email de menos de 200 caracteres")]
+        [EmailAddress(ErrorMessage = "Debes ingresar un email válido")]
+        public string? Email { get; set; }
+
         [Display(Name = "Observaciones")]
         [StringLength(300, MinimumLength = 1, ErrorMessage = "Debes ingresar observaciones de menos de 300 caracteres")]
         public string? Observations { get; set; } = null!;

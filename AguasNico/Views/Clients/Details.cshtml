@@ -285,6 +285,15 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-group focused">
+                                            <label asp-for="@Model.Client.Email" class="form-control-label"></label>
+                                            <input asp-for="@Model.Client.Email" class="form-control form-control-alternative" type="email" disabled>
+                                            <span asp-validation-for="@Model.Client.Email" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <hr class="my-4">
                             <!-- Description -->

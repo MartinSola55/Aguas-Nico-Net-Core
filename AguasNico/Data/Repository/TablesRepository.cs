@@ -113,6 +113,7 @@ namespace AguasNico.Data.Repository
                     x.ID,
                     x.Name,
                     x.Address,
+                    x.Email,
                     x.CUIT,
                     x.InvoiceType,
                     x.TaxCondition,
@@ -175,6 +176,7 @@ namespace AguasNico.Data.Repository
                     ClientName = client.Name,
                     ClientAddress = client.Address,
                     Description = FormatCsvDescription(products),
+                    Email = client.Email ?? "",
                 });
             }
 
@@ -191,7 +193,6 @@ namespace AguasNico.Data.Repository
 
         private static string FormatCsvDescription(List<InvoiceProductCsv> products)
         {
-            
             return string.Join(",", products.Select(p => $"[{p.Type}, {p.Quantity}, {Constants.INVOICE_UNIT_TYPE}, {(int)p.Subtotal}]"));
         }
 

@@ -325,6 +325,7 @@ namespace AguasNico.Controllers
                         name = client.Name,
                         address = client.Address,
                         phone = client.Phone,
+                        email = client.Email,
                         dealer = dealer + " - " + day,
                         debt = debt != "" ? debt : "0",
                     });
@@ -361,6 +362,7 @@ namespace AguasNico.Controllers
                     name = client.Name,
                     address = client.Address,
                     phone = client.Phone,
+                    email = client.Email,
                     dealer = dealer + " - " + day,
                     debt = debt != "" ? debt : "0",
                 });

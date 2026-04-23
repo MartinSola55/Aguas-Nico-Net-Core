@@ -8,7 +8,7 @@ $(document).ready(function () {
             "sInfo": "Mostrando _START_ a _END_ de _TOTAL_ clientes",
             "sInfoEmpty": "Mostrando 0 a 0 de 0 clientes",
             "sInfoFiltered": "(filtrado de _MAX_ clientes en total)",
-            "emptyTable": 'No hay clientes que coincidan con la búsqueda',
+            "emptyTable": "No hay clientes que coincidan con la búsqueda",
             "sLengthMenu": "Mostrar _MENU_ clientes",
             "sSearch": "Buscar:",
             "oPaginate": {
@@ -91,6 +91,7 @@ function loadingRow() {
         <td></td>
         <td></td>
         <td></td>
+        <td></td>
     </tr>`;
     $('#DataTable tbody').append($(loadingRow));
 }
@@ -100,6 +101,7 @@ function errorRow() {
     let row = `
     <tr>
         <td><h6 class="text-danger">No se pudo cargar la información o el cliente no existe</h6></td>
+        <td></td>
         <td></td>
         <td></td>
         <td></td>
@@ -116,6 +118,7 @@ function fillTable(clients) {
                 <td><a target="_blank" href="/Clients/Details/${item.id}">${item.name}</a></td>
                 <td>${item.address}</td>
                 <td>${item.phone}</td>
+                <td>${item.email}</td>
                 <td>$${item.debt}</td>
                 <td>${item.dealer}</td>
             </tr>`;
@@ -127,7 +130,7 @@ function emptyTable() {
     $('#DataTable tbody').empty();
     let row = `
     <tr>
-        <td colspan="5"><h6>No hay clientes que coincidan con la búsqueda</h6></td>
+        <td colspan="6"><h6>No hay clientes que coincidan con la búsqueda</h6></td>
     </tr>`;
     $('#DataTable tbody').append($(row));
 }

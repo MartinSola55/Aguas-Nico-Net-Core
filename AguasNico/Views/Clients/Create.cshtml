@@ -50,6 +50,11 @@
                                 <span asp-validation-for="Client.Phone" class="text-danger"></span>
                             </div>
                             <div class="col-12 mb-3">
+                                <label asp-for="Client.Email" class="mb-0"></label>
+                                <input asp-for="Client.Email" class="form-control" type="email">
+                                <span asp-validation-for="Client.Email" class="text-danger"></span>
+                            </div>
+                            <div class="col-12 mb-3">
                                 <label asp-for="Client.Observations" class="mb-0"></label>
                                 <textarea asp-for="Client.Observations" class="form-control" required></textarea>
                                 <span asp-validation-for="Client.Observations" class="text-danger"></span>

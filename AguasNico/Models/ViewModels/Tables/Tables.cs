@@ -21,6 +21,7 @@ namespace AguasNico.Models.ViewModels.Tables
         public string ClientName { get; set; } = "";
         public string ClientAddress { get; set; } = "";
         public string Description { get; set; } = "";
+        public string Email { get; set; } = "";
     }
     public class InvoiceProduct
     {
