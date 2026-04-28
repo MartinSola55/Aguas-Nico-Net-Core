@@ -16,11 +16,9 @@ namespace AguasNico.Data.Repository
     {
         private readonly ApplicationDbContext _db = db;
 
-        public async Task<List<InvoiceTable>> GetInvoicesByDates(DateTime startDate, DateTime endDate, Day invoiceDay, string invoiceDealer)
+        public async Task<List<InvoiceTable>> GetInvoicesByDates(DateTime startDate, DateTime endDate, Day? invoiceDay, string invoiceDealer)
         {
-            var clients = await _db
-                .Clients
-                .Where(x => x.DealerID == invoiceDealer && x.DeliveryDay == invoiceDay && x.IsActive)
+            var clients = await GetInvoiceClientsQuery(invoiceDay, invoiceDealer)
                 .OrderBy(x => x.Name)
                 .ToListAsync();
 
@@ -29,14 +27,19 @@ namespace AguasNico.Data.Repository
             var cartProducts = await _db
                 .CartProducts
                 .Include(x => x.Cart)
-                .Where(x => clientIDs.Contains(x.Cart.ClientID) && x.CreatedAt.Date >= startDate.Date && x.CreatedAt.Date <= endDate.Date)
+                .Where(x =>
+                    clientIDs.Contains(x.Cart.ClientID) &&
+                    x.CreatedAt.Date >= startDate.Date &&
+                    x.CreatedAt.Date <= endDate.Date &&
+                    x.SettedPrice > 0)
                 .ToListAsync();
 
-            var cartAbonoProducts = await _db
-                .CartAbonoProducts
-                .Include(x => x.Cart)
-                .Where(x => clientIDs.Contains(x.Cart.ClientID) && x.CreatedAt.Date >= startDate.Date && x.CreatedAt.Date <= endDate.Date)
-                .ToListAsync();
+            // Do not show abono products
+            //var cartAbonoProducts = await _db
+            //    .CartAbonoProducts
+            //    .Include(x => x.Cart)
+            //    .Where(x => clientIDs.Contains(x.Cart.ClientID) && x.CreatedAt.Date >= startDate.Date && x.CreatedAt.Date <= endDate.Date)
+            //    .ToListAsync();
 
             List<InvoiceTable> invoices = [];
             foreach (var client in clients)
@@ -46,68 +49,61 @@ namespace AguasNico.Data.Repository
                     invoices.Add(new()
                     {
                         Client = client,
-                        Products = cartProductsByClient.GroupBy(x => x.Type).Select(Type => new InvoiceProduct
+                        Products = [.. cartProductsByClient.GroupBy(x => x.Type).Select(Type => new InvoiceProduct
                         {
                             Type = Type.Key.GetDisplayName(),
                             Quantity = Type.Sum(x => x.Quantity),
                             Total = Type.Sum(x => x.SettedPrice * x.Quantity),
-                        }).ToList(),
+                        })],
                     });
 
-                var abonoProductsByClient = cartAbonoProducts.Where(x => x.Cart.ClientID == client.ID).ToList();
-                if (abonoProductsByClient.Count > 0)
-                {
-                    var invoice = invoices.FirstOrDefault(x => x.Client.ID == client.ID);
-                    if (invoice != null)
-                    {
-                        foreach (var abonoProduct in abonoProductsByClient)
-                        {
-                            var product = invoice.Products.FirstOrDefault(x => x.Type == abonoProduct.Type.GetDisplayName());
-                            if (product != null)
-                            {
-                                product.Quantity += abonoProduct.Quantity;
-                            }
-                            else
-                            {
-                                invoice.Products.Add(new InvoiceProduct
-                                {
-                                    Type = abonoProduct.Type.GetDisplayName(),
-                                    Quantity = abonoProduct.Quantity,
-                                    Total = 0,
-                                });
-                            }
-                        }
-                    }
-                    else
-                    {
-                        invoices.Add(new()
-                        {
-                            Client = client,
-                            Products = abonoProductsByClient.GroupBy(x => x.Type).Select(Type => new InvoiceProduct
-                            {
-                                Type = Type.Key.GetDisplayName(),
-                                Quantity = Type.Sum(x => x.Quantity),
-                                Total = 0,
-                            }).ToList(),
-                        });
-                    }
-                }
+                //var abonoProductsByClient = cartAbonoProducts.Where(x => x.Cart.ClientID == client.ID).ToList();
+                //if (abonoProductsByClient.Count > 0)
+                //{
+                //    var invoice = invoices.FirstOrDefault(x => x.Client.ID == client.ID);
+                //    if (invoice != null)
+                //    {
+                //        foreach (var abonoProduct in abonoProductsByClient)
+                //        {
+                //            var product = invoice.Products.FirstOrDefault(x => x.Type == abonoProduct.Type.GetDisplayName());
+                //            if (product != null)
+                //            {
+                //                product.Quantity += abonoProduct.Quantity;
+                //            }
+                //            else
+                //            {
+                //                invoice.Products.Add(new InvoiceProduct
+                //                {
+                //                    Type = abonoProduct.Type.GetDisplayName(),
+                //                    Quantity = abonoProduct.Quantity,
+                //                    Total = 0,
+                //                });
+                //            }
+                //        }
+                //    }
+                //    else
+                //    {
+                //        invoices.Add(new()
+                //        {
+                //            Client = client,
+                //            Products = abonoProductsByClient.GroupBy(x => x.Type).Select(Type => new InvoiceProduct
+                //            {
+                //                Type = Type.Key.GetDisplayName(),
+                //                Quantity = Type.Sum(x => x.Quantity),
+                //                Total = 0,
+                //            }).ToList(),
+                //        });
+                //    }
+                //}
             }
 
             return invoices;
         }
 
-        public async Task<List<InvoiceCsvRow>> GetInvoicesCsvData(DateTime startDate, DateTime endDate, Day invoiceDay, string invoiceDealer)
+        public async Task<List<InvoiceCsvRow>> GetInvoicesCsvData(DateTime startDate, DateTime endDate, Day? invoiceDay, string invoiceDealer)
         {
-            var clients = await _db.Clients
-                .Where(x =>
-                    x.DealerID == invoiceDealer &&
-                    x.DeliveryDay == invoiceDay &&
-                    !string.IsNullOrEmpty(x.CUIT) &&
-                    x.IsActive &&
-                    x.HasInvoice &&
-                    x.TaxCondition.HasValue &&
-                    x.InvoiceType.HasValue)
+            var clients = await GetInvoiceClientsQuery(invoiceDay, invoiceDealer)
+                .OrderBy(x => x.Name)
                 .Select(x => new
                 {
                     x.ID,
@@ -172,7 +168,7 @@ namespace AguasNico.Data.Repository
                     Neto = total / 1.21m,
                     IvaRate = 21,
                     Total = total,
-                    TaxConditionTypeId = (int)client.TaxCondition.Value,
+                    TaxConditionTypeId = (int)client.TaxCondition.GetValueOrDefault(),
                     ClientName = client.Name,
                     ClientAddress = client.Address,
                     Description = FormatCsvDescription(products),
@@ -181,6 +177,22 @@ namespace AguasNico.Data.Repository
             }
 
             return result;
+        }
+
+        private IQueryable<Client> GetInvoiceClientsQuery(Day? invoiceDay, string invoiceDealer)
+        {
+            var query = _db.Clients.Where(x =>
+                x.DealerID == invoiceDealer &&
+                x.IsActive &&
+                x.HasInvoice &&
+                x.InvoiceType.HasValue &&
+                x.TaxCondition.HasValue &&
+                !string.IsNullOrEmpty(x.CUIT));
+
+            if (invoiceDay.HasValue)
+                query = query.Where(x => x.DeliveryDay == invoiceDay.Value);
+
+            return query;
         }
 
         private static string GetInvoiceTypeCode(InvoiceType? invoiceType) => invoiceType switch

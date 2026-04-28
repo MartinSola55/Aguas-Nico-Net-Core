@@ -47,7 +47,7 @@ namespace AguasNico.Controllers
         #region AJAX
 
         [HttpGet]
-        public async Task<IActionResult> Show(string dateRange, Day invoiceDay, string invoiceDealer)
+        public async Task<IActionResult> Show(string dateRange, Day? invoiceDay, string invoiceDealer)
         {
             try
             {
@@ -69,7 +69,7 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> DownloadCsv(string dateRange, Day invoiceDay, string invoiceDealer)
+        public async Task<IActionResult> DownloadCsv(string dateRange, Day? invoiceDay, string invoiceDealer)
         {
             try
             {
