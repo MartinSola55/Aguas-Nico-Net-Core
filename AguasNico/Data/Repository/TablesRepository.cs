@@ -36,67 +36,54 @@ namespace AguasNico.Data.Repository
                     x.SettedPrice > 0)
                 .ToListAsync();
 
-            // Do not show abono products
-            //var cartAbonoProducts = await _db
-            //    .CartAbonoProducts
-            //    .Include(x => x.Cart)
-            //    .Where(x => clientIDs.Contains(x.Cart.ClientID) && x.CreatedAt.Date >= startDate.Date && x.CreatedAt.Date <= endDate.Date)
-            //    .ToListAsync();
+            var abonoRenewals = await _db
+                .AbonoRenewals
+                .AsNoTracking()
+                .Where(x =>
+                    clientIDs.Contains(x.ClientID) &&
+                    x.CreatedAt.Date >= startDate.Date &&
+                    x.CreatedAt.Date <= endDate.Date)
+                .Select(x => new
+                {
+                    x.ClientID,
+                    AbonoName = x.Abono.Name,
+                    x.SettedPrice,
+                    x.CreatedAt,
+                })
+                .ToListAsync();
 
             List<InvoiceTable> invoices = [];
             foreach (var client in clients)
             {
-                var cartProductsByClient = cartProducts.Where(x => x.Cart.ClientID == client.ID).ToList();
-                if (cartProductsByClient.Count > 0)
-                    invoices.Add(new()
+                var invoiceProducts = cartProducts
+                    .Where(x => x.Cart.ClientID == client.ID)
+                    .GroupBy(x => x.Type)
+                    .Select(Type => new InvoiceProduct
                     {
-                        Client = client,
-                        Products = [.. cartProductsByClient.GroupBy(x => x.Type).Select(Type => new InvoiceProduct
-                        {
-                            Type = Type.Key.GetDisplayName(),
-                            Quantity = Type.Sum(x => x.Quantity),
-                            Total = Type.Sum(x => x.SettedPrice * x.Quantity),
-                        })],
-                    });
+                        Type = Type.Key.GetDisplayName(),
+                        Quantity = Type.Sum(x => x.Quantity),
+                        Total = Type.Sum(x => x.SettedPrice * x.Quantity),
+                    })
+                    .ToList();
 
-                //var abonoProductsByClient = cartAbonoProducts.Where(x => x.Cart.ClientID == client.ID).ToList();
-                //if (abonoProductsByClient.Count > 0)
-                //{
-                //    var invoice = invoices.FirstOrDefault(x => x.Client.ID == client.ID);
-                //    if (invoice != null)
-                //    {
-                //        foreach (var abonoProduct in abonoProductsByClient)
-                //        {
-                //            var product = invoice.Products.FirstOrDefault(x => x.Type == abonoProduct.Type.GetDisplayName());
-                //            if (product != null)
-                //            {
-                //                product.Quantity += abonoProduct.Quantity;
-                //            }
-                //            else
-                //            {
-                //                invoice.Products.Add(new InvoiceProduct
-                //                {
-                //                    Type = abonoProduct.Type.GetDisplayName(),
-                //                    Quantity = abonoProduct.Quantity,
-                //                    Total = 0,
-                //                });
-                //            }
-                //        }
-                //    }
-                //    else
-                //    {
-                //        invoices.Add(new()
-                //        {
-                //            Client = client,
-                //            Products = abonoProductsByClient.GroupBy(x => x.Type).Select(Type => new InvoiceProduct
-                //            {
-                //                Type = Type.Key.GetDisplayName(),
-                //                Quantity = Type.Sum(x => x.Quantity),
-                //                Total = 0,
-                //            }).ToList(),
-                //        });
-                //    }
-                //}
+                invoiceProducts.AddRange(abonoRenewals
+                    .Where(x => x.ClientID == client.ID)
+                    .OrderBy(x => x.CreatedAt)
+                    .Select(x => new InvoiceProduct
+                    {
+                        Type = x.AbonoName,
+                        Quantity = 1,
+                        Total = x.SettedPrice,
+                    }));
+
+                if (invoiceProducts.Count == 0)
+                    continue;
+
+                invoices.Add(new()
+                {
+                    Client = client,
+                    Products = invoiceProducts,
+                });
             }
 
             return invoices;
@@ -128,12 +115,19 @@ namespace AguasNico.Data.Repository
                 .Select(x => new { x.Cart.ClientID, x.Type, x.Quantity, x.SettedPrice })
                 .ToListAsync();
 
-            var cartAbonoProducts = await _db.CartAbonoProducts
+            var abonoRenewals = await _db.AbonoRenewals
                 .Where(x =>
-                    clientIds.Contains(x.Cart.ClientID) &&
+                    clientIds.Contains(x.ClientID) &&
                     x.CreatedAt.Date >= startDate.Date &&
-                    x.CreatedAt.Date <= endDate.Date)
-                .Select(x => new { x.Cart.ClientID, x.Type, x.Quantity })
+                    x.CreatedAt.Date <= endDate.Date &&
+                    x.DeletedAt == null)
+                .Select(x => new
+                {
+                    x.ClientID,
+                    AbonoName = x.Abono.Name,
+                    x.SettedPrice,
+                    x.CreatedAt,
+                })
                 .ToListAsync();
 
             var result = new List<InvoiceCsvRow>();
@@ -150,15 +144,18 @@ namespace AguasNico.Data.Repository
                     })
                     .ToList();
 
+                products.AddRange(abonoRenewals
+                    .Where(x => x.ClientID == client.ClientID)
+                    .OrderBy(x => x.CreatedAt)
+                    .Select(x => new InvoiceProductCsv
+                    {
+                        Type = x.AbonoName,
+                        Quantity = 1,
+                        Subtotal = x.SettedPrice,
+                    }));
+
                 if (products.Count == 0)
                     continue;
-
-                foreach (var abonoGroup in cartAbonoProducts.Where(x => x.ClientID == client.ClientID).GroupBy(x => x.Type))
-                {
-                    var existing = products.FirstOrDefault(x => x.Type == abonoGroup.Key.GetDisplayName());
-                    if (existing != null)
-                        existing.Quantity += abonoGroup.Sum(x => x.Quantity);
-                }
 
                 decimal total = products.Sum(x => x.Subtotal);
                 result.Add(new InvoiceCsvRow
