@@ -192,8 +192,8 @@ namespace AguasNico.Data.Repository
                 query = query.Where(x => x.Route.UserID == invoiceDealer);
 
             return query
-                .OrderBy(x => x.Priority)
-                .ThenBy(x => x.Client.Name);
+                .OrderBy(x => x.Route.User.Name)
+                .ThenBy(x => x.Priority);
         }
 
         private static string GetInvoiceTypeCode(InvoiceType? invoiceType) => invoiceType switch
