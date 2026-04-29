@@ -29,9 +29,17 @@ namespace AguasNico.Controllers
         {
             try
             {
+                var dealers = await _workContainer.ApplicationUser.GetDealersDropDownList();
+                if (dealers.Count > 0)
+                {
+                    dealers[0].Text = "Todos los repartidores";
+                    dealers[0].Disabled = false;
+                    dealers[0].Selected = true;
+                }
+
                 IndexViewModel viewModel = new()
                 {
-                    Dealers = await _workContainer.ApplicationUser.GetDealersDropDownList()
+                    Dealers = dealers
                 };
 
                 return View(viewModel);
@@ -47,7 +55,7 @@ namespace AguasNico.Controllers
         #region AJAX
 
         [HttpGet]
-        public async Task<IActionResult> Show(string dateRange, Day? invoiceDay, string invoiceDealer)
+        public async Task<IActionResult> Show(string dateRange, Day invoiceDay, string? invoiceDealer)
         {
             try
             {
@@ -69,7 +77,7 @@ namespace AguasNico.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> DownloadCsv(string dateRange, Day? invoiceDay, string invoiceDealer)
+        public async Task<IActionResult> DownloadCsv(string dateRange, Day invoiceDay, string? invoiceDealer)
         {
             try
             {

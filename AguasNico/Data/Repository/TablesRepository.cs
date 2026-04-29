@@ -16,7 +16,7 @@ namespace AguasNico.Data.Repository
     {
         private readonly ApplicationDbContext _db = db;
 
-        public async Task<List<InvoiceTable>> GetInvoicesByDates(DateTime startDate, DateTime endDate, Day? invoiceDay, string invoiceDealer)
+        public async Task<List<InvoiceTable>> GetInvoicesByDates(DateTime startDate, DateTime endDate, Day invoiceDay, string? invoiceDealer)
         {
             var clients = await GetInvoiceClientsQuery(invoiceDay, invoiceDealer)
                 .OrderBy(x => x.Name)
@@ -100,10 +100,9 @@ namespace AguasNico.Data.Repository
             return invoices;
         }
 
-        public async Task<List<InvoiceCsvRow>> GetInvoicesCsvData(DateTime startDate, DateTime endDate, Day? invoiceDay, string invoiceDealer)
+        public async Task<List<InvoiceCsvRow>> GetInvoicesCsvData(DateTime startDate, DateTime endDate, Day invoiceDay, string? invoiceDealer)
         {
             var clients = await GetInvoiceClientsQuery(invoiceDay, invoiceDealer)
-                .OrderBy(x => x.Name)
                 .Select(x => new
                 {
                     x.ID,
@@ -179,20 +178,20 @@ namespace AguasNico.Data.Repository
             return result;
         }
 
-        private IQueryable<Client> GetInvoiceClientsQuery(Day? invoiceDay, string invoiceDealer)
+        private IQueryable<Client> GetInvoiceClientsQuery(Day invoiceDay, string? invoiceDealer)
         {
             var query = _db.Clients.Where(x =>
-                x.DealerID == invoiceDealer &&
+                x.DeliveryDay == invoiceDay &&
                 x.IsActive &&
                 x.HasInvoice &&
                 x.InvoiceType.HasValue &&
                 x.TaxCondition.HasValue &&
                 !string.IsNullOrEmpty(x.CUIT));
 
-            if (invoiceDay.HasValue)
-                query = query.Where(x => x.DeliveryDay == invoiceDay.Value);
+            if (!string.IsNullOrWhiteSpace(invoiceDealer))
+                query = query.Where(x => x.DealerID == invoiceDealer);
 
-            return query;
+            return query.OrderBy(x => x.Dealer.Name).ThenBy(x => x.Name);
         }
 
         private static string GetInvoiceTypeCode(InvoiceType? invoiceType) => invoiceType switch

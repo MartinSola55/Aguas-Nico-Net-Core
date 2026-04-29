@@ -61,32 +61,49 @@ $(document).ready(function () {
         }
     };
 
-    $("#btnDownloadCsv").click(function () {
-        let dateRange = $("#dateRange").val();
-        let invoiceDay = $("#InvoiceDay").val();
-        let invoiceDealer = $("#InvoiceDealer").val();
-        window.location = `/Invoices/DownloadCsv?dateRange=${encodeURIComponent(dateRange)}&invoiceDay=${invoiceDay}&invoiceDealer=${encodeURIComponent(invoiceDealer)}`;
-    });
-
-    $("#btnSearchInvoices").click(function () {
+    const getInvoiceFilters = () => {
         let dateRange = $("#dateRange").val();
         let invoiceDay = $("#InvoiceDay").val();
         let invoiceDealer = $("#InvoiceDealer").val();
 
-        $("#invoiceDealerSelected").text($("#InvoiceDealer option:selected").text());
-        $("#invoiceDaySelected").text($("#InvoiceDay option:selected").text());
-        $("#dateRangeSelected").text(dateRange);
+        if (!invoiceDay) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Falta un dato',
+                text: 'Debes seleccionar un día para consultar la facturación.',
+                confirmButtonColor: '#1e88e5',
+            });
+            return null;
+        }
 
-        let data = {
+        return {
             dateRange: dateRange,
             invoiceDay: invoiceDay,
             invoiceDealer: invoiceDealer
         };
+    };
+
+    $("#btnDownloadCsv").click(function () {
+        let filters = getInvoiceFilters();
+        if (!filters)
+            return;
+
+        window.location = `/Invoices/DownloadCsv?dateRange=${encodeURIComponent(filters.dateRange)}&invoiceDay=${filters.invoiceDay}&invoiceDealer=${encodeURIComponent(filters.invoiceDealer)}`;
+    });
+
+    $("#btnSearchInvoices").click(function () {
+        let filters = getInvoiceFilters();
+        if (!filters)
+            return;
+
+        $("#invoiceDealerSelected").text($("#InvoiceDealer option:selected").text());
+        $("#invoiceDaySelected").text($("#InvoiceDay option:selected").text());
+        $("#dateRangeSelected").text(filters.dateRange);
 
         $.ajax({
             url: "/Invoices/Show",
             type: "GET",
-            data: data,
+            data: filters,
             success: function (response) {
                 if (response.data.length > 0) {
                     $("#btnDownloadCsv").show();
