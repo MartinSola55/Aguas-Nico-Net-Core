@@ -18,8 +18,10 @@ namespace AguasNico.Data.Repository
 
         public async Task<List<InvoiceTable>> GetInvoicesByDates(DateTime startDate, DateTime endDate, Day invoiceDay, string? invoiceDealer)
         {
-            var clients = await GetInvoiceClientsQuery(invoiceDay, invoiceDealer)
-                .OrderBy(x => x.Name)
+            var clients = await GetInvoiceStaticCartsQuery(invoiceDay, invoiceDealer)
+                .AsNoTracking()
+                .Include(x => x.Client)
+                .Select(x => x.Client)
                 .ToListAsync();
 
             var clientIDs = clients.Select(x => x.ID).ToList();
@@ -102,20 +104,20 @@ namespace AguasNico.Data.Repository
 
         public async Task<List<InvoiceCsvRow>> GetInvoicesCsvData(DateTime startDate, DateTime endDate, Day invoiceDay, string? invoiceDealer)
         {
-            var clients = await GetInvoiceClientsQuery(invoiceDay, invoiceDealer)
+            var staticCarts = await GetInvoiceStaticCartsQuery(invoiceDay, invoiceDealer)
                 .Select(x => new
                 {
-                    x.ID,
-                    x.Name,
-                    x.Address,
-                    x.Email,
-                    x.CUIT,
-                    x.InvoiceType,
-                    x.TaxCondition,
+                    x.ClientID,
+                    x.Client.Name,
+                    x.Client.Address,
+                    x.Client.Email,
+                    x.Client.CUIT,
+                    x.Client.InvoiceType,
+                    x.Client.TaxCondition,
                 })
                 .ToListAsync();
 
-            var clientIds = clients.Select(x => x.ID).ToList();
+            var clientIds = staticCarts.Select(x => x.ClientID).ToList();
 
             var cartProducts = await _db.CartProducts
                 .Where(x =>
@@ -135,10 +137,10 @@ namespace AguasNico.Data.Repository
                 .ToListAsync();
 
             var result = new List<InvoiceCsvRow>();
-            foreach (var client in clients)
+            foreach (var client in staticCarts)
             {
                 var products = cartProducts
-                    .Where(x => x.ClientID == client.ID)
+                    .Where(x => x.ClientID == client.ClientID)
                     .GroupBy(x => x.Type)
                     .Select(g => new InvoiceProductCsv
                     {
@@ -151,7 +153,7 @@ namespace AguasNico.Data.Repository
                 if (products.Count == 0)
                     continue;
 
-                foreach (var abonoGroup in cartAbonoProducts.Where(x => x.ClientID == client.ID).GroupBy(x => x.Type))
+                foreach (var abonoGroup in cartAbonoProducts.Where(x => x.ClientID == client.ClientID).GroupBy(x => x.Type))
                 {
                     var existing = products.FirstOrDefault(x => x.Type == abonoGroup.Key.GetDisplayName());
                     if (existing != null)
@@ -161,7 +163,7 @@ namespace AguasNico.Data.Repository
                 decimal total = products.Sum(x => x.Subtotal);
                 result.Add(new InvoiceCsvRow
                 {
-                    ExternalId = $"SLN-{client.ID}-{DateTime.Now:yyyyMMddHHmmss}",
+                    ExternalId = $"SLN-{client.ClientID}-{DateTime.Now:yyyyMMddHHmmss}",
                     ClientCuit = client.CUIT ?? "",
                     InvoiceTypeId = GetInvoiceTypeCode(client.InvoiceType),
                     Neto = total / 1.21m,
@@ -178,20 +180,23 @@ namespace AguasNico.Data.Repository
             return result;
         }
 
-        private IQueryable<Client> GetInvoiceClientsQuery(Day invoiceDay, string? invoiceDealer)
+        private IQueryable<Cart> GetInvoiceStaticCartsQuery(Day invoiceDay, string? invoiceDealer)
         {
-            var query = _db.Clients.Where(x =>
-                x.DeliveryDay == invoiceDay &&
-                x.IsActive &&
-                x.HasInvoice &&
-                x.InvoiceType.HasValue &&
-                x.TaxCondition.HasValue &&
-                !string.IsNullOrEmpty(x.CUIT));
+            var query = _db.Carts.Where(x =>
+                x.IsStatic &&
+                x.Route.DayOfWeek == invoiceDay &&
+                x.Client.IsActive &&
+                x.Client.HasInvoice &&
+                x.Client.InvoiceType.HasValue &&
+                x.Client.TaxCondition.HasValue &&
+                !string.IsNullOrEmpty(x.Client.CUIT));
 
             if (!string.IsNullOrWhiteSpace(invoiceDealer))
-                query = query.Where(x => x.DealerID == invoiceDealer);
+                query = query.Where(x => x.Route.UserID == invoiceDealer);
 
-            return query.OrderBy(x => x.Dealer.Name).ThenBy(x => x.Name);
+            return query
+                .OrderBy(x => x.Priority)
+                .ThenBy(x => x.Client.Name);
         }
 
         private static string GetInvoiceTypeCode(InvoiceType? invoiceType) => invoiceType switch
